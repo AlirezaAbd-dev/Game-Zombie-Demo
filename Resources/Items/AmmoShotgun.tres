@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/ammo_shotgun.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "ammo_shotgun"
+ItemName = "12G Shotgun Shells"
+Description = "Box of 12 shotgun shells."
+Type = 1
+Value = 12.0
+MaxStack = 36
+Icon = ExtResource("2_texture")

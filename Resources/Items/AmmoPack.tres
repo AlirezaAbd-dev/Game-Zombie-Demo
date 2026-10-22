@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1_itemdata")
-Id = "ammo"
+Id = "ammo_handgun"
 ItemName = "9mm Ammo Box"
 Description = "Contains 30 handgun rounds."
 Type = 1

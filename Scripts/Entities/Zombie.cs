@@ -23,8 +23,6 @@ public partial class Zombie : CharacterBody2D, IDamageable
 
     [ExportGroup("Drop Scenes")]
     [Export] public PackedScene PickupScene { get; set; }
-    [Export] public ItemData AmmoDropData { get; set; }
-    [Export] public ItemData MedkitDropData { get; set; }
 
     public StateMachine StateMachine { get; private set; }
     public ZombieIdleState IdleState { get; private set; }
@@ -37,17 +35,17 @@ public partial class Zombie : CharacterBody2D, IDamageable
     public bool IsDead => HealthComponent?.IsDead ?? false;
 
     private float _walkPhase = 0.0f;
-    private readonly Vector2 _baseScale = new(3.0f, 3.0f);
+    private Vector2 _baseScale = new(3.0f, 3.0f);
 
     public override void _Ready()
     {
         AddToGroup("zombies");
         ValidateAndBindNodes();
 
-        Stats ??= GD.Load<EnemyStats>("res://Resources/Enemies/ZombieStats.tres") ?? new EnemyStats();
-        HealthComponent?.Initialize(Stats.MaxHealth);
+        Stats ??= GD.Load<EnemyStats>("res://Resources/Enemies/Zombie_Walker.tres") ?? new EnemyStats();
+        ApplyStats(Stats);
 
-        SpeedModifier = (float)GD.RandRange(0.85, 1.2);
+        SpeedModifier = (float)GD.RandRange(0.9, 1.15);
         _walkPhase = (float)GD.RandRange(0.0, Mathf.Tau);
 
         StateMachine = new StateMachine();
@@ -65,6 +63,37 @@ public partial class Zombie : CharacterBody2D, IDamageable
 
         FindPlayer();
         StateMachine.ChangeState(HasValidTarget() ? ChaseState : IdleState);
+    }
+
+    public void ApplyStats(EnemyStats stats)
+    {
+        if (stats == null) return;
+        Stats = stats;
+
+        _baseScale = new Vector2(3.0f, 3.0f) * Stats.ScaleMultiplier;
+        Scale = Vector2.One * Stats.ScaleMultiplier;
+
+        HealthComponent?.Initialize(Stats.MaxHealth);
+
+        if (MovementComponent != null)
+        {
+            MovementComponent.BaseSpeed = Stats.BaseSpeed;
+        }
+
+        if (Sprite != null)
+        {
+            if (Stats.CustomTexture != null)
+            {
+                Sprite.Texture = Stats.CustomTexture;
+            }
+            Sprite.Modulate = Stats.Tint;
+        }
+
+        if (EyeGlow != null)
+        {
+            EyeGlow.Color = Stats.EyeLightColor;
+            EyeGlow.Energy = Stats.EyeLightEnergy;
+        }
     }
 
     private void ValidateAndBindNodes()
@@ -144,13 +173,14 @@ public partial class Zombie : CharacterBody2D, IDamageable
         if (IsDead) return;
 
         HealthComponent?.TakeDamage(amount, knockbackDir);
-        MovementComponent?.ApplyKnockback(knockbackDir, 320.0f);
+        float effectiveKnockback = 320.0f * (1.0f - Mathf.Clamp(Stats.KnockbackResistance, 0.0f, 0.9f));
+        MovementComponent?.ApplyKnockback(knockbackDir, effectiveKnockback);
 
         if (Sprite != null)
         {
             var tween = CreateTween();
             Sprite.Modulate = new Color(3.5f, 0.4f, 0.4f, 1.0f);
-            tween.TweenProperty(Sprite, "modulate", Colors.White, 0.1);
+            tween.TweenProperty(Sprite, "modulate", Stats.Tint, 0.1);
         }
     }
 
@@ -159,21 +189,22 @@ public partial class Zombie : CharacterBody2D, IDamageable
         var parent = GetParent();
         if (parent != null)
         {
+            float fxScale = Stats.ScaleMultiplier;
             var deathFx = new CpuParticles2D
             {
                 GlobalPosition = GlobalPosition,
                 Emitting = true,
                 OneShot = true,
                 Explosiveness = 1.0f,
-                Amount = 32,
+                Amount = (int)(32 * fxScale),
                 Lifetime = 0.6f,
                 Spread = 180.0f,
                 InitialVelocityMin = 40.0f,
-                InitialVelocityMax = 160.0f,
+                InitialVelocityMax = 160.0f * fxScale,
                 Gravity = Vector2.Zero,
-                ScaleAmountMin = 3.0f,
-                ScaleAmountMax = 8.0f,
-                Color = new Color(0.7f, 0.08f, 0.08f, 0.9f)
+                ScaleAmountMin = 3.0f * fxScale,
+                ScaleAmountMax = 8.0f * fxScale,
+                Color = Stats.TypeName == "Runner" ? new Color(0.9f, 0.1f, 0.1f, 0.95f) : new Color(0.6f, 0.1f, 0.1f, 0.9f)
             };
             deathFx.Finished += deathFx.QueueFree;
             parent.AddChild(deathFx);
@@ -193,16 +224,25 @@ public partial class Zombie : CharacterBody2D, IDamageable
         float roll = (float)GD.RandRange(0.0, 1.0);
         if (roll < Stats.AmmoDropChance)
         {
+            // Pick appropriate ammo drop
+            float ammoRoll = (float)GD.RandRange(0.0, 1.0);
+            string ammoPath = ammoRoll switch
+            {
+                < 0.50f => "res://Resources/Items/AmmoPack.tres",       // 9mm
+                < 0.80f => "res://Resources/Items/AmmoShotgun.tres",    // 12G
+                _ => "res://Resources/Items/AmmoRifle.tres"             // .308
+            };
+
             var pickup = PickupScene.Instantiate<Pickup>();
             pickup.GlobalPosition = GlobalPosition;
-            pickup.Item = AmmoDropData ?? GD.Load<ItemData>("res://Resources/Items/AmmoPack.tres");
+            pickup.Item = GD.Load<ItemData>(ammoPath);
             parent.CallDeferred("add_child", pickup);
         }
         else if (roll < Stats.AmmoDropChance + Stats.MedkitDropChance)
         {
             var pickup = PickupScene.Instantiate<Pickup>();
             pickup.GlobalPosition = GlobalPosition;
-            pickup.Item = MedkitDropData ?? GD.Load<ItemData>("res://Resources/Items/Medkit.tres");
+            pickup.Item = GD.Load<ItemData>("res://Resources/Items/Medkit.tres");
             parent.CallDeferred("add_child", pickup);
         }
     }

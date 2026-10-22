@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/WeaponData.cs" id="1_weapondata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/shotgun.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_weapondata")
+WeaponId = "shotgun"
+WeaponName = "12G Pump Shotgun"
+AmmoId = "ammo_shotgun"
+WeaponSprite = ExtResource("2_texture")
+WeaponOffset = Vector2(14.0, -0.333)
+MuzzleOffset = Vector2(62, 0)
+Damage = 18.0
+FireRate = 0.65
+Pellets = 6
+BaseSpread = 0.16
+AimSpread = 0.075
+MagCapacity = 6
+MaxReserve = 36
+ReloadDuration = 1.8
+CameraTrauma = 0.38
+RecoilKick = 9.0
+ProjectileSpeed = 1250.0
+MuzzleFlashColor = Color(1, 0.7, 0.25, 1)

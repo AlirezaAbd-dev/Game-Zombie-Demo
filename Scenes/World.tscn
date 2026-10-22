@@ -14,6 +14,11 @@
 [ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="12_pool_script"]
 [ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="13_bullet_scene"]
 [ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="14_ammo_item"]
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Walker.tres" id="15_zombie_walker"]
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Runner.tres" id="16_zombie_runner"]
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Brute.tres" id="17_zombie_brute"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoShotgun.tres" id="18_ammo_shotgun"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoRifle.tres" id="19_ammo_rifle"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("2_floor_shader")
@@ -74,6 +79,12 @@ font_size = 11
 outline_size = 2
 outline_color = Color(0, 0, 0, 0.85)
 
+[sub_resource type="LabelSettings" id="LabelSettings_weapon"]
+font_size = 14
+font_color = Color(0.85, 0.92, 1, 0.95)
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.9)
+
 [sub_resource type="LabelSettings" id="LabelSettings_ammo"]
 font_size = 17
 font_color = Color(1, 0.85, 0.35, 1)
@@ -81,7 +92,7 @@ outline_size = 3
 outline_color = Color(0, 0, 0, 0.9)
 
 [sub_resource type="LabelSettings" id="LabelSettings_kill"]
-font_size = 17
+font_size = 15
 font_color = Color(0.95, 0.6, 0.25, 1)
 outline_size = 3
 outline_color = Color(0, 0, 0, 0.9)
@@ -101,11 +112,14 @@ outline_color = Color(0, 0, 0, 1)
 [node name="World" type="Node2D" unique_id=10821732]
 script = ExtResource("1_world_script")
 ZombieScene = ExtResource("5_zombie_scene")
+WalkerStats = ExtResource("15_zombie_walker")
+RunnerStats = ExtResource("16_zombie_runner")
+BruteStats = ExtResource("17_zombie_brute")
 
 [node name="ProjectilePool" type="Node" parent="." unique_id=99001122]
 script = ExtResource("12_pool_script")
 BulletScene = ExtResource("13_bullet_scene")
-InitialPoolSize = 35
+InitialPoolSize = 40
 
 [node name="FloorMesh" type="MeshInstance2D" parent="." unique_id=1612091629]
 material = SubResource("ShaderMaterial_floor")
@@ -174,25 +188,28 @@ constant_linear_velocity = Vector2(30, 30)
 [node name="MedkitPickup" parent="." unique_id=81920394 instance=ExtResource("6_pickup_scene")]
 position = Vector2(260, 220)
 
-[node name="AmmoPickup1" parent="." unique_id=92031405 instance=ExtResource("6_pickup_scene")]
+[node name="AmmoPickupShotgun" parent="." unique_id=92031405 instance=ExtResource("6_pickup_scene")]
 position = Vector2(850, 110)
-Item = ExtResource("14_ammo_item")
+Item = ExtResource("18_ammo_shotgun")
 
-[node name="AmmoPickup2" parent="." unique_id=10314216 instance=ExtResource("6_pickup_scene")]
+[node name="AmmoPickupRifle" parent="." unique_id=10314216 instance=ExtResource("6_pickup_scene")]
 position = Vector2(320, 640)
-Item = ExtResource("14_ammo_item")
+Item = ExtResource("19_ammo_rifle")
 
 [node name="Player" parent="." unique_id=2146031906 instance=ExtResource("4_player_scene")]
 position = Vector2(636, 359)
 
-[node name="Zombie1" parent="." unique_id=31248596 instance=ExtResource("5_zombie_scene")]
+[node name="ZombieWalker" parent="." unique_id=31248596 instance=ExtResource("5_zombie_scene")]
 position = Vector2(150, 420)
+Stats = ExtResource("15_zombie_walker")
 
-[node name="Zombie2" parent="." unique_id=42359607 instance=ExtResource("5_zombie_scene")]
+[node name="ZombieRunner" parent="." unique_id=42359607 instance=ExtResource("5_zombie_scene")]
 position = Vector2(1050, 200)
+Stats = ExtResource("16_zombie_runner")
 
-[node name="Zombie3" parent="." unique_id=53460718 instance=ExtResource("5_zombie_scene")]
+[node name="ZombieBrute" parent="." unique_id=53460718 instance=ExtResource("5_zombie_scene")]
 position = Vector2(850, 620)
+Stats = ExtResource("17_zombie_brute")
 
 [node name="UIOverlay" type="CanvasLayer" parent="." unique_id=44332211]
 layer = 10
@@ -266,6 +283,21 @@ label_settings = SubResource("LabelSettings_sp")
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="WeaponLabel" type="Label" parent="UIOverlay/HUD" unique_id=66778811]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 10.0
+offset_right = -30.0
+offset_bottom = 30.0
+grow_horizontal = 0
+text = "9MM HANDGUN (Q/1-3)"
+label_settings = SubResource("LabelSettings_weapon")
+horizontal_alignment = 2
+
 [node name="AmmoLabel" type="Label" parent="UIOverlay/HUD" unique_id=55667788]
 unique_name_in_owner = true
 layout_mode = 1
@@ -273,9 +305,9 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -260.0
-offset_top = 26.0
+offset_top = 32.0
 offset_right = -30.0
-offset_bottom = 50.0
+offset_bottom = 56.0
 grow_horizontal = 0
 text = "AMMO: 15 / 45"
 label_settings = SubResource("LabelSettings_ammo")
@@ -288,9 +320,9 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -260.0
-offset_top = 53.0
+offset_top = 58.0
 offset_right = -30.0
-offset_bottom = 77.0
+offset_bottom = 78.0
 grow_horizontal = 0
 text = "KILLS: 0"
 label_settings = SubResource("LabelSettings_kill")

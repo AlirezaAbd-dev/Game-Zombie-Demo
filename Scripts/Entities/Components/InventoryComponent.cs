@@ -15,66 +15,157 @@ public partial class InventoryComponent : Node
     public delegate void ItemRemovedEventHandler(string itemId, int count);
 
     [Signal]
+    public delegate void WeaponChangedEventHandler(WeaponData newWeapon);
+
+    [Signal]
     public delegate void AmmoChangedEventHandler(int currentInMag, int reserve, bool isReloading);
 
-    [Export] public int MagCapacity { get; set; } = 15;
-    [Export] public int MaxReserveAmmo { get; set; } = 90;
-    [Export] public float ReloadDuration { get; set; } = 1.2f;
+    [Export] public Godot.Collections.Array<WeaponData> Weapons { get; set; } = new();
 
-    public int CurrentAmmo { get; private set; } = 15;
-    public int ReserveAmmo { get; private set; } = 45;
+    public int CurrentWeaponIndex { get; private set; } = 0;
+    public WeaponData CurrentWeapon => Weapons != null && Weapons.Count > CurrentWeaponIndex ? Weapons[CurrentWeaponIndex] : null;
+
     public bool IsReloading { get; private set; } = false;
-
-    private readonly Dictionary<string, int> _items = new();
     private float _reloadTimer = 0.0f;
+
+    private readonly Dictionary<string, int> _magAmmo = new();
+    private readonly Dictionary<string, int> _reserveAmmo = new();
+    private readonly Dictionary<string, int> _items = new();
+
+    public int CurrentAmmo => CurrentWeapon != null ? _magAmmo.GetValueOrDefault(CurrentWeapon.WeaponId, 0) : 0;
+    public int CurrentReserve => CurrentWeapon != null ? _reserveAmmo.GetValueOrDefault(CurrentWeapon.AmmoId, 0) : 0;
 
     public override void _Ready()
     {
-        CurrentAmmo = MagCapacity;
-        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, IsReloading);
+        InitializeDefaultWeapons();
+
+        if (CurrentWeapon != null)
+        {
+            EmitSignal(SignalName.WeaponChanged, CurrentWeapon);
+            EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, IsReloading);
+        }
+    }
+
+    private void InitializeDefaultWeapons()
+    {
+        if (Weapons.Count == 0)
+        {
+            var pistol = GD.Load<WeaponData>("res://Resources/Weapons/Pistol.tres");
+            var shotgun = GD.Load<WeaponData>("res://Resources/Weapons/Shotgun.tres");
+            var rifle = GD.Load<WeaponData>("res://Resources/Weapons/Rifle.tres");
+
+            if (pistol != null) Weapons.Add(pistol);
+            if (shotgun != null) Weapons.Add(shotgun);
+            if (rifle != null) Weapons.Add(rifle);
+        }
+
+        foreach (var weapon in Weapons)
+        {
+            if (weapon == null) continue;
+
+            if (!_magAmmo.ContainsKey(weapon.WeaponId))
+            {
+                _magAmmo[weapon.WeaponId] = weapon.MagCapacity;
+            }
+
+            if (!_reserveAmmo.ContainsKey(weapon.AmmoId))
+            {
+                // Initial starting ammo
+                _reserveAmmo[weapon.AmmoId] = weapon.WeaponId switch
+                {
+                    "handgun" => 45,
+                    "shotgun" => 12,
+                    "rifle" => 10,
+                    _ => weapon.MaxReserve / 2
+                };
+            }
+        }
+    }
+
+    public void SelectWeapon(int index)
+    {
+        if (Weapons == null || index < 0 || index >= Weapons.Count || index == CurrentWeaponIndex)
+            return;
+
+        IsReloading = false;
+        CurrentWeaponIndex = index;
+
+        EmitSignal(SignalName.WeaponChanged, CurrentWeapon);
+        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, false);
+    }
+
+    public void NextWeapon()
+    {
+        if (Weapons == null || Weapons.Count <= 1) return;
+        int next = (CurrentWeaponIndex + 1) % Weapons.Count;
+        SelectWeapon(next);
+    }
+
+    public void PreviousWeapon()
+    {
+        if (Weapons == null || Weapons.Count <= 1) return;
+        int prev = (CurrentWeaponIndex - 1 + Weapons.Count) % Weapons.Count;
+        SelectWeapon(prev);
     }
 
     public void UpdateReload(float delta)
     {
-        if (!IsReloading) return;
+        if (!IsReloading || CurrentWeapon == null) return;
 
         _reloadTimer -= delta;
         if (_reloadTimer <= 0.0f)
         {
-            int needed = MagCapacity - CurrentAmmo;
-            int added = Mathf.Min(needed, ReserveAmmo);
-            CurrentAmmo += added;
-            ReserveAmmo -= added;
+            int current = _magAmmo.GetValueOrDefault(CurrentWeapon.WeaponId, 0);
+            int needed = CurrentWeapon.MagCapacity - current;
+            int available = _reserveAmmo.GetValueOrDefault(CurrentWeapon.AmmoId, 0);
+            int added = Mathf.Min(needed, available);
+
+            _magAmmo[CurrentWeapon.WeaponId] = current + added;
+            _reserveAmmo[CurrentWeapon.AmmoId] = available - added;
             IsReloading = false;
 
-            EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, false);
+            EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, false);
         }
     }
 
     public bool TryConsumeAmmo()
     {
-        if (IsReloading || CurrentAmmo <= 0) return false;
+        if (IsReloading || CurrentWeapon == null) return false;
 
-        CurrentAmmo--;
-        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, false);
+        int current = _magAmmo.GetValueOrDefault(CurrentWeapon.WeaponId, 0);
+        if (current <= 0) return false;
+
+        _magAmmo[CurrentWeapon.WeaponId] = current - 1;
+        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, false);
         return true;
     }
 
     public bool StartReload()
     {
-        if (IsReloading || CurrentAmmo >= MagCapacity || ReserveAmmo <= 0)
+        if (IsReloading || CurrentWeapon == null) return false;
+
+        int current = _magAmmo.GetValueOrDefault(CurrentWeapon.WeaponId, 0);
+        int reserve = _reserveAmmo.GetValueOrDefault(CurrentWeapon.AmmoId, 0);
+
+        if (current >= CurrentWeapon.MagCapacity || reserve <= 0)
             return false;
 
         IsReloading = true;
-        _reloadTimer = ReloadDuration;
-        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, true);
+        _reloadTimer = CurrentWeapon.ReloadDuration;
+        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, true);
         return true;
     }
 
-    public void AddReserveAmmo(int amount)
+    public void AddReserveAmmo(string ammoId, int amount)
     {
-        ReserveAmmo = Mathf.Min(MaxReserveAmmo, ReserveAmmo + amount);
-        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, IsReloading);
+        int max = CurrentWeapon != null && CurrentWeapon.AmmoId == ammoId ? CurrentWeapon.MaxReserve : 99;
+        int current = _reserveAmmo.GetValueOrDefault(ammoId, 0);
+        _reserveAmmo[ammoId] = Mathf.Min(max, current + amount);
+
+        if (CurrentWeapon != null && CurrentWeapon.AmmoId == ammoId)
+        {
+            EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, IsReloading);
+        }
     }
 
     public void AddItem(ItemData item, int amount = 1)
@@ -83,7 +174,7 @@ public partial class InventoryComponent : Node
 
         if (item.Type == ItemType.Ammo)
         {
-            AddReserveAmmo((int)item.Value * amount);
+            AddReserveAmmo(item.Id, (int)item.Value * amount);
             return;
         }
 

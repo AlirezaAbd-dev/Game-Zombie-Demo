@@ -76,11 +76,8 @@ public partial class Pickup : Area2D
             }
             else if (Item.Type == ItemType.Ammo && player.InventoryComponent != null)
             {
-                if (player.InventoryComponent.ReserveAmmo < player.InventoryComponent.MaxReserveAmmo)
-                {
-                    player.InventoryComponent.AddReserveAmmo((int)Item.Value);
-                    collected = true;
-                }
+                player.InventoryComponent.AddItem(Item);
+                collected = true;
             }
 
             if (collected)

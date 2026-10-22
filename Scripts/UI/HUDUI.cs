@@ -1,4 +1,5 @@
 using Godot;
+using TopDownDemo.Core;
 using TopDownDemo.Entities;
 using TopDownDemo.Entities.Components;
 
@@ -12,8 +13,12 @@ public partial class HUDUI : Control
     [Export] public ProgressBar StaminaBar { get; set; }
     [Export] public Label StaminaLabel { get; set; }
     [Export] public Label AmmoLabel { get; set; }
+    [Export] public Label WeaponLabel { get; set; }
     [Export] public Label KillLabel { get; set; }
     [Export] public Control GameOverPanel { get; set; }
+
+    private Player _player;
+    private WeaponData _currentWeapon;
 
     public override void _Ready()
     {
@@ -22,6 +27,7 @@ public partial class HUDUI : Control
         StaminaBar ??= GetNodeOrNull<ProgressBar>("%StaminaBar");
         StaminaLabel ??= GetNodeOrNull<Label>("%StaminaLabel");
         AmmoLabel ??= GetNodeOrNull<Label>("%AmmoLabel");
+        WeaponLabel ??= GetNodeOrNull<Label>("%WeaponLabel");
         KillLabel ??= GetNodeOrNull<Label>("%KillLabel");
         GameOverPanel ??= GetNodeOrNull<Control>("%GameOverPanel");
 
@@ -39,30 +45,58 @@ public partial class HUDUI : Control
         Zombie.OnAnyZombieKilled -= OnZombieKilled;
     }
 
+    public override void _Process(double delta)
+    {
+        if (IsInstanceValid(_player) && !_player.IsDead)
+        {
+            if (WeaponLabel != null && _currentWeapon != null)
+            {
+                string aimIndicator = _player.IsAiming ? " [AIMING]" : "";
+                WeaponLabel.Text = $"{_currentWeapon.WeaponName.ToUpper()}{aimIndicator} (Q/1-3)";
+                WeaponLabel.Modulate = _player.IsAiming ? new Color(1.0f, 0.4f, 0.4f, 1.0f) : new Color(0.85f, 0.9f, 1.0f, 0.9f);
+            }
+        }
+    }
+
     private void BindPlayer()
     {
-        var player = GetTree().GetFirstNodeInGroup("player") as Player;
-        if (player == null) return;
+        _player = GetTree().GetFirstNodeInGroup("player") as Player;
+        if (_player == null) return;
 
-        if (player.HealthComponent != null)
+        if (_player.HealthComponent != null)
         {
-            player.HealthComponent.HealthChanged += OnHealthChanged;
-            OnHealthChanged(player.HealthComponent.CurrentHealth, player.HealthComponent.MaxHealth);
+            _player.HealthComponent.HealthChanged += OnHealthChanged;
+            OnHealthChanged(_player.HealthComponent.CurrentHealth, _player.HealthComponent.MaxHealth);
         }
 
-        if (player.StaminaComponent != null)
+        if (_player.StaminaComponent != null)
         {
-            player.StaminaComponent.StaminaChanged += OnStaminaChanged;
-            OnStaminaChanged(player.StaminaComponent.CurrentStamina, player.StaminaComponent.MaxStamina);
+            _player.StaminaComponent.StaminaChanged += OnStaminaChanged;
+            OnStaminaChanged(_player.StaminaComponent.CurrentStamina, _player.StaminaComponent.MaxStamina);
         }
 
-        if (player.InventoryComponent != null)
+        if (_player.InventoryComponent != null)
         {
-            player.InventoryComponent.AmmoChanged += OnAmmoChanged;
-            OnAmmoChanged(player.InventoryComponent.CurrentAmmo, player.InventoryComponent.ReserveAmmo, player.InventoryComponent.IsReloading);
+            _player.InventoryComponent.WeaponChanged += OnWeaponChanged;
+            _player.InventoryComponent.AmmoChanged += OnAmmoChanged;
+
+            if (_player.InventoryComponent.CurrentWeapon != null)
+            {
+                OnWeaponChanged(_player.InventoryComponent.CurrentWeapon);
+            }
+            OnAmmoChanged(_player.InventoryComponent.CurrentAmmo, _player.InventoryComponent.CurrentReserve, _player.InventoryComponent.IsReloading);
         }
 
-        player.PlayerDied += OnPlayerDied;
+        _player.PlayerDied += OnPlayerDied;
+    }
+
+    private void OnWeaponChanged(WeaponData newWeapon)
+    {
+        _currentWeapon = newWeapon;
+        if (WeaponLabel != null && newWeapon != null)
+        {
+            WeaponLabel.Text = $"{newWeapon.WeaponName.ToUpper()} (Q/1-3)";
+        }
     }
 
     public void OnHealthChanged(float current, float maximum)
@@ -103,7 +137,7 @@ public partial class HUDUI : Control
         else
         {
             AmmoLabel.Text = $"AMMO: {current} / {reserve}";
-            AmmoLabel.Modulate = current <= 3 ? new Color(1.0f, 0.6f, 0.2f, 1.0f) : Colors.White;
+            AmmoLabel.Modulate = current <= 2 ? new Color(1.0f, 0.4f, 0.3f, 1.0f) : Colors.White;
         }
     }
 

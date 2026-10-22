@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="EnemyStats" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/EnemyStats.cs" id="1_enemystats"]
+
+[resource]
+script = ExtResource("1_enemystats")
+TypeName = "Walker"
+MaxHealth = 50.0
+BaseSpeed = 135.0
+AttackDamage = 15.0
+AttackInterval = 0.8
+AttackRange = 48.0
+StopDistance = 35.0
+ScaleMultiplier = 1.0
+KnockbackResistance = 0.0
+Tint = Color(1, 1, 1, 1)
+EyeLightColor = Color(1, 0.2, 0.15, 1)
+EyeLightEnergy = 0.65
+AmmoDropChance = 0.24
+MedkitDropChance = 0.11

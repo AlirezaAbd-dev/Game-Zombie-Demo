@@ -43,7 +43,7 @@ public partial class ProjectilePool : Node
         }
     }
 
-    public Bullet Spawn(Vector2 globalPos, float globalRot, Node parent)
+    public Bullet Spawn(Vector2 globalPos, float globalRot, Node parent, float damage = 25.0f, float speed = 1400.0f)
     {
         Bullet bullet = null;
         while (_pool.Count > 0)
@@ -68,7 +68,7 @@ public partial class ProjectilePool : Node
         parent.AddChild(bullet);
         bullet.GlobalPosition = globalPos;
         bullet.GlobalRotation = globalRot;
-        bullet.Activate();
+        bullet.Activate(damage, speed);
         return bullet;
     }
 

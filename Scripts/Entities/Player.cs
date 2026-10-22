@@ -11,8 +11,6 @@ public partial class Player : CharacterBody2D, IDamageable
     [Signal]
     public delegate void PlayerDiedEventHandler();
 
-    [Export] public float FireRate { get; set; } = 0.13f;
-
     [ExportGroup("Components")]
     [Export] public HealthComponent HealthComponent { get; set; }
     [Export] public MovementComponent MovementComponent { get; set; }
@@ -38,13 +36,14 @@ public partial class Player : CharacterBody2D, IDamageable
     public PlayerDeadState DeadState { get; private set; }
 
     public bool IsInvulnerable { get; set; } = false;
+    public bool IsAiming { get; private set; } = false;
     public bool IsDead => HealthComponent?.IsDead ?? false;
 
     private float _shootTimer = 0.0f;
     private float _cameraTrauma = 0.0f;
     private float _walkPhase = 0.0f;
     private readonly Vector2 _baseScale = new(3.0f, 3.0f);
-    private readonly Vector2 _gunRestPos = new(12.333334f, -0.33333334f);
+    private Vector2 _gunRestPos = new(12.333334f, -0.33333334f);
     private readonly Vector2[] _laserPoints = new Vector2[2];
 
     public override void _Ready()
@@ -61,7 +60,20 @@ public partial class Player : CharacterBody2D, IDamageable
         DashState = new PlayerDashState(this);
         DeadState = new PlayerDeadState(this);
 
-        HealthComponent.Died += OnDied;
+        if (HealthComponent != null)
+        {
+            HealthComponent.Died += OnDied;
+        }
+
+        if (InventoryComponent != null)
+        {
+            InventoryComponent.WeaponChanged += OnWeaponChanged;
+            if (InventoryComponent.CurrentWeapon != null)
+            {
+                OnWeaponChanged(InventoryComponent.CurrentWeapon);
+            }
+        }
+
         StateMachine.ChangeState(IdleState);
     }
 
@@ -130,6 +142,12 @@ public partial class Player : CharacterBody2D, IDamageable
         InventoryComponent?.UpdateReload(delta);
         StaminaComponent?.Regenerate(delta);
 
+        // Aiming State
+        IsAiming = Input.IsActionPressed("aim");
+
+        // Weapon Switch Inputs
+        HandleWeaponSwitchInput();
+
         if (Input.IsActionJustPressed("reload"))
         {
             StartReload();
@@ -148,19 +166,78 @@ public partial class Player : CharacterBody2D, IDamageable
         }
     }
 
+    private void HandleWeaponSwitchInput()
+    {
+        if (InventoryComponent == null) return;
+
+        if (Input.IsActionJustPressed("weapon_1"))
+        {
+            InventoryComponent.SelectWeapon(0);
+        }
+        else if (Input.IsActionJustPressed("weapon_2"))
+        {
+            InventoryComponent.SelectWeapon(1);
+        }
+        else if (Input.IsActionJustPressed("weapon_3"))
+        {
+            InventoryComponent.SelectWeapon(2);
+        }
+        else if (Input.IsActionJustPressed("next_weapon") || Input.IsActionJustPressed("switch_weapon"))
+        {
+            InventoryComponent.NextWeapon();
+        }
+        else if (Input.IsActionJustPressed("prev_weapon"))
+        {
+            InventoryComponent.PreviousWeapon();
+        }
+    }
+
+    private void OnWeaponChanged(WeaponData weapon)
+    {
+        if (weapon == null) return;
+
+        _gunRestPos = weapon.WeaponOffset;
+        if (GunSprite != null)
+        {
+            GunSprite.Texture = weapon.WeaponSprite;
+            GunSprite.Position = weapon.WeaponOffset;
+
+            // Weapon switch equip visual bounce
+            var tween = CreateTween();
+            GunSprite.Scale = new Vector2(0.5f, 1.4f);
+            tween.TweenProperty(GunSprite, "scale", Vector2.One, 0.15);
+        }
+
+        if (MuzzleFlash != null)
+        {
+            MuzzleFlash.Color = weapon.MuzzleFlashColor;
+            MuzzleFlash.Position = weapon.MuzzleOffset;
+        }
+
+        if (MuzzleParticles != null)
+        {
+            MuzzleParticles.Position = weapon.MuzzleOffset;
+        }
+    }
+
     public void Shoot()
     {
-        if (InventoryComponent == null || !InventoryComponent.TryConsumeAmmo())
+        var weapon = InventoryComponent?.CurrentWeapon;
+        if (weapon == null || !InventoryComponent.TryConsumeAmmo())
             return;
 
-        _shootTimer = FireRate;
+        _shootTimer = weapon.FireRate;
 
-        Vector2 muzzleGlobal = ToGlobal(new Vector2(55, 0));
-        float spread = (float)GD.RandRange(-0.025, 0.025);
+        Vector2 muzzleGlobal = ToGlobal(weapon.MuzzleOffset);
+        float spreadRange = IsAiming ? weapon.AimSpread : weapon.BaseSpread;
 
-        if (ProjectilePool.Instance != null)
+        for (int i = 0; i < weapon.Pellets; i++)
         {
-            ProjectilePool.Instance.Spawn(muzzleGlobal, GlobalRotation + spread, GetParent());
+            float spread = (float)GD.RandRange(-spreadRange, spreadRange);
+            if (ProjectilePool.Instance != null)
+            {
+                ProjectilePool.Instance.Spawn(muzzleGlobal, GlobalRotation + spread, GetParent(), weapon.Damage, weapon.ProjectileSpeed);
+            }
         }
 
         if (MuzzleFlash != null)
@@ -178,10 +255,10 @@ public partial class Player : CharacterBody2D, IDamageable
 
         if (GunSprite != null)
         {
-            GunSprite.Position = new Vector2(_gunRestPos.X - 3.5f, _gunRestPos.Y);
+            GunSprite.Position = new Vector2(_gunRestPos.X - weapon.RecoilKick, _gunRestPos.Y);
         }
 
-        AddTrauma(0.18f);
+        AddTrauma(weapon.CameraTrauma);
 
         if (InventoryComponent.CurrentAmmo == 0)
         {
@@ -194,11 +271,14 @@ public partial class Player : CharacterBody2D, IDamageable
         if (InventoryComponent == null || !InventoryComponent.StartReload())
             return;
 
+        var weapon = InventoryComponent.CurrentWeapon;
+        float duration = weapon?.ReloadDuration ?? 1.2f;
+
         if (GunSprite != null)
         {
             var tween = CreateTween();
-            tween.TweenProperty(GunSprite, "position", new Vector2(_gunRestPos.X - 5.0f, _gunRestPos.Y - 4.0f), InventoryComponent.ReloadDuration * 0.5f);
-            tween.TweenProperty(GunSprite, "position", _gunRestPos, InventoryComponent.ReloadDuration * 0.5f);
+            tween.TweenProperty(GunSprite, "position", new Vector2(_gunRestPos.X - 5.0f, _gunRestPos.Y - 4.0f), duration * 0.5f);
+            tween.TweenProperty(GunSprite, "position", _gunRestPos, duration * 0.5f);
         }
     }
 
@@ -298,11 +378,17 @@ public partial class Player : CharacterBody2D, IDamageable
         if (Camera == null) return;
 
         Vector2 targetOffset = Vector2.Zero;
+        Vector2 targetZoom = IsAiming ? new Vector2(1.22f, 1.22f) : Vector2.One;
+
         if (!IsDead)
         {
             Vector2 mouseLocal = GetLocalMousePosition();
-            targetOffset = (mouseLocal * 0.16f).Clamp(new Vector2(-120, -120), new Vector2(120, 120));
+            float shiftRatio = IsAiming ? 0.32f : 0.16f;
+            float maxShift = IsAiming ? 180.0f : 120.0f;
+            targetOffset = (mouseLocal * shiftRatio).Clamp(new Vector2(-maxShift, -maxShift), new Vector2(maxShift, maxShift));
         }
+
+        Camera.Zoom = Camera.Zoom.Lerp(targetZoom, delta * 6.0f);
 
         _cameraTrauma = Mathf.Max(0.0f, _cameraTrauma - delta * 1.8f);
         float shakeStrength = _cameraTrauma * _cameraTrauma * 16.0f;
@@ -318,8 +404,21 @@ public partial class Player : CharacterBody2D, IDamageable
     {
         if (LaserLine == null || LaserRay == null) return;
 
-        Vector2 muzzlePos = new(50, 0);
+        var weapon = InventoryComponent?.CurrentWeapon;
+        Vector2 muzzlePos = weapon?.MuzzleOffset ?? new Vector2(50, 0);
         float maxRange = 800.0f;
+
+        // Dynamic laser appearance on aim
+        if (IsAiming)
+        {
+            LaserLine.Width = 2.2f;
+            LaserLine.Modulate = new Color(2.5f, 0.3f, 0.3f, 1.0f);
+        }
+        else
+        {
+            LaserLine.Width = 1.2f;
+            LaserLine.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.45f);
+        }
 
         _laserPoints[0] = muzzlePos;
         if (LaserRay.IsColliding())
@@ -331,6 +430,7 @@ public partial class Player : CharacterBody2D, IDamageable
             {
                 LaserDot.Visible = true;
                 LaserDot.Position = hitPoint;
+                LaserDot.Scale = IsAiming ? new Vector2(0.06f, 0.06f) : new Vector2(0.038f, 0.038f);
             }
         }
         else

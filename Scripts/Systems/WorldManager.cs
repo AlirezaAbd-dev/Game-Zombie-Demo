@@ -1,4 +1,5 @@
 using Godot;
+using TopDownDemo.Core;
 using TopDownDemo.Entities;
 
 namespace TopDownDemo.Systems;
@@ -9,12 +10,21 @@ public partial class WorldManager : Node2D
     [Export] public int MaxZombies { get; set; } = 25;
     [Export] public PackedScene ZombieScene { get; set; }
 
+    [ExportGroup("Zombie Variants")]
+    [Export] public EnemyStats WalkerStats { get; set; }
+    [Export] public EnemyStats RunnerStats { get; set; }
+    [Export] public EnemyStats BruteStats { get; set; }
+
     private float _spawnTimer = 0.0f;
     private Player _player;
 
     public override void _Ready()
     {
         ZombieScene ??= GD.Load<PackedScene>("res://Prefabs/Zombie.tscn");
+        WalkerStats ??= GD.Load<EnemyStats>("res://Resources/Enemies/Zombie_Walker.tres");
+        RunnerStats ??= GD.Load<EnemyStats>("res://Resources/Enemies/Zombie_Runner.tres");
+        BruteStats ??= GD.Load<EnemyStats>("res://Resources/Enemies/Zombie_Brute.tres");
+
         _player = GetTree().GetFirstNodeInGroup("player") as Player;
     }
 
@@ -46,8 +56,19 @@ public partial class WorldManager : Node2D
             float distance = (float)GD.RandRange(750.0, 950.0);
             Vector2 spawnPos = _player.GlobalPosition + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
 
-            var zombie = ZombieScene.Instantiate<CharacterBody2D>();
+            var zombie = ZombieScene.Instantiate<Zombie>();
             zombie.GlobalPosition = spawnPos;
+
+            // Select variant based on weights (55% Walker, 30% Runner, 15% Brute)
+            float roll = (float)GD.RandRange(0.0, 1.0);
+            EnemyStats chosenStats = roll switch
+            {
+                < 0.55f => WalkerStats,
+                < 0.85f => RunnerStats,
+                _ => BruteStats
+            };
+
+            zombie.Stats = chosenStats;
             AddChild(zombie);
         }
     }

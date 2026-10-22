@@ -18,8 +18,10 @@ public partial class Bullet : Area2D
         BodyEntered += OnBodyEntered;
     }
 
-    public void Activate()
+    public void Activate(float damage = 25.0f, float speed = 1400.0f)
     {
+        Damage = damage;
+        Speed = speed;
         _lifetime = 0.0f;
         _isActive = true;
         Visible = true;

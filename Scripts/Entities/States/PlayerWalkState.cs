@@ -21,13 +21,14 @@ public class PlayerWalkState : PlayerState
             return;
         }
 
-        if (Input.IsActionJustPressed("dash") && Player.StaminaComponent.CanDash())
+        if (Input.IsActionJustPressed("dash") && Player.StaminaComponent.CanDash() && !Player.IsAiming)
         {
             Player.StateMachine.ChangeState(Player.DashState);
             return;
         }
 
-        Player.MovementComponent.Move(input);
+        float speedMult = Player.IsAiming ? 0.45f : 1.0f;
+        Player.MovementComponent.Move(input, speedMult);
         Player.AnimateWalk(delta);
     }
 }

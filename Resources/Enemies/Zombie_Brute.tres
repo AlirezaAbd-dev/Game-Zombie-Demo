@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="EnemyStats" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/EnemyStats.cs" id="1_enemystats"]
+[ext_resource type="Texture2D" path="res://Assets/textures/zombie_brute.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_enemystats")
+TypeName = "Brute"
+MaxHealth = 180.0
+BaseSpeed = 85.0
+AttackDamage = 35.0
+AttackInterval = 1.2
+AttackRange = 64.0
+StopDistance = 45.0
+ScaleMultiplier = 1.55
+KnockbackResistance = 0.75
+Tint = Color(0.9, 0.9, 0.95, 1)
+CustomTexture = ExtResource("2_texture")
+EyeLightColor = Color(1, 0.55, 0.1, 1)
+EyeLightEnergy = 0.85
+AmmoDropChance = 0.45
+MedkitDropChance = 0.35
