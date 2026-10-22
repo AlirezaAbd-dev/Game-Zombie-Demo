@@ -1,0 +1,10 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# .NET / Mono
+.mono/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
