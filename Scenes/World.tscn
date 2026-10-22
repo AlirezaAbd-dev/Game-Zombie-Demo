@@ -1,0 +1,350 @@
+[gd_scene format=3 uid="uid://bnyofjupplo27"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/WorldManager.cs" id="1_world_script"]
+[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="2_floor_shader"]
+[ext_resource type="PackedScene" path="res://Prefabs/Box.tscn" id="3_box_scene"]
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="4_player_scene"]
+[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="5_zombie_scene"]
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="6_pickup_scene"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="7_light"]
+[ext_resource type="Shader" path="res://Assets/shaders/vignette.gdshader" id="8_vignette"]
+[ext_resource type="Texture2D" path="res://Assets/textures/crosshair.png" id="9_crosshair"]
+[ext_resource type="Script" path="res://Scripts/UI/CrosshairUI.cs" id="10_crosshair_script"]
+[ext_resource type="Script" path="res://Scripts/UI/HUDUI.cs" id="11_hud_script"]
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="12_pool_script"]
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="13_bullet_scene"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="14_ammo_item"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
+shader = ExtResource("2_floor_shader")
+shader_parameter/base_color = Color(0.08, 0.1, 0.14, 1)
+shader_parameter/line_color = Color(0.14, 0.18, 0.25, 1)
+shader_parameter/dot_color = Color(0.24, 0.35, 0.48, 1)
+shader_parameter/tile_size = 96.0
+shader_parameter/line_thickness = 2.0
+
+[sub_resource type="QuadMesh" id="QuadMesh_jpud8"]
+
+[sub_resource type="Curve" id="Curve_dust"]
+_data = [Vector2(0, 0), 0.0, 2.5, 0, 0, Vector2(0.5, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.5, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="Environment" id="Environment_glow"]
+background_mode = 3
+glow_enabled = true
+glow_intensity = 0.85
+glow_bloom = 0.18
+glow_blend_mode = 0
+glow_hdr_threshold = 1.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
+shader = ExtResource("8_vignette")
+shader_parameter/vignette_color = Color(0.01, 0.02, 0.04, 0.5)
+shader_parameter/outer_radius = 1.25
+shader_parameter/inner_radius = 0.55
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_bg"]
+bg_color = Color(0.1, 0.12, 0.15, 0.85)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hp_fill"]
+bg_color = Color(0.85, 0.2, 0.2, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sp_fill"]
+bg_color = Color(0.2, 0.72, 1, 0.9)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="LabelSettings" id="LabelSettings_hud"]
+font_size = 13
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.85)
+
+[sub_resource type="LabelSettings" id="LabelSettings_sp"]
+font_size = 11
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.85)
+
+[sub_resource type="LabelSettings" id="LabelSettings_ammo"]
+font_size = 17
+font_color = Color(1, 0.85, 0.35, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_kill"]
+font_size = 17
+font_color = Color(0.95, 0.6, 0.25, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_gameover"]
+font_size = 36
+font_color = Color(0.9, 0.15, 0.15, 1)
+outline_size = 6
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_restart"]
+font_size = 18
+font_color = Color(0.9, 0.9, 0.9, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+
+[node name="World" type="Node2D" unique_id=10821732]
+script = ExtResource("1_world_script")
+ZombieScene = ExtResource("5_zombie_scene")
+
+[node name="ProjectilePool" type="Node" parent="." unique_id=99001122]
+script = ExtResource("12_pool_script")
+BulletScene = ExtResource("13_bullet_scene")
+InitialPoolSize = 35
+
+[node name="FloorMesh" type="MeshInstance2D" parent="." unique_id=1612091629]
+material = SubResource("ShaderMaterial_floor")
+position = Vector2(1427, 553)
+scale = Vector2(4941.75, 2740.2505)
+mesh = SubResource("QuadMesh_jpud8")
+metadata/_edit_lock_ = true
+
+[node name="CanvasModulate" type="CanvasModulate" parent="." unique_id=99887766]
+color = Color(0.13, 0.15, 0.22, 1)
+
+[node name="AmbientDust" type="CPUParticles2D" parent="." unique_id=88776655]
+position = Vector2(600, 350)
+amount = 45
+lifetime = 6.0
+preprocess = 4.0
+emission_shape = 3
+emission_rect_extents = Vector2(1500, 1000)
+direction = Vector2(0.6, -0.8)
+spread = 45.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 6.0
+initial_velocity_max = 18.0
+scale_amount_min = 2.0
+scale_amount_max = 4.0
+scale_amount_curve = SubResource("Curve_dust")
+color = Color(0.75, 0.85, 1, 0.25)
+
+[node name="StationLightAmber" type="PointLight2D" parent="." unique_id=77665544]
+position = Vector2(803, 66)
+color = Color(1, 0.65, 0.25, 1)
+energy = 0.85
+texture = ExtResource("7_light")
+texture_scale = 1.8
+
+[node name="StationLightCyan" type="PointLight2D" parent="." unique_id=66554433]
+position = Vector2(278, -226)
+color = Color(0.25, 0.75, 1, 1)
+energy = 0.85
+texture = ExtResource("7_light")
+texture_scale = 1.8
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=55443322]
+environment = SubResource("Environment_glow")
+
+[node name="Box" parent="." unique_id=194087406 instance=ExtResource("3_box_scene")]
+position = Vector2(197, 186)
+constant_linear_velocity = Vector2(30, 30)
+
+[node name="Box2" parent="." unique_id=769871751 instance=ExtResource("3_box_scene")]
+position = Vector2(803, 66)
+constant_linear_velocity = Vector2(30, 30)
+
+[node name="Box5" parent="." unique_id=1331101927 instance=ExtResource("3_box_scene")]
+position = Vector2(278, -226)
+constant_linear_velocity = Vector2(30, 30)
+
+[node name="Box3" parent="." unique_id=1169466087 instance=ExtResource("3_box_scene")]
+position = Vector2(906, 474)
+constant_linear_velocity = Vector2(30, 30)
+
+[node name="Box4" parent="." unique_id=667752752 instance=ExtResource("3_box_scene")]
+position = Vector2(364, 688)
+constant_linear_velocity = Vector2(30, 30)
+
+[node name="MedkitPickup" parent="." unique_id=81920394 instance=ExtResource("6_pickup_scene")]
+position = Vector2(260, 220)
+
+[node name="AmmoPickup1" parent="." unique_id=92031405 instance=ExtResource("6_pickup_scene")]
+position = Vector2(850, 110)
+Item = ExtResource("14_ammo_item")
+
+[node name="AmmoPickup2" parent="." unique_id=10314216 instance=ExtResource("6_pickup_scene")]
+position = Vector2(320, 640)
+Item = ExtResource("14_ammo_item")
+
+[node name="Player" parent="." unique_id=2146031906 instance=ExtResource("4_player_scene")]
+position = Vector2(636, 359)
+
+[node name="Zombie1" parent="." unique_id=31248596 instance=ExtResource("5_zombie_scene")]
+position = Vector2(150, 420)
+
+[node name="Zombie2" parent="." unique_id=42359607 instance=ExtResource("5_zombie_scene")]
+position = Vector2(1050, 200)
+
+[node name="Zombie3" parent="." unique_id=53460718 instance=ExtResource("5_zombie_scene")]
+position = Vector2(850, 620)
+
+[node name="UIOverlay" type="CanvasLayer" parent="." unique_id=44332211]
+layer = 10
+
+[node name="Vignette" type="ColorRect" parent="UIOverlay" unique_id=33221100]
+material = SubResource("ShaderMaterial_vignette")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HUD" type="Control" parent="UIOverlay" unique_id=11447722]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("11_hud_script")
+
+[node name="HealthBar" type="ProgressBar" parent="UIOverlay/HUD" unique_id=22558833]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 30.0
+offset_top = 26.0
+offset_right = 260.0
+offset_bottom = 48.0
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hp_fill")
+value = 100.0
+show_percentage = false
+
+[node name="HealthLabel" type="Label" parent="UIOverlay/HUD/HealthBar" unique_id=33669944]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "100 / 100 HP"
+label_settings = SubResource("LabelSettings_hud")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StaminaBar" type="ProgressBar" parent="UIOverlay/HUD" unique_id=33445566]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 30.0
+offset_top = 53.0
+offset_right = 260.0
+offset_bottom = 69.0
+theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_sp_fill")
+value = 100.0
+show_percentage = false
+
+[node name="StaminaLabel" type="Label" parent="UIOverlay/HUD/StaminaBar" unique_id=44556677]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "100 / 100 SP"
+label_settings = SubResource("LabelSettings_sp")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AmmoLabel" type="Label" parent="UIOverlay/HUD" unique_id=55667788]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -260.0
+offset_top = 26.0
+offset_right = -30.0
+offset_bottom = 50.0
+grow_horizontal = 0
+text = "AMMO: 15 / 45"
+label_settings = SubResource("LabelSettings_ammo")
+horizontal_alignment = 2
+
+[node name="KillLabel" type="Label" parent="UIOverlay/HUD" unique_id=44770055]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -260.0
+offset_top = 53.0
+offset_right = -30.0
+offset_bottom = 77.0
+grow_horizontal = 0
+text = "KILLS: 0"
+label_settings = SubResource("LabelSettings_kill")
+horizontal_alignment = 2
+
+[node name="GameOverPanel" type="Control" parent="UIOverlay" unique_id=55881166]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DimOverlay" type="ColorRect" parent="UIOverlay/GameOverPanel" unique_id=66992277]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="UIOverlay/GameOverPanel" unique_id=77003388]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -60.0
+offset_right = 200.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="GameOverText" type="Label" parent="UIOverlay/GameOverPanel/VBox" unique_id=88114499]
+layout_mode = 2
+text = "GAME OVER"
+label_settings = SubResource("LabelSettings_gameover")
+horizontal_alignment = 1
+
+[node name="RestartText" type="Label" parent="UIOverlay/GameOverPanel/VBox" unique_id=99225500]
+layout_mode = 2
+text = "PRESS 'R' TO RESTART"
+label_settings = SubResource("LabelSettings_restart")
+horizontal_alignment = 1
+
+[node name="Crosshair" type="Sprite2D" parent="UIOverlay" unique_id=22110099]
+texture = ExtResource("9_crosshair")
+script = ExtResource("10_crosshair_script")

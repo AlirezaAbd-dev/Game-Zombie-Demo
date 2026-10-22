@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://wtfc1qatseto"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Zombie.cs" id="1_zombie_script"]
+[ext_resource type="Resource" path="res://Resources/Enemies/ZombieStats.tres" id="2_zombie_stats"]
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="3_pickup_scene"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="4_ammo_data"]
+[ext_resource type="Resource" path="res://Resources/Items/Medkit.tres" id="5_medkit_data"]
+[ext_resource type="Script" path="res://Scripts/Entities/Components/HealthComponent.cs" id="6_health_comp"]
+[ext_resource type="Script" path="res://Scripts/Entities/Components/MovementComponent.cs" id="7_move_comp"]
+[ext_resource type="Texture2D" path="res://Assets/textures/drop_shadow.png" id="8_shadow_tex"]
+[ext_resource type="Texture2D" uid="uid://clveldwgoxvhn" path="res://Assets/textures/zombie.png" id="9_zombie_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="10_radial_tex"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_zombie"]
+radius = 24.0
+height = 80.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+radius = 48.0
+
+[node name="Zombie" type="CharacterBody2D" unique_id=91827364]
+script = ExtResource("1_zombie_script")
+Stats = ExtResource("2_zombie_stats")
+PickupScene = ExtResource("3_pickup_scene")
+AmmoDropData = ExtResource("4_ammo_data")
+MedkitDropData = ExtResource("5_medkit_data")
+
+[node name="HealthComponent" type="Node" parent="." unique_id=81928374]
+unique_name_in_owner = true
+script = ExtResource("6_health_comp")
+MaxHealth = 50.0
+
+[node name="MovementComponent" type="Node" parent="." unique_id=92837465]
+unique_name_in_owner = true
+script = ExtResource("7_move_comp")
+BaseSpeed = 135.0
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=12983476]
+modulate = Color(1, 1, 1, 0.65)
+position = Vector2(-4, 4)
+scale = Vector2(0.9, 0.7)
+texture = ExtResource("8_shadow_tex")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=82736451]
+unique_name_in_owner = true
+scale = Vector2(3, 3)
+texture = ExtResource("9_zombie_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=23847561]
+position = Vector2(-6, 0)
+shape = SubResource("CapsuleShape2D_zombie")
+
+[node name="AttackArea" type="Area2D" parent="." unique_id=34958672]
+unique_name_in_owner = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea" unique_id=45069783]
+position = Vector2(10, 0)
+shape = SubResource("CircleShape2D_attack")
+
+[node name="EyeGlow" type="PointLight2D" parent="." unique_id=56170894]
+unique_name_in_owner = true
+position = Vector2(10, 0)
+scale = Vector2(0.35, 0.35)
+color = Color(1, 0.2, 0.15, 1)
+energy = 0.65
+texture = ExtResource("10_radial_tex")

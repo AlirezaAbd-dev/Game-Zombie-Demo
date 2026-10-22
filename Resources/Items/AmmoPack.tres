@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/ammo_pack.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "ammo"
+ItemName = "9mm Ammo Box"
+Description = "Contains 30 handgun rounds."
+Type = 1
+Value = 30.0
+MaxStack = 90
+Icon = ExtResource("2_texture")
