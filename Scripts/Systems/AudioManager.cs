@@ -12,8 +12,19 @@ public enum SoundType
     AlarmKlaxon,
     TerminalData,
     PistolShot,
+    PistolShot1 = PistolShot,
+    PistolShot2,
+    PistolShot3,
+    PistolShot4,
     ShotgunShot,
+    ShotgunShot1 = ShotgunShot,
+    ShotgunShot2,
+    ShotgunShot3,
     RifleShot,
+    RifleShot1 = RifleShot,
+    RifleShot2,
+    RifleShot3,
+    RifleShot4,
     ZombieGroan,
     BossRoar,
     PickupCollect,
@@ -66,9 +77,24 @@ public partial class AudioManager : Node
         _soundCache[SoundType.GeneratorStart] = SynthesizeGeneratorStart();
         _soundCache[SoundType.AlarmKlaxon] = SynthesizeAlarmKlaxon();
         _soundCache[SoundType.TerminalData] = SynthesizeTerminalData();
-        _soundCache[SoundType.PistolShot] = SynthesizeGunshot(320f, 0.18f, 0.45f);
-        _soundCache[SoundType.ShotgunShot] = SynthesizeGunshot(180f, 0.32f, 0.85f);
-        _soundCache[SoundType.RifleShot] = SynthesizeGunshot(440f, 0.14f, 0.55f);
+
+        // 4 distinct Pistol gunshot audio profiles
+        _soundCache[SoundType.PistolShot1] = SynthesizeGunshot(101, 330f, 0.18f, 0.50f, 0.65f, 24f);
+        _soundCache[SoundType.PistolShot2] = SynthesizeGunshot(202, 305f, 0.19f, 0.55f, 0.70f, 22f);
+        _soundCache[SoundType.PistolShot3] = SynthesizeGunshot(303, 350f, 0.17f, 0.48f, 0.60f, 26f);
+        _soundCache[SoundType.PistolShot4] = SynthesizeGunshot(404, 318f, 0.18f, 0.52f, 0.68f, 23f);
+
+        // 3 distinct Shotgun blast audio profiles
+        _soundCache[SoundType.ShotgunShot1] = SynthesizeGunshot(505, 175f, 0.35f, 0.88f, 0.78f, 16f);
+        _soundCache[SoundType.ShotgunShot2] = SynthesizeGunshot(606, 195f, 0.32f, 0.92f, 0.82f, 18f);
+        _soundCache[SoundType.ShotgunShot3] = SynthesizeGunshot(707, 160f, 0.36f, 0.85f, 0.75f, 15f);
+
+        // 4 distinct Rifle shot audio profiles
+        _soundCache[SoundType.RifleShot1] = SynthesizeGunshot(808, 450f, 0.15f, 0.58f, 0.58f, 32f);
+        _soundCache[SoundType.RifleShot2] = SynthesizeGunshot(909, 420f, 0.16f, 0.62f, 0.62f, 30f);
+        _soundCache[SoundType.RifleShot3] = SynthesizeGunshot(1010, 475f, 0.14f, 0.56f, 0.55f, 34f);
+        _soundCache[SoundType.RifleShot4] = SynthesizeGunshot(1111, 435f, 0.15f, 0.60f, 0.60f, 31f);
+
         _soundCache[SoundType.ZombieGroan] = SynthesizeZombieGroan(110f, 0.65f);
         _soundCache[SoundType.BossRoar] = SynthesizeZombieGroan(65f, 1.2f, true);
         _soundCache[SoundType.PickupCollect] = SynthesizePickupChime();
@@ -112,6 +138,24 @@ public partial class AudioManager : Node
                 _uiPlayer.Play();
             }
         }
+    }
+
+    private static readonly SoundType[] PistolShots = { SoundType.PistolShot1, SoundType.PistolShot2, SoundType.PistolShot3, SoundType.PistolShot4 };
+    private static readonly SoundType[] ShotgunShots = { SoundType.ShotgunShot1, SoundType.ShotgunShot2, SoundType.ShotgunShot3 };
+    private static readonly SoundType[] RifleShots = { SoundType.RifleShot1, SoundType.RifleShot2, SoundType.RifleShot3, SoundType.RifleShot4 };
+
+    public void PlayGunshot(string weaponId, Vector2 worldPos)
+    {
+        var pool = weaponId switch
+        {
+            "shotgun" => ShotgunShots,
+            "rifle" => RifleShots,
+            _ => PistolShots
+        };
+
+        SoundType picked = pool[(int)(GD.Randi() % pool.Length)];
+        float pitch = (float)GD.RandRange(0.93, 1.07);
+        PlaySound(picked, worldPos, pitch);
     }
 
     public void PlayAlarm(bool loop)
@@ -258,21 +302,22 @@ public partial class AudioManager : Node
         return BuildWav(samples);
     }
 
-    private static AudioStreamWav SynthesizeGunshot(float baseFreq, float duration, float punch)
+    private static AudioStreamWav SynthesizeGunshot(int seed, float baseFreq, float duration, float punch, float noiseRatio, float decayRate)
     {
         int totalSamples = (int)(SampleRate * duration);
         short[] samples = new short[totalSamples];
-        var rng = new Random(4321);
+        var rng = new Random(seed);
 
         for (int i = 0; i < totalSamples; i++)
         {
             float t = (float)i / SampleRate;
-            float env = Mathf.Exp(-t * 24.0f);
+            float env = Mathf.Exp(-t * decayRate);
             float noise = ((float)rng.NextDouble() * 2.0f - 1.0f);
-            float freq = baseFreq * Mathf.Exp(-t * 30.0f);
+            float freq = baseFreq * Mathf.Exp(-t * 28.0f);
             float body = Mathf.Sin(Mathf.Tau * freq * t);
-            float val = (noise * 0.65f + body * 0.35f) * env * punch;
-            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 26000);
+            float click = (t < 0.015f) ? Mathf.Sin(Mathf.Tau * 2200f * t) * 0.35f : 0f;
+            float val = (noise * noiseRatio + body * (1f - noiseRatio) + click) * env * punch;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 27000);
         }
         return BuildWav(samples);
     }

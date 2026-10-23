@@ -8,3 +8,6 @@
 [Oo]bj/
 *.user
 *.suo
+
+# Antigravity / Agents
+.agents/

@@ -7,7 +7,7 @@
 size = Vector2(96, 96)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_wall"]
-polygon = PackedVector2Array(-46, -46, 46, -46, 46, 46, -46, 46)
+polygon = PackedVector2Array(-48, -48, 48, -48, 48, 48, -48, 48)
 
 [node name="WallSteel" type="StaticBody2D" unique_id=91001122]
 collision_layer = 1

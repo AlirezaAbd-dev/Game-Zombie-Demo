@@ -291,13 +291,7 @@ public partial class Player : CharacterBody2D, IDamageable
 
         StoryDirector.Instance?.RecordShotFired();
 
-        SoundType sType = weapon.WeaponId switch
-        {
-            "shotgun" => SoundType.ShotgunShot,
-            "rifle" => SoundType.RifleShot,
-            _ => SoundType.PistolShot
-        };
-        AudioManager.Instance?.PlaySound(sType, GlobalPosition);
+        AudioManager.Instance?.PlayGunshot(weapon.WeaponId, GlobalPosition);
 
         if (InventoryComponent.CurrentAmmo == 0)
         {
