@@ -1,48 +1,47 @@
 [gd_scene format=3 uid="uid://bnyofjupplo27"]
 
-[ext_resource type="Script" path="res://Scripts/Systems/WorldManager.cs" id="1_world_script"]
-[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="2_floor_shader"]
-[ext_resource type="PackedScene" path="res://Prefabs/Box.tscn" id="3_box_scene"]
-[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="4_player_scene"]
-[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="5_zombie_scene"]
-[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="6_pickup_scene"]
-[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="7_light"]
-[ext_resource type="Shader" path="res://Assets/shaders/vignette.gdshader" id="8_vignette"]
-[ext_resource type="Texture2D" path="res://Assets/textures/crosshair.png" id="9_crosshair"]
-[ext_resource type="Script" path="res://Scripts/UI/CrosshairUI.cs" id="10_crosshair_script"]
-[ext_resource type="Script" path="res://Scripts/UI/HUDUI.cs" id="11_hud_script"]
-[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="12_pool_script"]
-[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="13_bullet_scene"]
+[ext_resource type="Script" uid="uid://b3t2ltotqcnmp" path="res://Scripts/Systems/WorldManager.cs" id="1_world_script"]
+[ext_resource type="Shader" uid="uid://cb8bvp4usjuqx" path="res://Assets/shaders/floor_grid.gdshader" id="2_floor_shader"]
+[ext_resource type="PackedScene" uid="uid://dsm174ve0fm3l" path="res://Prefabs/Player.tscn" id="4_player_scene"]
+[ext_resource type="PackedScene" uid="uid://wtfc1qatseto" path="res://Prefabs/Zombie.tscn" id="5_zombie_scene"]
+[ext_resource type="PackedScene" uid="uid://ccrbhjh1je03y" path="res://Prefabs/Pickup.tscn" id="6_pickup_scene"]
+[ext_resource type="Texture2D" uid="uid://dor01dw557vus" path="res://Assets/textures/light_radial.png" id="7_light"]
+[ext_resource type="Shader" uid="uid://6dr7d37lwg2x" path="res://Assets/shaders/vignette.gdshader" id="8_vignette"]
+[ext_resource type="Texture2D" uid="uid://cck10pxqi1e2a" path="res://Assets/textures/crosshair.png" id="9_crosshair"]
+[ext_resource type="Script" uid="uid://77x4a8pifg8p" path="res://Scripts/UI/CrosshairUI.cs" id="10_crosshair_script"]
+[ext_resource type="Script" uid="uid://byj1b0dr28emo" path="res://Scripts/UI/HUDUI.cs" id="11_hud_script"]
+[ext_resource type="Script" uid="uid://crvkwacg2cxc" path="res://Scripts/Systems/ProjectilePool.cs" id="12_pool_script"]
+[ext_resource type="PackedScene" uid="uid://8wrs8r70nea" path="res://Prefabs/Bullet.tscn" id="13_bullet_scene"]
 [ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="14_ammo_item"]
 [ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Walker.tres" id="15_zombie_walker"]
 [ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Runner.tres" id="16_zombie_runner"]
 [ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Brute.tres" id="17_zombie_brute"]
 [ext_resource type="Resource" path="res://Resources/Items/AmmoShotgun.tres" id="18_ammo_shotgun"]
 [ext_resource type="Resource" path="res://Resources/Items/AmmoRifle.tres" id="19_ammo_rifle"]
-[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="20_audio_mgr"]
-[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="21_story_dir"]
-[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="22_blast_door"]
-[ext_resource type="PackedScene" path="res://Prefabs/PowerGenerator.tscn" id="23_generator"]
-[ext_resource type="PackedScene" path="res://Prefabs/SecurityTerminal.tscn" id="24_terminal"]
-[ext_resource type="PackedScene" path="res://Prefabs/EvacHelipad.tscn" id="25_helipad"]
+[ext_resource type="Script" uid="uid://ca675q84e703e" path="res://Scripts/Systems/AudioManager.cs" id="20_audio_mgr"]
+[ext_resource type="Script" uid="uid://bbm7r4orwt3gs" path="res://Scripts/Systems/StoryDirector.cs" id="21_story_dir"]
+[ext_resource type="PackedScene" uid="uid://c7m5yq1p2j8k0" path="res://Prefabs/BlastDoor.tscn" id="22_blast_door"]
+[ext_resource type="PackedScene" uid="uid://d1k3m4n5p6q7r" path="res://Prefabs/PowerGenerator.tscn" id="23_generator"]
+[ext_resource type="PackedScene" uid="uid://66823rw50vh1" path="res://Prefabs/SecurityTerminal.tscn" id="24_terminal"]
+[ext_resource type="PackedScene" uid="uid://b78a34sx61wi2" path="res://Prefabs/EvacHelipad.tscn" id="25_helipad"]
 [ext_resource type="Resource" path="res://Resources/Items/Keycard_Substation.tres" id="26_keycard"]
 [ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Boss.tres" id="27_boss_stats"]
-[ext_resource type="PackedScene" path="res://Prefabs/WallSteel.tscn" id="28_wall_steel"]
-[ext_resource type="PackedScene" path="res://Prefabs/WallLab.tscn" id="29_wall_lab"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="30_prop_desk"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropCryoTube.tscn" id="31_prop_cryo"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropLocker.tscn" id="32_prop_locker"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="33_prop_barrel"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropGurney.tscn" id="34_prop_gurney"]
-[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="35_map_bound"]
-[ext_resource type="Script" path="res://Scripts/UI/InventoryUI.cs" id="36_inv_ui"]
-[ext_resource type="Script" path="res://Scripts/UI/MiniMapUI.cs" id="37_minimap_ui"]
-[ext_resource type="Script" path="res://Scripts/UI/PauseMenuUI.cs" id="38_pause_ui"]
+[ext_resource type="PackedScene" uid="uid://b1steelwalmba" path="res://Prefabs/WallSteel.tscn" id="28_wall_steel"]
+[ext_resource type="PackedScene" uid="uid://c2labwall88" path="res://Prefabs/WallLab.tscn" id="29_wall_lab"]
+[ext_resource type="PackedScene" uid="uid://d3propdesk77" path="res://Prefabs/PropDesk.tscn" id="30_prop_desk"]
+[ext_resource type="PackedScene" uid="uid://e4cryotube66" path="res://Prefabs/PropCryoTube.tscn" id="31_prop_cryo"]
+[ext_resource type="PackedScene" uid="uid://dlybmpshq25i5" path="res://Prefabs/PropLocker.tscn" id="32_prop_locker"]
+[ext_resource type="PackedScene" uid="uid://g6barrel44" path="res://Prefabs/PropHazardBarrel.tscn" id="33_prop_barrel"]
+[ext_resource type="PackedScene" uid="uid://h7gurney33" path="res://Prefabs/PropGurney.tscn" id="34_prop_gurney"]
+[ext_resource type="PackedScene" uid="uid://ohowovlk6d0y" path="res://Prefabs/MapBoundary.tscn" id="35_map_bound"]
+[ext_resource type="Script" uid="uid://dlunmy8qcrcyw" path="res://Scripts/UI/InventoryUI.cs" id="36_inv_ui"]
+[ext_resource type="Script" uid="uid://ehgg4ymjeorq" path="res://Scripts/UI/MiniMapUI.cs" id="37_minimap_ui"]
+[ext_resource type="Script" uid="uid://c2sb45pxdtiu0" path="res://Scripts/UI/PauseMenuUI.cs" id="38_pause_ui"]
 [ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="39_herb_green"]
 [ext_resource type="Resource" path="res://Resources/Items/Herb_Blue.tres" id="40_herb_blue"]
 [ext_resource type="Resource" path="res://Resources/Items/Adrenaline.tres" id="41_adrenaline"]
-[ext_resource type="Texture2D" path="res://Assets/textures/blood_vignette.png" id="42_blood_vignette"]
-[ext_resource type="PackedScene" path="res://Prefabs/VentShaft.tscn" id="43_vent_shaft"]
+[ext_resource type="Texture2D" uid="uid://hnf8wj3ymp3i" path="res://Assets/textures/blood_vignette.png" id="42_blood_vignette"]
+[ext_resource type="PackedScene" uid="uid://ventshaft88" path="res://Prefabs/VentShaft.tscn" id="43_vent_shaft"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("2_floor_shader")
@@ -64,7 +63,6 @@ glow_enabled = true
 glow_intensity = 0.85
 glow_bloom = 0.18
 glow_blend_mode = 0
-glow_hdr_threshold = 1.0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
 shader = ExtResource("8_vignette")
@@ -86,79 +84,17 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="LabelSettings" id="LabelSettings_hud"]
+font_size = 13
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.85)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sp_fill"]
 bg_color = Color(0.2, 0.72, 1, 0.9)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_radio_panel"]
-bg_color = Color(0.05, 0.08, 0.13, 0.9)
-border_width_left = 2
-border_width_top = 1
-border_width_right = 2
-border_width_bottom = 1
-border_color = Color(0.2, 0.7, 1, 0.8)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_fill"]
-bg_color = Color(0.9, 0.15, 0.35, 0.95)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_defense_fill"]
-bg_color = Color(0.1, 0.85, 0.45, 0.95)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_re_inv"]
-bg_color = Color(0.06, 0.08, 0.12, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.3, 0.5, 0.7, 0.9)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ecg"]
-bg_color = Color(0.03, 0.12, 0.06, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.2, 0.8, 0.4, 0.7)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_radar"]
-bg_color = Color(0.04, 0.08, 0.12, 0.88)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 0.75, 1, 0.85)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="LabelSettings" id="LabelSettings_hud"]
-font_size = 13
-outline_size = 2
-outline_color = Color(0, 0, 0, 0.85)
 
 [sub_resource type="LabelSettings" id="LabelSettings_sp"]
 font_size = 11
@@ -196,10 +132,41 @@ outline_size = 2
 outline_color = Color(0, 0, 0, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_purge"]
-font_size = 16
 font_color = Color(1, 0.3, 0.25, 1)
 outline_size = 3
 outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_defense_fill"]
+bg_color = Color(0.1, 0.85, 0.45, 0.95)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="LabelSettings" id="LabelSettings_boss_title"]
+font_size = 14
+font_color = Color(1, 0.25, 0.35, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_fill"]
+bg_color = Color(0.9, 0.15, 0.35, 0.95)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_radio_panel"]
+bg_color = Color(0.05, 0.08, 0.13, 0.9)
+border_width_left = 2
+border_width_top = 1
+border_width_right = 2
+border_width_bottom = 1
+border_color = Color(0.2, 0.7, 1, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="LabelSettings" id="LabelSettings_radio_speaker"]
 font_size = 13
@@ -214,15 +181,73 @@ outline_size = 2
 outline_color = Color(0, 0, 0, 0.9)
 
 [sub_resource type="LabelSettings" id="LabelSettings_prompt"]
-font_size = 16
 font_color = Color(0.2, 1, 0.5, 1)
 outline_size = 4
 outline_color = Color(0, 0, 0, 1)
 
-[sub_resource type="LabelSettings" id="LabelSettings_boss_title"]
-font_size = 14
-font_color = Color(1, 0.25, 0.35, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_radar"]
+bg_color = Color(0.04, 0.08, 0.12, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.75, 1, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_re_inv"]
+bg_color = Color(0.06, 0.08, 0.12, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.5, 0.7, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="LabelSettings" id="LabelSettings_inv_title"]
+font_color = Color(0.3, 0.85, 1, 1)
 outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ecg"]
+bg_color = Color(0.03, 0.12, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.8, 0.4, 0.7)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="LabelSettings" id="LabelSettings_ecg"]
+font_size = 13
+font_color = Color(0.2, 1, 0.4, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_item_name"]
+font_size = 15
+font_color = Color(1, 0.9, 0.3, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_item_desc"]
+font_size = 12
+font_color = Color(0.85, 0.9, 0.95, 0.95)
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_pause_title"]
+font_size = 30
+font_color = Color(0.9, 0.95, 1, 1)
+outline_size = 4
 outline_color = Color(0, 0, 0, 1)
 
 [sub_resource type="LabelSettings" id="LabelSettings_gameover"]
@@ -255,51 +280,6 @@ font_color = Color(0.9, 0.92, 0.95, 1)
 outline_size = 2
 outline_color = Color(0, 0, 0, 0.9)
 
-[sub_resource type="LabelSettings" id="LabelSettings_inv_title"]
-font_size = 16
-font_color = Color(0.3, 0.85, 1, 1)
-outline_size = 3
-outline_color = Color(0, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_item_name"]
-font_size = 15
-font_color = Color(1, 0.9, 0.3, 1)
-outline_size = 2
-outline_color = Color(0, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_item_desc"]
-font_size = 12
-font_color = Color(0.85, 0.9, 0.95, 0.95)
-outline_size = 2
-outline_color = Color(0, 0, 0, 0.9)
-
-[sub_resource type="LabelSettings" id="LabelSettings_ecg"]
-font_size = 13
-font_color = Color(0.2, 1, 0.4, 1)
-outline_size = 2
-outline_color = Color(0, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_pause_title"]
-font_size = 30
-font_color = Color(0.9, 0.95, 1, 1)
-outline_size = 4
-outline_color = Color(0, 0, 0, 1)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_door_h"]
-size = Vector2(180, 96)
-
-[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_door_h"]
-polygon = PackedVector2Array(-90, -48, 90, -48, 90, 48, -90, 48)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_door_v"]
-size = Vector2(96, 180)
-
-[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_door_v"]
-polygon = PackedVector2Array(-48, -90, 48, -90, 48, 90, -48, 90)
-
-; =========================================================================
-; WORLD ROOT & CORE SYSTEMS
-; =========================================================================
 [node name="World" type="Node2D" unique_id=10821732]
 script = ExtResource("1_world_script")
 ZombieScene = ExtResource("5_zombie_scene")
@@ -338,7 +318,6 @@ preprocess = 4.0
 emission_shape = 3
 emission_rect_extents = Vector2(2000, 2000)
 direction = Vector2(0.6, -0.8)
-spread = 45.0
 gravity = Vector2(0, 0)
 initial_velocity_min = 6.0
 initial_velocity_max = 18.0
@@ -350,9 +329,6 @@ color = Color(0.75, 0.85, 1, 0.25)
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=55443322]
 environment = SubResource("Environment_glow")
 
-; =========================================================================
-; MAP OUTER BOUNDARY BARRIERS (Prevents escaping map)
-; =========================================================================
 [node name="Bound_West" parent="." unique_id=901 instance=ExtResource("35_map_bound")]
 position = Vector2(50, -500)
 rotation = 1.5708
@@ -371,9 +347,6 @@ scale = Vector2(22, 1)
 position = Vector2(600, -1720)
 scale = Vector2(12, 1)
 
-; =========================================================================
-; SECTOR 1: SECURITY CHECKPOINT (SPAWN ROOM) - WIDE 900PX LAYOUT
-; =========================================================================
 [node name="WallS1_S0" parent="." unique_id=100 instance=ExtResource("28_wall_steel")]
 position = Vector2(150, 600)
 
@@ -473,7 +446,6 @@ position = Vector2(955, 160)
 [node name="WallS1_N9" parent="." unique_id=150 instance=ExtResource("28_wall_steel")]
 position = Vector2(1050, 160)
 
-; Sector 1 Recessed Props & Tactical Infiltration Grates
 [node name="SecurityStationLight" type="PointLight2D" parent="." unique_id=109]
 position = Vector2(600, 380)
 color = Color(1, 0.25, 0.2, 1)
@@ -512,7 +484,6 @@ Item = ExtResource("14_ammo_item")
 position = Vector2(280, 540)
 Item = ExtResource("39_herb_green")
 
-; Blast Doors with 180px Wide Gateways
 [node name="SubstationDoor" parent="." unique_id=112 instance=ExtResource("22_blast_door")]
 position = Vector2(1050, 350)
 DoorId = "door_substation"
@@ -520,36 +491,15 @@ RequiredItemId = "keycard_substation"
 LockedPromptText = "LOCKED - REQUIRES SUBSTATION KEYCARD"
 SlideOffset = Vector2(0, 180)
 
-[node name="DoorSprite" parent="SubstationDoor"]
-scale = Vector2(1, 1.875)
-
-[node name="CollisionShape2D" parent="SubstationDoor"]
-shape = SubResource("RectangleShape2D_door_v")
-
-[node name="LightOccluder2D" parent="SubstationDoor"]
-occluder = SubResource("OccluderPolygon2D_door_v")
-
 [node name="LabDoor" parent="." unique_id=113 instance=ExtResource("22_blast_door")]
 position = Vector2(600, 160)
 DoorId = "door_central_lab"
 OpenOnPowerRestored = true
 SlideOffset = Vector2(180, 0)
 
-[node name="DoorSprite" parent="LabDoor"]
-scale = Vector2(1.875, 1)
-
-[node name="CollisionShape2D" parent="LabDoor"]
-shape = SubResource("RectangleShape2D_door_h")
-
-[node name="LightOccluder2D" parent="LabDoor"]
-occluder = SubResource("OccluderPolygon2D_door_h")
-
 [node name="Player" parent="." unique_id=2146031906 instance=ExtResource("4_player_scene")]
 position = Vector2(600, 450)
 
-; =========================================================================
-; SECTOR 2: AUXILIARY SUBSTATION & GENERATOR ROOM - WIDE 900PX EXPANSION
-; =========================================================================
 [node name="WallS2_N1" parent="." unique_id=201 instance=ExtResource("28_wall_steel")]
 position = Vector2(1050, 160)
 
@@ -640,7 +590,6 @@ position = Vector2(1950, 460)
 [node name="WallS2_E6" parent="." unique_id=240 instance=ExtResource("28_wall_steel")]
 position = Vector2(1950, 540)
 
-; Substation Recessed Props & Tactical Emergence Vents
 [node name="SubstationLight" type="PointLight2D" parent="." unique_id=208]
 position = Vector2(1500, 350)
 color = Color(1, 0.65, 0.2, 1)
@@ -682,9 +631,6 @@ Item = ExtResource("40_herb_blue")
 position = Vector2(1820, 240)
 Item = ExtResource("41_adrenaline")
 
-; =========================================================================
-; SECTOR 3: CENTRAL BIO-RESEARCH LAB & ARMORY - WIDE 900PX EXPANSION
-; =========================================================================
 [node name="WallS3_W1" parent="." unique_id=301 instance=ExtResource("29_wall_lab")]
 position = Vector2(150, 160)
 
@@ -781,7 +727,6 @@ position = Vector2(955, -560)
 [node name="WallS3_N9" parent="." unique_id=349 instance=ExtResource("29_wall_lab")]
 position = Vector2(1050, -560)
 
-; Bio-Lab Recessed Props & Tactical Grates (Clear 740px Center Lane)
 [node name="LabLightCyan" type="PointLight2D" parent="." unique_id=311]
 position = Vector2(600, -250)
 color = Color(0.15, 0.85, 1, 1)
@@ -845,18 +790,6 @@ DoorId = "door_cargo_helipad"
 OpenOnEvacPhase = true
 SlideOffset = Vector2(180, 0)
 
-[node name="DoorSprite" parent="CargoGate"]
-scale = Vector2(1.875, 1)
-
-[node name="CollisionShape2D" parent="CargoGate"]
-shape = SubResource("RectangleShape2D_door_h")
-
-[node name="LightOccluder2D" parent="CargoGate"]
-occluder = SubResource("OccluderPolygon2D_door_h")
-
-; =========================================================================
-; SECTOR 4: SURFACE CARGO HELIPAD ARENA - WIDE 900PX BOSS COLISEUM
-; =========================================================================
 [node name="ArenaWall_W1" parent="." unique_id=405 instance=ExtResource("28_wall_steel")]
 position = Vector2(150, -560)
 
@@ -977,7 +910,6 @@ position = Vector2(1000, -1580)
 [node name="ArenaWall_N12" parent="." unique_id=458 instance=ExtResource("28_wall_steel")]
 position = Vector2(1050, -1580)
 
-; Helipad Tactical Props & Cover (Hugging Walls)
 [node name="VentShaft_S4_NW" parent="." unique_id=450 instance=ExtResource("43_vent_shaft")]
 position = Vector2(240, -1480)
 
@@ -1025,9 +957,6 @@ texture = ExtResource("7_light")
 position = Vector2(600, -720)
 Stats = ExtResource("17_zombie_brute")
 
-; =========================================================================
-; UI & HUD LAYER (CanvasLayer 10)
-; =========================================================================
 [node name="UIOverlay" type="CanvasLayer" parent="." unique_id=44332211]
 layer = 10
 
@@ -1039,6 +968,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+metadata/_edit_lock_ = true
 
 [node name="HUD" type="Control" parent="UIOverlay" unique_id=11447722]
 layout_mode = 3
@@ -1049,13 +979,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("11_hud_script")
+metadata/_edit_lock_ = true
 
-; Low Health Bloody Vignette
 [node name="BloodVignette" type="TextureRect" parent="UIOverlay/HUD" unique_id=77889901]
 unique_name_in_owner = true
 visible = false
 modulate = Color(1, 1, 1, 0)
-anchors_preset = 15
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -1063,9 +993,7 @@ grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("42_blood_vignette")
 expand_mode = 1
-stretch_mode = 0
 
-; Health & Stamina Bars
 [node name="HealthBar" type="ProgressBar" parent="UIOverlay/HUD" unique_id=22558833]
 unique_name_in_owner = true
 layout_mode = 0
@@ -1116,7 +1044,6 @@ label_settings = SubResource("LabelSettings_sp")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-; Weapon & Ammo & Controls Reminder
 [node name="WeaponLabel" type="Label" parent="UIOverlay/HUD" unique_id=66778811]
 unique_name_in_owner = true
 layout_mode = 1
@@ -1162,7 +1089,6 @@ text = "KILLS: 0"
 label_settings = SubResource("LabelSettings_kill")
 horizontal_alignment = 2
 
-; Mission Objective Banner
 [node name="ObjectiveContainer" type="VBoxContainer" parent="UIOverlay/HUD" unique_id=501]
 layout_mode = 0
 offset_left = 30.0
@@ -1183,7 +1109,6 @@ layout_mode = 2
 text = "Grab the glowing Substation Keycard in front of you."
 label_settings = SubResource("LabelSettings_obj_sub")
 
-; Purge Countdown & Defense Progress
 [node name="PurgeTimerLabel" type="Label" parent="UIOverlay/HUD" unique_id=504]
 unique_name_in_owner = true
 visible = false
@@ -1227,10 +1152,8 @@ custom_minimum_size = Vector2(320, 12)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_defense_fill")
-value = 0.0
 show_percentage = false
 
-; Boss Bar
 [node name="BossBarContainer" type="VBoxContainer" parent="UIOverlay/HUD" unique_id=508]
 unique_name_in_owner = true
 visible = false
@@ -1258,10 +1181,9 @@ custom_minimum_size = Vector2(440, 16)
 layout_mode = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_hp_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_boss_fill")
-value = 420.0
+value = 100.0
 show_percentage = false
 
-; Radio Comms Overlay
 [node name="RadioCommsPanel" type="PanelContainer" parent="UIOverlay/HUD" unique_id=511]
 unique_name_in_owner = true
 visible = false
@@ -1303,7 +1225,6 @@ text = "Cole, do you read me? Main containment in Sector-4 collapsed..."
 label_settings = SubResource("LabelSettings_radio_msg")
 autowrap_mode = 2
 
-; Context Interaction Prompt
 [node name="InteractionPromptLabel" type="Label" parent="UIOverlay/HUD" unique_id=516]
 unique_name_in_owner = true
 visible = false
@@ -1323,9 +1244,6 @@ text = "[E] INTERACT"
 label_settings = SubResource("LabelSettings_prompt")
 horizontal_alignment = 1
 
-; =========================================================================
-; TACTICAL RADAR / MINI-MAP UI
-; =========================================================================
 [node name="MiniMapUI" type="Control" parent="UIOverlay" unique_id=601]
 unique_name_in_owner = true
 layout_mode = 3
@@ -1336,6 +1254,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("37_minimap_ui")
+metadata/_edit_lock_ = true
 
 [node name="RadarPanel" type="PanelContainer" parent="UIOverlay/MiniMapUI" unique_id=602]
 unique_name_in_owner = true
@@ -1367,9 +1286,6 @@ custom_minimum_size = Vector2(160, 140)
 layout_mode = 2
 size_flags_vertical = 3
 
-; =========================================================================
-; RESIDENT EVIL INVENTORY UI (TAB / I)
-; =========================================================================
 [node name="InventoryUI" type="Control" parent="UIOverlay" unique_id=701]
 unique_name_in_owner = true
 visible = false
@@ -1414,7 +1330,6 @@ offset_bottom = 42.0
 text = "TACTICAL EQUIPMENT (TAB)"
 label_settings = SubResource("LabelSettings_inv_title")
 
-; ECG Health Monitor (Resident Evil style)
 [node name="EcgContainer" type="Panel" parent="UIOverlay/InventoryUI/MainPanel" unique_id=705]
 layout_mode = 1
 anchors_preset = 1
@@ -1448,7 +1363,6 @@ offset_right = 240.0
 offset_bottom = 44.0
 color = Color(0.2, 1, 0.4, 1)
 
-; 8-Slot Inventory Grid (2x4)
 [node name="SlotGrid" type="GridContainer" parent="UIOverlay/InventoryUI/MainPanel" unique_id=708]
 unique_name_in_owner = true
 layout_mode = 0
@@ -1460,7 +1374,6 @@ theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 12
 columns = 4
 
-; Item Detail Panel
 [node name="DetailBox" type="VBoxContainer" parent="UIOverlay/InventoryUI/MainPanel" unique_id=709]
 layout_mode = 0
 offset_left = 24.0
@@ -1488,7 +1401,6 @@ layout_mode = 2
 text = "Click an item to inspect or use."
 label_settings = SubResource("LabelSettings_hud")
 
-; Action Buttons
 [node name="ActionBox" type="VBoxContainer" parent="UIOverlay/InventoryUI/MainPanel" unique_id=713]
 layout_mode = 1
 anchors_preset = 6
@@ -1522,9 +1434,6 @@ custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 text = "CLOSE (TAB)"
 
-; =========================================================================
-; PAUSE MENU UI (ESCAPE / P)
-; =========================================================================
 [node name="PauseMenuUI" type="Control" parent="UIOverlay" unique_id=801]
 unique_name_in_owner = true
 visible = false
@@ -1597,9 +1506,6 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "QUIT TO DESKTOP (ESC)"
 
-; =========================================================================
-; GAME OVER SCREEN
-; =========================================================================
 [node name="GameOverPanel" type="Control" parent="UIOverlay" unique_id=55881166]
 unique_name_in_owner = true
 visible = false
@@ -1618,8 +1524,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.6)
 mouse_filter = 2
+color = Color(0, 0, 0, 0.6)
 
 [node name="VBox" type="VBoxContainer" parent="UIOverlay/GameOverPanel" unique_id=77003388]
 layout_mode = 1
@@ -1649,9 +1555,6 @@ text = "PRESS 'R' TO RESTART"
 label_settings = SubResource("LabelSettings_restart")
 horizontal_alignment = 1
 
-; =========================================================================
-; MISSION COMPLETE / VICTORY SCREEN
-; =========================================================================
 [node name="VictoryPanel" type="Control" parent="UIOverlay" unique_id=517]
 unique_name_in_owner = true
 visible = false
@@ -1713,9 +1616,6 @@ PRESS 'R' TO REPLAY MISSION"
 label_settings = SubResource("LabelSettings_victory_stats")
 horizontal_alignment = 1
 
-; =========================================================================
-; CROSSHAIR
-; =========================================================================
 [node name="Crosshair" type="Sprite2D" parent="UIOverlay" unique_id=22110099]
 texture = ExtResource("9_crosshair")
 script = ExtResource("10_crosshair_script")

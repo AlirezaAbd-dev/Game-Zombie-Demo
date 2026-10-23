@@ -89,8 +89,8 @@ Alternatively, edit `nuget.config` to point `GodotLocal` directly to your Godot 
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <packageSources>
-    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
-    <add key="GodotLocal" value="/path/to/your/Godot/GodotSharp/Tools/nupkgs" />
+	<add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+	<add key="GodotLocal" value="/path/to/your/Godot/GodotSharp/Tools/nupkgs" />
   </packageSources>
 </configuration>
 ```
@@ -112,8 +112,8 @@ dotnet build "Top Down Demo.csproj"
 You should see:
 ```text
 Build succeeded.
-    0 Warning(s)
-    0 Error(s)
+	0 Warning(s)
+	0 Error(s)
 ```
 
 ---
