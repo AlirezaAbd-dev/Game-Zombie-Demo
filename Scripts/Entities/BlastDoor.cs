@@ -28,6 +28,7 @@ public partial class BlastDoor : StaticBody2D
 
     public override void _Ready()
     {
+        AddToGroup("doors");
         DoorSprite ??= GetNodeOrNull<Sprite2D>("%DoorSprite");
         CollisionShape ??= GetNodeOrNull<CollisionShape2D>("%CollisionShape2D");
         LightOccluder ??= GetNodeOrNull<LightOccluder2D>("%LightOccluder2D");
@@ -44,6 +45,7 @@ public partial class BlastDoor : StaticBody2D
             if (!string.IsNullOrEmpty(RequiredItemId))
             {
                 Interactable.RequiredItemId = RequiredItemId;
+                Interactable.PromptText = "UNLOCK & OPEN BLAST DOOR";
             }
             if (!string.IsNullOrEmpty(LockedPromptText))
             {
@@ -116,6 +118,16 @@ public partial class BlastDoor : StaticBody2D
         }
 
         AudioManager.Instance?.PlaySound(SoundType.DoorOpen, GlobalPosition);
+
+        if (DoorId == "door_substation" || RequiredItemId == "keycard_substation")
+        {
+            StoryDirector.Instance?.EmitSignal(
+                StoryDirector.SignalName.ObjectiveUpdated,
+                "MISSION 1: RESTORE SECTOR POWER",
+                "Substation unlocked! Locate and activate the power generator."
+            );
+        }
+
         EmitSignal(SignalName.DoorOpened);
     }
 

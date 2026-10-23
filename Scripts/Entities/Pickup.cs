@@ -16,6 +16,7 @@ public partial class Pickup : Area2D
 
     public override void _Ready()
     {
+        AddToGroup("pickups");
         _bobTimer = (float)GD.RandRange(0.0, Mathf.Tau);
 
         Sprite ??= GetNodeOrNull<Sprite2D>("%Sprite2D");
@@ -65,7 +66,7 @@ public partial class Pickup : Area2D
             var col = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
             if (col != null && col.Shape is CircleShape2D circle)
             {
-                circle.Radius = 55.0f;
+                circle.Radius = 80.0f;
             }
 
             if (GetNodeOrNull<Label>("KeycardLabel") == null)
@@ -103,29 +104,54 @@ public partial class Pickup : Area2D
 
     private void OnBodyEntered(Node2D body)
     {
-        if (body is Player player && !player.IsDead && Item != null)
+        if (body is Player player)
         {
-            bool collected = false;
-            if (Item.Type == ItemType.Health && player.HealthComponent != null)
-            {
-                if (player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
-                {
-                    player.Heal(Item.Value);
-                    collected = true;
-                }
-            }
-            else if (player.InventoryComponent != null)
-            {
-                collected = player.InventoryComponent.AddItem(Item);
-            }
+            CollectByPlayer(player);
+        }
+    }
 
-            if (collected)
+    public bool CollectByPlayer(Player player)
+    {
+        if (player == null || player.IsDead || Item == null) return false;
+
+        bool collected = false;
+        if (Item.Type == ItemType.Health && player.HealthComponent != null)
+        {
+            if (player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
             {
-                AudioManager.Instance?.PlaySound(SoundType.PickupCollect, GlobalPosition);
-                SpawnCollectEffect();
-                QueueFree();
+                player.Heal(Item.Value);
+                collected = true;
             }
         }
+        else if (player.InventoryComponent != null)
+        {
+            collected = player.InventoryComponent.AddItem(Item);
+        }
+
+        if (collected)
+        {
+            AudioManager.Instance?.PlaySound(SoundType.PickupCollect, GlobalPosition);
+            SpawnCollectEffect();
+
+            if (Item.Type == ItemType.Key)
+            {
+                StoryDirector.Instance?.EmitSignal(
+                    StoryDirector.SignalName.ObjectiveUpdated,
+                    "MISSION 1: RESTORE SECTOR POWER",
+                    "Keycard acquired! Go East to the Substation Door and press [E] to unlock."
+                );
+                StoryDirector.Instance?.TriggerRadioComms(
+                    "CMDR. REYES (HQ)",
+                    "Keycard acquired. Head to the East blast door, unlock it, and get that generator running!",
+                    5.0f
+                );
+            }
+
+            QueueFree();
+            return true;
+        }
+
+        return false;
     }
 
     private void SpawnCollectEffect()

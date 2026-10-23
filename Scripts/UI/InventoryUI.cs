@@ -222,12 +222,38 @@ public partial class InventoryUI : Control
     {
         if (_selectedSlotIndex < 0 || _player == null) return;
 
+        var slot = _player.InventoryComponent?.Slots != null && _selectedSlotIndex < _player.InventoryComponent.Slots.Count
+            ? _player.InventoryComponent.Slots[_selectedSlotIndex]
+            : null;
+        var item = slot?.Item;
+
         bool used = _player.InventoryComponent?.UseSlot(_selectedSlotIndex, _player) ?? false;
         if (used)
         {
-            if (HintLabel != null) HintLabel.Text = "ITEM USED.";
+            if (item != null && item.Type == ItemType.Key)
+            {
+                if (HintLabel != null) HintLabel.Text = "KEYCARD USED! BLAST DOOR UNLOCKED.";
+                var timer = GetTree().CreateTimer(0.7f);
+                timer.Timeout += ToggleInventory;
+            }
+            else
+            {
+                if (HintLabel != null) HintLabel.Text = "ITEM USED.";
+            }
+
             RefreshSlots();
             SelectSlot(_selectedSlotIndex);
+        }
+        else
+        {
+            if (item != null && item.Type == ItemType.Key)
+            {
+                if (HintLabel != null) HintLabel.Text = "CANNOT USE THIS HERE. STAND IN FRONT OF THE BLAST DOOR.";
+            }
+            else
+            {
+                if (HintLabel != null) HintLabel.Text = "CANNOT USE ITEM RIGHT NOW.";
+            }
         }
     }
 

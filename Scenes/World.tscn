@@ -393,14 +393,14 @@ texture = ExtResource("7_light")
 texture_scale = 2.2
 
 [node name="GuardDesk" parent="." unique_id=115 instance=ExtResource("30_prop_desk")]
-position = Vector2(600, 350)
+position = Vector2(600, 340)
 
 [node name="KeycardPickup" parent="." unique_id=110 instance=ExtResource("6_pickup_scene")]
-position = Vector2(600, 350)
+position = Vector2(600, 400)
 Item = ExtResource("26_keycard")
 
 [node name="KeycardGlowDesk" type="PointLight2D" parent="." unique_id=114]
-position = Vector2(600, 350)
+position = Vector2(600, 400)
 color = Color(0.1, 0.95, 1, 1)
 energy = 1.6
 texture = ExtResource("7_light")

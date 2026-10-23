@@ -55,8 +55,8 @@ color = Color(0.3, 0.9, 1, 0.9)
 
 [node name="InteractableComponent" type="Area2D" parent="." unique_id=19405162]
 unique_name_in_owner = true
-collision_layer = 0
-collision_mask = 1
+collision_layer = 8
+collision_mask = 9
 script = ExtResource("4_interact_comp")
 PromptText = "ACTIVATE AUXILIARY GENERATOR"
 OneShot = true

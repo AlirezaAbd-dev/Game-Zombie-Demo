@@ -41,8 +41,8 @@ texture = ExtResource("3_light_tex")
 
 [node name="InteractableComponent" type="Area2D" parent="." unique_id=86172839]
 unique_name_in_owner = true
-collision_layer = 0
-collision_mask = 1
+collision_layer = 8
+collision_mask = 9
 script = ExtResource("4_interact_comp")
 PromptText = "DOWNLOAD PATHOGEN TELEMETRY"
 OneShot = true

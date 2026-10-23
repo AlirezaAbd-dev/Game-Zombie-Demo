@@ -230,7 +230,30 @@ public partial class InventoryComponent : Node
         return false; // Inventory full
     }
 
-    public bool HasItem(string itemId) => _items.ContainsKey(itemId) && _items[itemId] > 0;
+    public bool HasItem(string itemId)
+    {
+        if (string.IsNullOrWhiteSpace(itemId)) return false;
+
+        // Check slots directly first
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            if (Slots[i].Item != null && string.Equals(Slots[i].Item.Id, itemId, StringComparison.OrdinalIgnoreCase) && Slots[i].Count > 0)
+            {
+                return true;
+            }
+        }
+
+        // Fallback check against dictionary
+        foreach (var kvp in _items)
+        {
+            if (string.Equals(kvp.Key, itemId, StringComparison.OrdinalIgnoreCase) && kvp.Value > 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public bool ConsumeItem(string itemId, int amount = 1)
     {
@@ -290,6 +313,61 @@ public partial class InventoryComponent : Node
         {
             player.ApplyAdrenalineBoost(15.0f);
             used = true;
+        }
+        else if (item.Type == ItemType.Key)
+        {
+            // Check if player is near any blast door requiring this key
+            var doors = player.GetTree()?.GetNodesInGroup("doors");
+            if (doors != null)
+            {
+                foreach (var node in doors)
+                {
+                    if (node is BlastDoor door && !door.IsOpen)
+                    {
+                        if (string.Equals(door.RequiredItemId, item.Id, StringComparison.OrdinalIgnoreCase))
+                        {
+                            float dist = player.GlobalPosition.DistanceTo(door.GlobalPosition);
+                            if (dist <= 180.0f)
+                            {
+                                door.OpenDoor();
+                                used = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Also check interactables
+            if (!used)
+            {
+                var interactables = player.GetTree()?.GetNodesInGroup("interactables");
+                if (interactables != null)
+                {
+                    foreach (var node in interactables)
+                    {
+                        if (node is InteractableComponent interactable && interactable.CanInteract(player))
+                        {
+                            if (string.Equals(interactable.RequiredItemId, item.Id, StringComparison.OrdinalIgnoreCase))
+                            {
+                                float dist = player.GlobalPosition.DistanceTo(interactable.GlobalPosition);
+                                if (dist <= 180.0f)
+                                {
+                                    interactable.TryInteract(player);
+                                    used = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (used)
+            {
+                AudioManager.Instance?.PlaySound(SoundType.ItemUnlock, player.GlobalPosition);
+                return true;
+            }
         }
 
         if (used)

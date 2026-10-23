@@ -9,7 +9,7 @@ public partial class PlayerInteractionComponent : Area2D
     [Signal]
     public delegate void FocusedInteractableChangedEventHandler(string promptText, bool canInteract);
 
-    [Export] public float InteractionRange { get; set; } = 90.0f;
+    [Export] public float InteractionRange { get; set; } = 130.0f;
 
     private readonly List<InteractableComponent> _nearbyInteractables = new();
     private InteractableComponent _currentFocus = null;
@@ -20,10 +20,34 @@ public partial class PlayerInteractionComponent : Area2D
     public override void _Ready()
     {
         _player = GetParent<Player>();
-        CollisionLayer = 0;
-        CollisionMask = 2147483647; // Detect all area layers
+        CollisionLayer = 8; // Layer 4
+        CollisionMask = 8 | 1; // Detect Layer 4 and Layer 1
         AreaEntered += OnAreaEntered;
         AreaExited += OnAreaExited;
+    }
+
+    public void RegisterInteractable(InteractableComponent interactable)
+    {
+        if (interactable != null && !_nearbyInteractables.Contains(interactable))
+        {
+            _nearbyInteractables.Add(interactable);
+            UpdateNearestInteractable();
+        }
+    }
+
+    public void UnregisterInteractable(InteractableComponent interactable)
+    {
+        if (interactable != null)
+        {
+            _nearbyInteractables.Remove(interactable);
+            if (_currentFocus == interactable)
+            {
+                interactable.NotifyFocus(false, _player);
+                _currentFocus = null;
+                EmitSignal(SignalName.FocusedInteractableChanged, string.Empty, false);
+            }
+            UpdateNearestInteractable();
+        }
     }
 
     public override void _Process(double delta)
@@ -57,13 +81,16 @@ public partial class PlayerInteractionComponent : Area2D
 
     private void UpdateNearestInteractable()
     {
+        if (_player == null) return;
+
         // Clean dead / inactive nodes
         _nearbyInteractables.RemoveAll(i => !IsInstanceValid(i) || !i.IsInsideTree());
 
         InteractableComponent bestCandidate = null;
-        float minDistanceSq = float.MaxValue;
-        Vector2 playerPos = GlobalPosition;
+        float minDistanceSq = InteractionRange * InteractionRange;
+        Vector2 playerPos = _player.GlobalPosition;
 
+        // 1. Check direct physics-tracked candidates
         for (int i = 0; i < _nearbyInteractables.Count; i++)
         {
             var candidate = _nearbyInteractables[i];
@@ -75,6 +102,24 @@ public partial class PlayerInteractionComponent : Area2D
             {
                 minDistanceSq = distSq;
                 bestCandidate = candidate;
+            }
+        }
+
+        // 2. Fallback scan of group 'interactables' in case physics signals had a 1-frame latency
+        var treeInteractables = GetTree()?.GetNodesInGroup("interactables");
+        if (treeInteractables != null)
+        {
+            for (int i = 0; i < treeInteractables.Count; i++)
+            {
+                if (treeInteractables[i] is InteractableComponent candidate && candidate.CanInteract(_player))
+                {
+                    float distSq = playerPos.DistanceSquaredTo(candidate.GlobalPosition);
+                    if (distSq < minDistanceSq)
+                    {
+                        minDistanceSq = distSq;
+                        bestCandidate = candidate;
+                    }
+                }
             }
         }
 
@@ -110,9 +155,38 @@ public partial class PlayerInteractionComponent : Area2D
 
     public bool TryTriggerInteraction()
     {
-        if (_currentFocus == null || !IsInstanceValid(_currentFocus))
-            return false;
+        if (_player == null) return false;
 
-        return _currentFocus.TryInteract(_player);
+        // 1. Direct focus interact
+        if (_currentFocus != null && IsInstanceValid(_currentFocus))
+        {
+            return _currentFocus.TryInteract(_player);
+        }
+
+        // 2. Proximity fallback interact with nearest interactable
+        UpdateNearestInteractable();
+        if (_currentFocus != null && IsInstanceValid(_currentFocus))
+        {
+            return _currentFocus.TryInteract(_player);
+        }
+
+        // 3. Proximity check for nearby pickups
+        var pickups = GetTree()?.GetNodesInGroup("pickups");
+        if (pickups != null)
+        {
+            foreach (var node in pickups)
+            {
+                if (node is Pickup pickup && IsInstanceValid(pickup))
+                {
+                    if (_player.GlobalPosition.DistanceTo(pickup.GlobalPosition) <= 100.0f)
+                    {
+                        pickup.CollectByPlayer(_player);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

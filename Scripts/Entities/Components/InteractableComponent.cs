@@ -1,5 +1,6 @@
 using Godot;
 using TopDownDemo.Entities;
+using TopDownDemo.Systems;
 
 namespace TopDownDemo.Entities.Components;
 
@@ -24,13 +25,36 @@ public partial class InteractableComponent : Area2D
     public override void _Ready()
     {
         AddToGroup("interactables");
-        CollisionLayer = 0;
-        CollisionMask = 1; // Detects Player (Layer 1)
+        CollisionLayer = 8; // Layer 4 (Interactables)
+        CollisionMask = 1 | 8; // Layer 1 (Player) + Layer 4
+        BodyEntered += OnBodyEntered;
+        BodyExited += OnBodyExited;
+    }
+
+    private void OnBodyEntered(Node2D body)
+    {
+        if (body is Player player)
+        {
+            player.InteractionComponent?.RegisterInteractable(this);
+            // Auto-unlock blast doors if player approaches with required key
+            if (GetParent() is BlastDoor door && !door.IsOpen && HasRequiredItem(player))
+            {
+                door.OpenDoor();
+            }
+        }
+    }
+
+    private void OnBodyExited(Node2D body)
+    {
+        if (body is Player player)
+        {
+            player.InteractionComponent?.UnregisterInteractable(this);
+        }
     }
 
     public bool HasRequiredItem(Player player)
     {
-        if (string.IsNullOrEmpty(RequiredItemId)) return true;
+        if (string.IsNullOrWhiteSpace(RequiredItemId)) return true;
         return player?.InventoryComponent?.HasItem(RequiredItemId) ?? false;
     }
 
@@ -46,9 +70,13 @@ public partial class InteractableComponent : Area2D
         if (!IsActive) return string.Empty;
         if (OneShot && HasInteracted) return string.Empty;
 
-        if (!string.IsNullOrEmpty(RequiredItemId) && !HasRequiredItem(player))
+        if (!string.IsNullOrWhiteSpace(RequiredItemId))
         {
-            return string.IsNullOrEmpty(LockedPromptText) ? "LOCKED" : LockedPromptText;
+            if (!HasRequiredItem(player))
+            {
+                return string.IsNullOrWhiteSpace(LockedPromptText) ? "LOCKED - KEYCARD REQUIRED" : LockedPromptText;
+            }
+            return !string.IsNullOrWhiteSpace(PromptText) ? PromptText : "UNLOCK & OPEN";
         }
 
         return PromptText;
@@ -58,10 +86,11 @@ public partial class InteractableComponent : Area2D
     {
         if (!CanInteract(player)) return false;
 
-        if (!string.IsNullOrEmpty(RequiredItemId))
+        if (!string.IsNullOrWhiteSpace(RequiredItemId))
         {
             if (!HasRequiredItem(player))
             {
+                AudioManager.Instance?.PlaySound(SoundType.TerminalData, GlobalPosition);
                 return false;
             }
 

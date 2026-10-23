@@ -67,7 +67,7 @@ script = ExtResource("6_light_comp")
 
 [node name="InteractionComponent" type="Area2D" parent="." unique_id=77889900]
 unique_name_in_owner = true
-collision_layer = 0
+collision_layer = 8
 collision_mask = 2147483647
 script = ExtResource("14_interact_comp")
 

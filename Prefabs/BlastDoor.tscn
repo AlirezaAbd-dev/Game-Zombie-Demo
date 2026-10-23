@@ -12,7 +12,7 @@ size = Vector2(96, 96)
 polygon = PackedVector2Array(-48, -48, 48, -48, 48, 48, -48, 48)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_door_interact"]
-radius = 80.0
+radius = 120.0
 
 [node name="BlastDoor" type="StaticBody2D" unique_id=61728394]
 collision_layer = 1
@@ -41,8 +41,8 @@ texture = ExtResource("3_light_tex")
 
 [node name="InteractableComponent" type="Area2D" parent="." unique_id=21627384]
 unique_name_in_owner = true
-collision_layer = 0
-collision_mask = 1
+collision_layer = 8
+collision_mask = 9
 script = ExtResource("4_interact_comp")
 PromptText = "OPEN BLAST DOOR"
 LockedPromptText = "LOCKED - KEYCARD REQUIRED"
