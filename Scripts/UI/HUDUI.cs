@@ -463,6 +463,7 @@ public partial class HUDUI : Control
     private void OnPlayerDied()
     {
         Input.MouseMode = Input.MouseModeEnum.Visible;
+        AudioManager.Instance?.StopMusic(2.5f);
         if (GameOverPanel != null)
         {
             GameOverPanel.Visible = true;

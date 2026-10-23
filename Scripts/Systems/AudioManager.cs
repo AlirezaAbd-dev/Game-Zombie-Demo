@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using TopDownDemo.Entities;
 
 namespace TopDownDemo.Systems;
 
@@ -46,10 +47,21 @@ public partial class AudioManager : Node
         private set => _instance = value;
     }
 
+    [ExportGroup("Music Configuration")]
+    [Export] public float DefaultMusicVolumeDb { get; set; } = -10.0f;
+    [Export] public string AmbientMusicPath { get; set; } = "res://Assets/audio/music_ambient_horror.ogg";
+    [Export] public string BossMusicPath { get; set; } = "res://Assets/audio/music_boss_combat.ogg";
+
     private readonly Dictionary<SoundType, AudioStreamWav> _soundCache = new();
     private readonly List<AudioStreamPlayer2D> _spatialPlayers = new();
     private AudioStreamPlayer _uiPlayer;
     private AudioStreamPlayer _alarmPlayer;
+
+    private AudioStreamPlayer _musicPlayerA;
+    private AudioStreamPlayer _musicPlayerB;
+    private AudioStreamPlayer _activeMusicPlayer;
+    private Tween _musicFadeTween;
+    private string _currentTrackId = "";
 
     private const int SampleRate = 22050;
 
@@ -60,6 +72,16 @@ public partial class AudioManager : Node
 
     public override void _ExitTree()
     {
+        _musicFadeTween?.Kill();
+        _musicPlayerA?.Stop();
+        _musicPlayerB?.Stop();
+
+        if (StoryDirector.Instance != null)
+        {
+            StoryDirector.Instance.BossSpawned -= OnStoryBossSpawned;
+            StoryDirector.Instance.MissionCompleted -= OnStoryMissionCompleted;
+        }
+
         if (_instance == this)
         {
             _instance = null;
@@ -76,6 +98,12 @@ public partial class AudioManager : Node
         _alarmPlayer = new AudioStreamPlayer { Name = "AlarmPlayer", VolumeDb = -6.0f };
         AddChild(_alarmPlayer);
 
+        // Dedicated crossfading background music players
+        _musicPlayerA = new AudioStreamPlayer { Name = "MusicPlayerA", Bus = "Master", ProcessMode = ProcessModeEnum.Always };
+        _musicPlayerB = new AudioStreamPlayer { Name = "MusicPlayerB", Bus = "Master", ProcessMode = ProcessModeEnum.Always };
+        AddChild(_musicPlayerA);
+        AddChild(_musicPlayerB);
+
         for (int i = 0; i < 8; i++)
         {
             var p = new AudioStreamPlayer2D { MaxDistance = 1400.0f };
@@ -84,6 +112,122 @@ public partial class AudioManager : Node
         }
 
         GenerateSoundCache();
+
+        // Autoplay atmospheric survival horror background music
+        PlayMusic("ambient", fadeDuration: 1.5f);
+
+        // Hook story events once all tree siblings are initialized
+        Callable.From(HookStoryEvents).CallDeferred();
+    }
+
+    private void HookStoryEvents()
+    {
+        if (StoryDirector.Instance != null)
+        {
+            StoryDirector.Instance.BossSpawned += OnStoryBossSpawned;
+            StoryDirector.Instance.MissionCompleted += OnStoryMissionCompleted;
+        }
+    }
+
+    private void OnStoryBossSpawned(Zombie boss)
+    {
+        PlayMusic("boss", fadeDuration: 1.8f);
+    }
+
+    private void OnStoryMissionCompleted()
+    {
+        PlayMusic("ambient", fadeDuration: 3.5f);
+    }
+
+    public void PlayMusic(string trackId, float fadeDuration = 2.0f)
+    {
+        if (_currentTrackId == trackId && _activeMusicPlayer != null && _activeMusicPlayer.Playing)
+            return;
+
+        string path = trackId switch
+        {
+            "boss" => BossMusicPath,
+            _ => AmbientMusicPath
+        };
+
+        var stream = LoadMusicStream(path);
+        if (stream == null)
+        {
+            GD.PrintErr($"[AudioManager] Could not load music stream for track '{trackId}' at '{path}'.");
+            return;
+        }
+
+        _currentTrackId = trackId;
+
+        var incomingPlayer = (_activeMusicPlayer == _musicPlayerA) ? _musicPlayerB : _musicPlayerA;
+        var outgoingPlayer = _activeMusicPlayer;
+
+        incomingPlayer.Stream = stream;
+        incomingPlayer.VolumeDb = -80.0f;
+        incomingPlayer.Play();
+
+        _musicFadeTween?.Kill();
+        _musicFadeTween = CreateTween();
+        _musicFadeTween.SetParallel(true);
+
+        _musicFadeTween.TweenProperty(incomingPlayer, "volume_db", DefaultMusicVolumeDb, fadeDuration)
+            .SetTrans(Tween.TransitionType.Cubic)
+            .SetEase(Tween.EaseType.Out);
+
+        if (outgoingPlayer != null && outgoingPlayer.Playing)
+        {
+            _musicFadeTween.TweenProperty(outgoingPlayer, "volume_db", -80.0f, fadeDuration)
+                .SetTrans(Tween.TransitionType.Cubic)
+                .SetEase(Tween.EaseType.In);
+        }
+
+        _activeMusicPlayer = incomingPlayer;
+    }
+
+    public void StopMusic(float fadeDuration = 1.5f)
+    {
+        _currentTrackId = "";
+        if (_activeMusicPlayer == null || !_activeMusicPlayer.Playing) return;
+
+        _musicFadeTween?.Kill();
+        _musicFadeTween = CreateTween();
+        _musicFadeTween.TweenProperty(_activeMusicPlayer, "volume_db", -80.0f, fadeDuration)
+            .SetTrans(Tween.TransitionType.Cubic)
+            .SetEase(Tween.EaseType.In);
+        _musicFadeTween.TweenCallback(Callable.From(() =>
+        {
+            _musicPlayerA?.Stop();
+            _musicPlayerB?.Stop();
+        }));
+    }
+
+    private static AudioStream LoadMusicStream(string resPath)
+    {
+        AudioStream stream = null;
+        try
+        {
+            stream = GD.Load<AudioStream>(resPath);
+        }
+        catch { }
+
+        if (stream == null)
+        {
+            try
+            {
+                stream = AudioStreamOggVorbis.LoadFromFile(resPath);
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"[AudioManager] LoadFromFile exception for '{resPath}': {ex.Message}");
+            }
+        }
+
+        if (stream is AudioStreamOggVorbis ogg)
+        {
+            ogg.Loop = true;
+        }
+
+        return stream;
     }
 
     private void GenerateSoundCache()

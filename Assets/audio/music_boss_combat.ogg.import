@@ -1,0 +1,17 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+valid=false
+
+[deps]
+
+source_file="res://Assets/audio/music_boss_combat.ogg"
+
+[params]
+
+loop=true
+loop_offset=0.0
+bpm=125.0
+beat_count=80
+bar_beats=4
