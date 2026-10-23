@@ -143,6 +143,24 @@ public partial class FinisherTargetComponent : Node2D
         }
     }
 
+    public bool HasLineOfSightToPlayer(Player player)
+    {
+        if (player == null || !IsInstanceValid(player)) return false;
+
+        var spaceState = GetWorld2D()?.DirectSpaceState;
+        if (spaceState == null) return true;
+
+        var query = PhysicsRayQueryParameters2D.Create(
+            GlobalPosition,
+            player.GlobalPosition,
+            collisionMask: 1 // Layer 1: Obstacles, Walls, Boundaries
+        );
+
+        var result = spaceState.IntersectRay(query);
+        // If ray hit nothing, direct line of sight is clear!
+        return result == null || result.Count == 0;
+    }
+
     private void UpdateFinisherPrompt()
     {
         if (!IsInstanceValid(_player))
@@ -157,7 +175,7 @@ public partial class FinisherTargetComponent : Node2D
         }
 
         float dist = GlobalPosition.DistanceTo(_player.GlobalPosition);
-        bool inRange = dist <= FinisherRange;
+        bool inRange = dist <= FinisherRange && HasLineOfSightToPlayer(_player);
 
         if (_promptContainer != null)
         {
@@ -252,6 +270,9 @@ public partial class FinisherTargetComponent : Node2D
         if (!IsStunned || _zombie == null || _zombie.IsDead || player == null || player.IsDead)
             return false;
 
-        return GlobalPosition.DistanceTo(player.GlobalPosition) <= FinisherRange;
+        if (GlobalPosition.DistanceTo(player.GlobalPosition) > FinisherRange)
+            return false;
+
+        return HasLineOfSightToPlayer(player);
     }
 }

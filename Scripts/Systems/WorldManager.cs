@@ -151,19 +151,137 @@ public partial class WorldManager : Node2D
         AddChild(zombie);
     }
 
+    // =========================================================================
+    // SECTOR PLAYABLE GEOMETRY & BOUNDS
+    // =========================================================================
+    public static readonly Rect2 Sector1Bounds = new Rect2(390, 200, 420, 360);
+    public static readonly Rect2 Sector2Bounds = new Rect2(890, 200, 570, 300);
+    public static readonly Rect2 Sector3Bounds = new Rect2(390, -520, 420, 640);
+    public static readonly Rect2 Sector4Bounds = new Rect2(220, -1540, 760, 940);
+
+    public static bool IsInsidePlayableArea(Vector2 pos, float margin = 0.0f)
+    {
+        if (Sector1Bounds.Grow(-margin).HasPoint(pos)) return true;
+        if (Sector2Bounds.Grow(-margin).HasPoint(pos)) return true;
+        if (Sector3Bounds.Grow(-margin).HasPoint(pos)) return true;
+        if (Sector4Bounds.Grow(-margin).HasPoint(pos)) return true;
+
+        // Corridor between Sector 1 and Sector 3 (around blast door at 600, 160)
+        Rect2 corridorS1S3 = new Rect2(550, 115, 100, 90);
+        if (corridorS1S3.Grow(-margin).HasPoint(pos)) return true;
+
+        // Corridor between Sector 3 and Sector 4 (around cargo gate at 600, -560)
+        Rect2 corridorS3S4 = new Rect2(550, -605, 100, 90);
+        if (corridorS3S4.Grow(-margin).HasPoint(pos)) return true;
+
+        // Doorway between Sector 1 and Sector 2 (around blast door at 850, 350)
+        Rect2 doorS1S2 = new Rect2(805, 300, 90, 100);
+        if (doorS1S2.Grow(-margin).HasPoint(pos)) return true;
+
+        return false;
+    }
+
+    public static Vector2 ClampToPlayableBounds(Vector2 pos)
+    {
+        if (IsInsidePlayableArea(pos))
+            return pos;
+
+        if (pos.Y < -560.0f)
+        {
+            // Sector 4: Helipad Arena
+            return new Vector2(
+                Mathf.Clamp(pos.X, Sector4Bounds.Position.X + 25.0f, Sector4Bounds.End.X - 25.0f),
+                Mathf.Clamp(pos.Y, Sector4Bounds.Position.Y + 25.0f, Sector4Bounds.End.Y - 25.0f)
+            );
+        }
+        else if (pos.Y < 160.0f)
+        {
+            // Sector 3: Central Bio-Lab
+            return new Vector2(
+                Mathf.Clamp(pos.X, Sector3Bounds.Position.X + 25.0f, Sector3Bounds.End.X - 25.0f),
+                Mathf.Clamp(pos.Y, Sector3Bounds.Position.Y + 25.0f, Sector3Bounds.End.Y - 25.0f)
+            );
+        }
+        else
+        {
+            if (pos.X > 850.0f)
+            {
+                // Sector 2: Auxiliary Substation
+                return new Vector2(
+                    Mathf.Clamp(pos.X, Sector2Bounds.Position.X + 25.0f, Sector2Bounds.End.X - 25.0f),
+                    Mathf.Clamp(pos.Y, Sector2Bounds.Position.Y + 25.0f, Sector2Bounds.End.Y - 25.0f)
+                );
+            }
+            else
+            {
+                // Sector 1: Checkpoint
+                return new Vector2(
+                    Mathf.Clamp(pos.X, Sector1Bounds.Position.X + 25.0f, Sector1Bounds.End.X - 25.0f),
+                    Mathf.Clamp(pos.Y, Sector1Bounds.Position.Y + 25.0f, Sector1Bounds.End.Y - 25.0f)
+                );
+            }
+        }
+    }
+
     private Vector2? FindClearSpawnPosition()
     {
-        for (int i = 0; i < 8; i++)
-        {
-            float angle = (float)GD.RandRange(0.0, Mathf.Tau);
-            float distance = (float)GD.RandRange(600.0, 850.0);
-            Vector2 candidate = _player.GlobalPosition + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
+        if (!IsInstanceValid(_player)) return null;
 
-            if (IsPositionClear(candidate))
+        var phase = StoryDirector.Instance?.CurrentPhase ?? StoryPhase.Act1_Blackout;
+        Vector2 playerPos = _player.GlobalPosition;
+
+        // Choose eligible sectors based on current narrative act and unlocked doors
+        var eligibleSectors = new System.Collections.Generic.List<Rect2>();
+
+        if (phase == StoryPhase.Act3_HelipadEvacuation || phase == StoryPhase.Act3_BossBattle)
+        {
+            // Act 3: Helipad Arena
+            eligibleSectors.Add(Sector4Bounds);
+        }
+        else if (phase == StoryPhase.Act2_TerminalDefense)
+        {
+            // Act 2 Defense: Bio-Lab & South hallway
+            eligibleSectors.Add(Sector3Bounds);
+            eligibleSectors.Add(Sector1Bounds);
+        }
+        else if (phase == StoryPhase.Act2_ContainmentBreach || phase == StoryPhase.Act1_PowerRestored)
+        {
+            // Act 2 Exploration: Bio-Lab, Substation, Spawn room
+            eligibleSectors.Add(Sector3Bounds);
+            eligibleSectors.Add(Sector2Bounds);
+            eligibleSectors.Add(Sector1Bounds);
+        }
+        else
+        {
+            // Act 1 Blackout: hand-placed zombies only
+            return null;
+        }
+
+        // Try candidate positions strictly inside eligible room bounds
+        for (int i = 0; i < 20; i++)
+        {
+            Rect2 targetSector = eligibleSectors[(int)(GD.Randi() % eligibleSectors.Count)];
+
+            // Generate coordinate strictly within chosen sector (inset 45px from walls)
+            float candX = (float)GD.RandRange(targetSector.Position.X + 45.0f, targetSector.End.X - 45.0f);
+            float candY = (float)GD.RandRange(targetSector.Position.Y + 45.0f, targetSector.End.Y - 45.0f);
+            Vector2 candidate = new Vector2(candX, candY);
+
+            // Minimum distance from player so zombies don't spawn on top of player
+            if (candidate.DistanceTo(playerPos) < 220.0f)
+                continue;
+
+            // In Terminal Defense, don't spawn right on the console
+            if (phase == StoryPhase.Act2_TerminalDefense && candidate.DistanceTo(new Vector2(600, -250)) < 160.0f)
+                continue;
+
+            // Check if clear of obstacles/props
+            if (IsPositionClear(candidate, 40.0f))
             {
                 return candidate;
             }
         }
+
         return null;
     }
 

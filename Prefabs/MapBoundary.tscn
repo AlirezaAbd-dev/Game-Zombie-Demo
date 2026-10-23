@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://mapboundary99"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bound"]
-size = Vector2(200, 40)
+size = Vector2(200, 80)
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_bound"]
-polygon = PackedVector2Array(-100, -20, 100, -20, 100, 20, -100, 20)
+polygon = PackedVector2Array(-100, -40, 100, -40, 100, 40, -100, 40)
 
 [node name="MapBoundary" type="StaticBody2D" unique_id=99009900]
 collision_layer = 1

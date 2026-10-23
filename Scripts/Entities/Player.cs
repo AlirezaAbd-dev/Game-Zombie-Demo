@@ -133,6 +133,7 @@ public partial class Player : CharacterBody2D, IDamageable
         float dt = (float)delta;
         MovementComponent?.DecayKnockback(dt);
         StateMachine?.PhysicsUpdate(dt);
+        GlobalPosition = WorldManager.ClampToPlayableBounds(GlobalPosition);
     }
 
     public Vector2 GetMovementInput()

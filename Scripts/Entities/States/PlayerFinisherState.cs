@@ -30,7 +30,9 @@ public class PlayerFinisherState : PlayerState
             return;
         }
 
-        Vector2 toTarget = (_target.GlobalPosition - Player.GlobalPosition).Normalized();
+        Vector2 startPos = Player.GlobalPosition;
+        Vector2 toTarget = (_target.GlobalPosition - startPos).Normalized();
+        if (toTarget == Vector2.Zero) toTarget = Transform2D.Identity.X.Rotated(Player.GlobalRotation);
         Player.Rotation = toTarget.Angle();
 
         // Hide or tuck gun sprite during melee finisher
@@ -39,11 +41,33 @@ public class PlayerFinisherState : PlayerState
             Player.GunSprite.Visible = false;
         }
 
-        // Lunge player directly into striking range
-        Vector2 strikePosition = _target.GlobalPosition - toTarget * 38.0f;
+        // Calculate safe striking position with obstacle raycast detection
+        Vector2 targetStrikePos = _target.GlobalPosition - toTarget * 38.0f;
+        Vector2 safeStrikePos = targetStrikePos;
+
+        var spaceState = Player.GetWorld2D()?.DirectSpaceState;
+        if (spaceState != null)
+        {
+            var rayQuery = PhysicsRayQueryParameters2D.Create(
+                startPos,
+                targetStrikePos,
+                collisionMask: 1 // Layer 1: Obstacles, Walls, Boundaries
+            );
+            var hit = spaceState.IntersectRay(rayQuery);
+            if (hit != null && hit.Count > 0)
+            {
+                Vector2 hitPoint = hit["position"].AsVector2();
+                Vector2 hitNormal = hit["normal"].AsVector2();
+                safeStrikePos = hitPoint + hitNormal * 28.0f;
+            }
+        }
+
+        // Clamp safe striking position to facility boundaries
+        safeStrikePos = WorldManager.ClampToPlayableBounds(safeStrikePos);
+
         var lungeTween = Player.CreateTween();
         lungeTween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
-        lungeTween.TweenProperty(Player, "global_position", strikePosition, 0.12);
+        lungeTween.TweenProperty(Player, "global_position", safeStrikePos, 0.12);
         lungeTween.TweenCallback(Callable.From(ExecuteImpactStrike));
     }
 
@@ -195,11 +219,14 @@ public class PlayerFinisherState : PlayerState
         {
             Player.BodySprite.Rotation = 0.0f;
         }
+
+        Player.GlobalPosition = WorldManager.ClampToPlayableBounds(Player.GlobalPosition);
     }
 
     public override void PhysicsUpdate(float delta)
     {
         Player.MovementComponent?.Stop();
+        Player.GlobalPosition = WorldManager.ClampToPlayableBounds(Player.GlobalPosition);
 
         _durationTimer -= delta;
         if (_durationTimer <= 0.0f)

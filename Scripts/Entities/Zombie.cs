@@ -142,6 +142,11 @@ public partial class Zombie : CharacterBody2D, IDamageable
         float dt = (float)delta;
         MovementComponent?.DecayKnockback(dt);
         StateMachine?.PhysicsUpdate(dt);
+
+        if (!IsDead)
+        {
+            GlobalPosition = WorldManager.ClampToPlayableBounds(GlobalPosition);
+        }
     }
 
     public void RotateTowards(Vector2 direction, float delta)
