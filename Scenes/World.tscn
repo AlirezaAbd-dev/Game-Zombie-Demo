@@ -286,8 +286,15 @@ texture = ExtResource("7_light")
 texture_scale = 1.9
 
 [node name="KeycardPickup" parent="." unique_id=110 instance=ExtResource("6_pickup_scene")]
-position = Vector2(480, 360)
+position = Vector2(600, 350)
 Item = ExtResource("26_keycard")
+
+[node name="KeycardGlowDesk" type="PointLight2D" parent="." unique_id=114]
+position = Vector2(600, 350)
+color = Color(0.1, 0.9, 1, 1)
+energy = 1.4
+texture = ExtResource("7_light")
+texture_scale = 1.5
 
 [node name="AmmoPickupPistol" parent="." unique_id=111 instance=ExtResource("6_pickup_scene")]
 position = Vector2(420, 420)
@@ -296,6 +303,8 @@ Item = ExtResource("14_ammo_item")
 [node name="SubstationDoor" parent="." unique_id=112 instance=ExtResource("22_blast_door")]
 position = Vector2(850, 350)
 DoorId = "door_substation"
+RequiredItemId = "keycard_substation"
+LockedPromptText = "LOCKED - REQUIRES SUBSTATION KEYCARD"
 SlideOffset = Vector2(0, 95)
 
 [node name="LabDoor" parent="." unique_id=113 instance=ExtResource("22_blast_door")]
@@ -340,11 +349,11 @@ texture_scale = 1.8
 position = Vector2(1350, 350)
 
 [node name="SubstationZombie1" parent="." unique_id=210 instance=ExtResource("5_zombie_scene")]
-position = Vector2(1100, 440)
+position = Vector2(1120, 350)
 Stats = ExtResource("15_zombie_walker")
 
 [node name="SubstationZombie2" parent="." unique_id=211 instance=ExtResource("5_zombie_scene")]
-position = Vector2(1320, 240)
+position = Vector2(1280, 420)
 Stats = ExtResource("15_zombie_walker")
 
 [node name="MedkitSubstation" parent="." unique_id=212 instance=ExtResource("6_pickup_scene")]
@@ -410,11 +419,11 @@ Item = ExtResource("19_ammo_rifle")
 position = Vector2(440, -180)
 
 [node name="LabZombieRunner" parent="." unique_id=317 instance=ExtResource("5_zombie_scene")]
-position = Vector2(740, -350)
+position = Vector2(650, -380)
 Stats = ExtResource("16_zombie_runner")
 
 [node name="LabZombieWalker" parent="." unique_id=318 instance=ExtResource("5_zombie_scene")]
-position = Vector2(740, -150)
+position = Vector2(650, -120)
 Stats = ExtResource("15_zombie_walker")
 
 [node name="CargoGate" parent="." unique_id=319 instance=ExtResource("22_blast_door")]

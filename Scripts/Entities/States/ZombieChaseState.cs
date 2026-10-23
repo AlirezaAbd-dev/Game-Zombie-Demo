@@ -29,7 +29,17 @@ public class ZombieChaseState : ZombieState
 
         if (distance > Zombie.Stats.StopDistance)
         {
-            Zombie.MovementComponent.Move(dir, Zombie.SpeedModifier);
+            Vector2 moveDir = dir;
+            if (Zombie.GetSlideCollisionCount() > 0)
+            {
+                var collision = Zombie.GetSlideCollision(0);
+                Vector2 normal = collision.GetNormal();
+                Vector2 tangent = new Vector2(-normal.Y, normal.X);
+                if (tangent.Dot(dir) < 0) tangent = -tangent;
+                moveDir = (dir + tangent * 1.8f).Normalized();
+            }
+
+            Zombie.MovementComponent.Move(moveDir, Zombie.SpeedModifier);
         }
         else
         {

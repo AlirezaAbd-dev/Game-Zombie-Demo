@@ -121,20 +121,18 @@ public partial class WorldManager : Node2D
             return;
 
         var phase = StoryDirector.Instance?.CurrentPhase ?? StoryPhase.Act1_Blackout;
+        if (phase == StoryPhase.Act1_Blackout)
+            return; // In Act 1, only pre-placed zombies exist so player can explore without unfair spawns
 
-        float angle = (float)GD.RandRange(0.0, Mathf.Tau);
-        float distance = (float)GD.RandRange(750.0, 950.0);
-        Vector2 spawnPos = _player.GlobalPosition + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
+        Vector2? clearSpawnPos = FindClearSpawnPosition();
+        if (!clearSpawnPos.HasValue)
+            return;
 
         var zombie = ZombieScene.Instantiate<Zombie>();
-        zombie.GlobalPosition = spawnPos;
+        zombie.GlobalPosition = clearSpawnPos.Value;
 
         EnemyStats chosenStats = WalkerStats;
-        if (phase == StoryPhase.Act1_Blackout)
-        {
-            chosenStats = WalkerStats;
-        }
-        else if (phase == StoryPhase.Act2_TerminalDefense)
+        if (phase == StoryPhase.Act2_TerminalDefense)
         {
             chosenStats = (GD.Randf() < 0.65f) ? RunnerStats : WalkerStats;
         }
@@ -151,6 +149,38 @@ public partial class WorldManager : Node2D
 
         zombie.Stats = chosenStats;
         AddChild(zombie);
+    }
+
+    private Vector2? FindClearSpawnPosition()
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            float angle = (float)GD.RandRange(0.0, Mathf.Tau);
+            float distance = (float)GD.RandRange(600.0, 850.0);
+            Vector2 candidate = _player.GlobalPosition + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
+
+            if (IsPositionClear(candidate))
+            {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private bool IsPositionClear(Vector2 pos, float radius = 45.0f)
+    {
+        var spaceState = GetWorld2D()?.DirectSpaceState;
+        if (spaceState == null) return true;
+
+        var shapeParams = new PhysicsShapeQueryParameters2D
+        {
+            Shape = new CircleShape2D { Radius = radius },
+            Transform = new Transform2D(0.0f, pos),
+            CollisionMask = 1 // Obstacles layer
+        };
+
+        var results = spaceState.IntersectShape(shapeParams, 1);
+        return results.Count == 0;
     }
 
     public override void _UnhandledInput(InputEvent @event)

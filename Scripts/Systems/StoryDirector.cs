@@ -116,10 +116,10 @@ public partial class StoryDirector : Node
     {
         CurrentPhase = StoryPhase.Act1_Blackout;
         EmitSignal(SignalName.PhaseChanged, (int)CurrentPhase);
-        EmitSignal(SignalName.ObjectiveUpdated, "MISSION 1: RESTORE SECTOR POWER", "Locate Auxiliary Substation Keycard in Guard Post.");
+        EmitSignal(SignalName.ObjectiveUpdated, "MISSION 1: RESTORE SECTOR POWER", "Grab the glowing Substation Keycard in front of you.");
 
         // Opening Comms
-        TriggerRadioComms("CMDR. REYES (HQ)", "Cole! Sector-4 containment collapsed. Mainframe tripped emergency blackout. Move to the East Substation and restart the Auxiliary Generator!", 6.5f);
+        TriggerRadioComms("CMDR. REYES (HQ)", "Cole! Sector-4 is in emergency blackout. Grab the glowing Substation Keycard on the floor in front of you, unlock the East blast door, and restart the generator!", 7.0f);
     }
 
     public void OnGeneratorActivated()

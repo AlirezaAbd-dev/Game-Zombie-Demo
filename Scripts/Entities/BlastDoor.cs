@@ -10,6 +10,8 @@ public partial class BlastDoor : StaticBody2D
     public delegate void DoorOpenedEventHandler();
 
     [Export] public string DoorId { get; set; } = "blast_door";
+    [Export] public string RequiredItemId { get; set; } = string.Empty;
+    [Export] public string LockedPromptText { get; set; } = string.Empty;
     [Export] public bool IsOpen { get; set; } = false;
     [Export] public bool OpenOnPowerRestored { get; set; } = false;
     [Export] public bool OpenOnEvacPhase { get; set; } = false;
@@ -39,6 +41,14 @@ public partial class BlastDoor : StaticBody2D
 
         if (Interactable != null)
         {
+            if (!string.IsNullOrEmpty(RequiredItemId))
+            {
+                Interactable.RequiredItemId = RequiredItemId;
+            }
+            if (!string.IsNullOrEmpty(LockedPromptText))
+            {
+                Interactable.LockedPromptText = LockedPromptText;
+            }
             Interactable.Interacted += OnInteracted;
         }
 

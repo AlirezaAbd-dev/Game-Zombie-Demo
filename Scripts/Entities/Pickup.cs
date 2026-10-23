@@ -42,7 +42,46 @@ public partial class Pickup : Area2D
 
         if (GlowLight != null)
         {
-            GlowLight.Color = Item.Type == ItemType.Health ? new Color(0.2f, 1.0f, 0.4f, 1.0f) : new Color(1.0f, 0.85f, 0.2f, 1.0f);
+            if (Item.Type == ItemType.Key)
+            {
+                GlowLight.Color = new Color(0.2f, 0.95f, 1.0f, 1.0f);
+                GlowLight.TextureScale = 1.8f;
+                GlowLight.Energy = 1.8f;
+            }
+            else if (Item.Type == ItemType.Health)
+            {
+                GlowLight.Color = new Color(0.2f, 1.0f, 0.4f, 1.0f);
+                GlowLight.TextureScale = 1.0f;
+            }
+            else
+            {
+                GlowLight.Color = new Color(1.0f, 0.85f, 0.2f, 1.0f);
+                GlowLight.TextureScale = 1.0f;
+            }
+        }
+
+        if (Item.Type == ItemType.Key)
+        {
+            var col = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+            if (col != null && col.Shape is CircleShape2D circle)
+            {
+                circle.Radius = 55.0f;
+            }
+
+            if (GetNodeOrNull<Label>("KeycardLabel") == null)
+            {
+                var label = new Label
+                {
+                    Name = "KeycardLabel",
+                    Text = "SUBSTATION KEYCARD",
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Position = new Vector2(-100, -38),
+                    Size = new Vector2(200, 20)
+                };
+                label.Modulate = new Color(0.3f, 1.0f, 1.0f, 0.95f);
+                AddChild(label);
+            }
         }
     }
 
