@@ -34,6 +34,7 @@ public partial class Player : CharacterBody2D, IDamageable
     public PlayerIdleState IdleState { get; private set; }
     public PlayerWalkState WalkState { get; private set; }
     public PlayerDashState DashState { get; private set; }
+    public PlayerKnifeState KnifeState { get; private set; }
     public PlayerDeadState DeadState { get; private set; }
 
     public bool IsInvulnerable { get; set; } = false;
@@ -59,6 +60,7 @@ public partial class Player : CharacterBody2D, IDamageable
         IdleState = new PlayerIdleState(this);
         WalkState = new PlayerWalkState(this);
         DashState = new PlayerDashState(this);
+        KnifeState = new PlayerKnifeState(this);
         DeadState = new PlayerDeadState(this);
 
         if (HealthComponent != null)
@@ -160,6 +162,12 @@ public partial class Player : CharacterBody2D, IDamageable
 
         // Weapon Switch Inputs
         HandleWeaponSwitchInput();
+
+        if (Input.IsActionJustPressed("knife"))
+        {
+            TryExecuteKnifeAttack();
+            return;
+        }
 
         if (Input.IsActionJustPressed("finisher"))
         {
@@ -398,6 +406,20 @@ public partial class Player : CharacterBody2D, IDamageable
         }
 
         return false;
+    }
+
+    public bool TryExecuteKnifeAttack()
+    {
+        if (IsDead || StateMachine?.CurrentState is PlayerFinisherState || StateMachine?.CurrentState is PlayerKnifeState)
+            return false;
+
+        if (StaminaComponent != null && StaminaComponent.CurrentStamina >= 10.0f)
+        {
+            StaminaComponent.TryConsume(10.0f);
+        }
+
+        StateMachine.ChangeState(KnifeState);
+        return true;
     }
 
     public void SpawnDashGhost()

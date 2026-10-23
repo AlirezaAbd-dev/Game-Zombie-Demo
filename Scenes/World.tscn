@@ -42,6 +42,7 @@
 [ext_resource type="Resource" path="res://Resources/Items/Herb_Blue.tres" id="40_herb_blue"]
 [ext_resource type="Resource" path="res://Resources/Items/Adrenaline.tres" id="41_adrenaline"]
 [ext_resource type="Texture2D" path="res://Assets/textures/blood_vignette.png" id="42_blood_vignette"]
+[ext_resource type="PackedScene" path="res://Prefabs/VentShaft.tscn" id="43_vent_shaft"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("2_floor_shader")
@@ -359,8 +360,11 @@ position = Vector2(600, -1720)
 scale = Vector2(8, 1)
 
 ; =========================================================================
-; SECTOR 1: SECURITY CHECKPOINT (SPAWN ROOM) - FULLY SEALED GAPLESS WALLS
+; SECTOR 1: SECURITY CHECKPOINT (SPAWN ROOM) - SPACIOUS & GAPLESS
 ; =========================================================================
+[node name="WallS1_S0" parent="." unique_id=100 instance=ExtResource("28_wall_steel")]
+position = Vector2(265, 600)
+
 [node name="WallS1_S1" parent="." unique_id=101 instance=ExtResource("28_wall_steel")]
 position = Vector2(350, 600)
 
@@ -383,19 +387,22 @@ position = Vector2(770, 600)
 position = Vector2(850, 600)
 
 [node name="WallS1_W1" parent="." unique_id=104 instance=ExtResource("28_wall_steel")]
-position = Vector2(350, 160)
+position = Vector2(180, 160)
 
 [node name="WallS1_W2" parent="." unique_id=105 instance=ExtResource("28_wall_steel")]
-position = Vector2(350, 250)
+position = Vector2(180, 245)
 
 [node name="WallS1_W3" parent="." unique_id=121 instance=ExtResource("28_wall_steel")]
-position = Vector2(350, 340)
+position = Vector2(180, 330)
 
 [node name="WallS1_W4" parent="." unique_id=122 instance=ExtResource("28_wall_steel")]
-position = Vector2(350, 430)
+position = Vector2(180, 415)
 
 [node name="WallS1_W5" parent="." unique_id=123 instance=ExtResource("28_wall_steel")]
-position = Vector2(350, 520)
+position = Vector2(180, 500)
+
+[node name="WallS1_W6" parent="." unique_id=129 instance=ExtResource("28_wall_steel")]
+position = Vector2(180, 600)
 
 [node name="WallS1_E1" parent="." unique_id=106 instance=ExtResource("28_wall_steel")]
 position = Vector2(850, 160)
@@ -409,46 +416,52 @@ position = Vector2(850, 430)
 [node name="WallS1_E4" parent="." unique_id=126 instance=ExtResource("28_wall_steel")]
 position = Vector2(850, 520)
 
+[node name="WallS1_N0" parent="." unique_id=130 instance=ExtResource("28_wall_steel")]
+position = Vector2(265, 160)
+
 [node name="WallS1_N1" parent="." unique_id=107 instance=ExtResource("28_wall_steel")]
-position = Vector2(435, 160)
+position = Vector2(350, 160)
 
 [node name="WallS1_N2" parent="." unique_id=108 instance=ExtResource("28_wall_steel")]
-position = Vector2(520, 160)
+position = Vector2(435, 160)
 
 [node name="WallS1_N3" parent="." unique_id=127 instance=ExtResource("28_wall_steel")]
-position = Vector2(680, 160)
+position = Vector2(765, 160)
 
 [node name="WallS1_N4" parent="." unique_id=128 instance=ExtResource("28_wall_steel")]
-position = Vector2(765, 160)
+position = Vector2(850, 160)
 
 ; Checkpoint Props & Decor
 [node name="SecurityStationLight" type="PointLight2D" parent="." unique_id=109]
-position = Vector2(600, 350)
+position = Vector2(550, 360)
 color = Color(1, 0.25, 0.2, 1)
-energy = 1.1
+energy = 1.15
 texture = ExtResource("7_light")
-texture_scale = 2.2
+texture_scale = 2.4
+
+[node name="VentShaft_S1" parent="." unique_id=131 instance=ExtResource("43_vent_shaft")]
+position = Vector2(260, 240)
 
 [node name="GuardDesk" parent="." unique_id=115 instance=ExtResource("30_prop_desk")]
-position = Vector2(600, 340)
+position = Vector2(300, 360)
 
 [node name="KeycardPickup" parent="." unique_id=110 instance=ExtResource("6_pickup_scene")]
-position = Vector2(600, 400)
+position = Vector2(300, 410)
 Item = ExtResource("26_keycard")
 
 [node name="KeycardGlowDesk" type="PointLight2D" parent="." unique_id=114]
-position = Vector2(600, 400)
+position = Vector2(300, 410)
 color = Color(0.1, 0.95, 1, 1)
 energy = 1.6
 texture = ExtResource("7_light")
 texture_scale = 1.6
 
 [node name="AmmoPickupPistol" parent="." unique_id=111 instance=ExtResource("6_pickup_scene")]
-position = Vector2(440, 420)
+position = Vector2(420, 520)
 Item = ExtResource("14_ammo_item")
 
 [node name="HerbPickupGreen1" parent="." unique_id=116 instance=ExtResource("6_pickup_scene")]
-position = Vector2(420, 520)
+position = Vector2(260, 520)
 Item = ExtResource("39_herb_green")
 
 [node name="SubstationDoor" parent="." unique_id=112 instance=ExtResource("22_blast_door")]
@@ -462,10 +475,10 @@ SlideOffset = Vector2(0, 95)
 position = Vector2(600, 160)
 DoorId = "door_central_lab"
 OpenOnPowerRestored = true
-SlideOffset = Vector2(95, 0)
+SlideOffset = Vector2(130, 0)
 
 [node name="Player" parent="." unique_id=2146031906 instance=ExtResource("4_player_scene")]
-position = Vector2(600, 480)
+position = Vector2(550, 460)
 
 ; =========================================================================
 ; SECTOR 2: AUXILIARY SUBSTATION & GENERATOR ROOM - FULLY SEALED GAPLESS WALLS
@@ -541,6 +554,9 @@ texture_scale = 1.9
 [node name="PowerGenerator" parent="." unique_id=209 instance=ExtResource("23_generator")]
 position = Vector2(1380, 350)
 
+[node name="VentShaft_S2" parent="." unique_id=230 instance=ExtResource("43_vent_shaft")]
+position = Vector2(1420, 220)
+
 [node name="SubstationZombie1" parent="." unique_id=210 instance=ExtResource("5_zombie_scene")]
 position = Vector2(1120, 350)
 Stats = ExtResource("15_zombie_walker")
@@ -564,118 +580,130 @@ position = Vector2(1420, 260)
 Item = ExtResource("41_adrenaline")
 
 ; =========================================================================
-; SECTOR 3: CENTRAL BIO-RESEARCH LAB & ARMORY - FULLY SEALED GAPLESS WALLS
+; SECTOR 3: CENTRAL BIO-RESEARCH LAB & ARMORY - EXPANDED & SPACIOUS
 ; =========================================================================
 [node name="WallS3_W1" parent="." unique_id=301 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, 75)
+position = Vector2(180, 75)
 
 [node name="WallS3_W2" parent="." unique_id=302 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -10)
+position = Vector2(180, -10)
 
 [node name="WallS3_W3" parent="." unique_id=303 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -95)
+position = Vector2(180, -95)
 
 [node name="WallS3_W4" parent="." unique_id=304 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -180)
+position = Vector2(180, -180)
 
 [node name="WallS3_W5" parent="." unique_id=326 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -265)
+position = Vector2(180, -265)
 
 [node name="WallS3_W6" parent="." unique_id=327 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -350)
+position = Vector2(180, -350)
 
 [node name="WallS3_W7" parent="." unique_id=328 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -435)
+position = Vector2(180, -435)
 
 [node name="WallS3_W8" parent="." unique_id=329 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -520)
+position = Vector2(180, -520)
 
 [node name="WallS3_W9" parent="." unique_id=330 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -560)
+position = Vector2(180, -560)
 
 [node name="WallS3_E1" parent="." unique_id=305 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, 75)
+position = Vector2(1020, 75)
 
 [node name="WallS3_E2" parent="." unique_id=306 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -10)
+position = Vector2(1020, -10)
 
 [node name="WallS3_E3" parent="." unique_id=307 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -95)
+position = Vector2(1020, -95)
 
 [node name="WallS3_E4" parent="." unique_id=308 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -180)
+position = Vector2(1020, -180)
 
 [node name="WallS3_E5" parent="." unique_id=331 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -265)
+position = Vector2(1020, -265)
 
 [node name="WallS3_E6" parent="." unique_id=332 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -350)
+position = Vector2(1020, -350)
 
 [node name="WallS3_E7" parent="." unique_id=333 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -435)
+position = Vector2(1020, -435)
 
 [node name="WallS3_E8" parent="." unique_id=334 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -520)
+position = Vector2(1020, -520)
 
 [node name="WallS3_E9" parent="." unique_id=335 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -560)
+position = Vector2(1020, -560)
+
+[node name="WallS3_N0" parent="." unique_id=338 instance=ExtResource("29_wall_lab")]
+position = Vector2(265, -560)
 
 [node name="WallS3_N1" parent="." unique_id=309 instance=ExtResource("29_wall_lab")]
-position = Vector2(435, -560)
+position = Vector2(350, -560)
 
 [node name="WallS3_N2" parent="." unique_id=310 instance=ExtResource("29_wall_lab")]
-position = Vector2(520, -560)
+position = Vector2(435, -560)
 
 [node name="WallS3_N3" parent="." unique_id=336 instance=ExtResource("29_wall_lab")]
-position = Vector2(680, -560)
-
-[node name="WallS3_N4" parent="." unique_id=337 instance=ExtResource("29_wall_lab")]
 position = Vector2(765, -560)
 
-; Bio-Lab Props & Decor
+[node name="WallS3_N4" parent="." unique_id=337 instance=ExtResource("29_wall_lab")]
+position = Vector2(850, -560)
+
+[node name="WallS3_N5" parent="." unique_id=339 instance=ExtResource("29_wall_lab")]
+position = Vector2(935, -560)
+
+; Bio-Lab Props & Infiltration Vents
 [node name="LabLightCyan" type="PointLight2D" parent="." unique_id=311]
 position = Vector2(600, -250)
 color = Color(0.15, 0.85, 1, 1)
-energy = 1.05
+energy = 1.15
 texture = ExtResource("7_light")
-texture_scale = 2.1
+texture_scale = 2.6
+
+[node name="VentShaft_S3_West" parent="." unique_id=340 instance=ExtResource("43_vent_shaft")]
+position = Vector2(280, -480)
+
+[node name="VentShaft_S3_East" parent="." unique_id=341 instance=ExtResource("43_vent_shaft")]
+position = Vector2(920, -480)
 
 [node name="LabCryoTube1" parent="." unique_id=320 instance=ExtResource("31_prop_cryo")]
-position = Vector2(480, -80)
+position = Vector2(260, -100)
 
 [node name="LabCryoTube2" parent="." unique_id=321 instance=ExtResource("31_prop_cryo")]
-position = Vector2(720, -250)
+position = Vector2(940, -100)
 
 [node name="LabGurney" parent="." unique_id=322 instance=ExtResource("34_prop_gurney")]
-position = Vector2(680, -140)
+position = Vector2(940, -280)
 
 [node name="ArmoryLocker1" parent="." unique_id=323 instance=ExtResource("32_prop_locker")]
-position = Vector2(420, -250)
+position = Vector2(260, -260)
 
 [node name="ArmoryLocker2" parent="." unique_id=324 instance=ExtResource("32_prop_locker")]
-position = Vector2(420, -350)
+position = Vector2(260, -360)
 
 [node name="SecurityTerminal" parent="." unique_id=313 instance=ExtResource("24_terminal")]
 position = Vector2(600, -250)
 
 [node name="AmmoPickupShotgun" parent="." unique_id=314 instance=ExtResource("6_pickup_scene")]
-position = Vector2(480, -380)
+position = Vector2(340, -360)
 Item = ExtResource("18_ammo_shotgun")
 
 [node name="AmmoPickupRifle" parent="." unique_id=315 instance=ExtResource("6_pickup_scene")]
-position = Vector2(480, -280)
+position = Vector2(340, -260)
 Item = ExtResource("19_ammo_rifle")
 
 [node name="HerbPickupGreen2" parent="." unique_id=325 instance=ExtResource("6_pickup_scene")]
-position = Vector2(720, -380)
+position = Vector2(860, -360)
 Item = ExtResource("39_herb_green")
 
 [node name="LabZombieRunner" parent="." unique_id=317 instance=ExtResource("5_zombie_scene")]
-position = Vector2(650, -380)
+position = Vector2(600, -420)
 Stats = ExtResource("16_zombie_runner")
 
 [node name="LabZombieWalker" parent="." unique_id=318 instance=ExtResource("5_zombie_scene")]
-position = Vector2(650, -120)
+position = Vector2(600, -80)
 Stats = ExtResource("15_zombie_walker")
 
 [node name="CargoGate" parent="." unique_id=319 instance=ExtResource("22_blast_door")]
@@ -799,17 +827,23 @@ position = Vector2(860, -1580)
 position = Vector2(935, -1580)
 
 ; Helipad Tactical Props & Cover
+[node name="VentShaft_S4_West" parent="." unique_id=450 instance=ExtResource("43_vent_shaft")]
+position = Vector2(260, -750)
+
+[node name="VentShaft_S4_East" parent="." unique_id=451 instance=ExtResource("43_vent_shaft")]
+position = Vector2(940, -750)
+
 [node name="HelipadBarrel1" parent="." unique_id=420 instance=ExtResource("33_prop_barrel")]
-position = Vector2(380, -900)
+position = Vector2(260, -900)
 
 [node name="HelipadBarrel2" parent="." unique_id=421 instance=ExtResource("33_prop_barrel")]
-position = Vector2(820, -900)
+position = Vector2(940, -900)
 
 [node name="HelipadBarrel3" parent="." unique_id=422 instance=ExtResource("33_prop_barrel")]
-position = Vector2(400, -1250)
+position = Vector2(260, -1250)
 
 [node name="HelipadBarrel4" parent="." unique_id=423 instance=ExtResource("33_prop_barrel")]
-position = Vector2(800, -1250)
+position = Vector2(940, -1250)
 
 [node name="BossSpawnPoint" type="Node2D" parent="." unique_id=413]
 unique_name_in_owner = true

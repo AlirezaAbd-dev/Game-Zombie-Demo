@@ -77,8 +77,29 @@ public partial class Zombie : CharacterBody2D, IDamageable
         if (stats == null) return;
         Stats = stats;
 
-        _baseScale = new Vector2(3.0f, 3.0f) * Stats.ScaleMultiplier;
-        Scale = Vector2.One * Stats.ScaleMultiplier;
+        // Normalize sprite scale based on texture resolution (boss texture is 96px, base grid is 32px)
+        float textureScaleFactor = 1.0f;
+        if (stats.CustomTexture != null && stats.CustomTexture.GetWidth() > 32)
+        {
+            textureScaleFactor = 32.0f / (float)stats.CustomTexture.GetWidth();
+        }
+
+        // Apply scale strictly to visual sprite, keeping root physics scale uniform (1.0)
+        _baseScale = new Vector2(3.0f, 3.0f) * textureScaleFactor * Stats.ScaleMultiplier;
+        Scale = Vector2.One;
+
+        if (Sprite != null)
+        {
+            Sprite.Scale = _baseScale;
+            if (Stats.CustomTexture != null)
+            {
+                Sprite.Texture = Stats.CustomTexture;
+            }
+            Sprite.Modulate = Stats.Tint;
+        }
+
+        // Configure collision shape to accurately match the enemy's visual size and prevent wall jamming
+        UpdateCollisionShapeForStats(stats);
 
         HealthComponent?.Initialize(Stats.MaxHealth);
 
@@ -87,19 +108,38 @@ public partial class Zombie : CharacterBody2D, IDamageable
             MovementComponent.BaseSpeed = Stats.BaseSpeed;
         }
 
-        if (Sprite != null)
-        {
-            if (Stats.CustomTexture != null)
-            {
-                Sprite.Texture = Stats.CustomTexture;
-            }
-            Sprite.Modulate = Stats.Tint;
-        }
-
         if (EyeGlow != null)
         {
             EyeGlow.Color = Stats.EyeLightColor;
             EyeGlow.Energy = Stats.EyeLightEnergy;
+        }
+    }
+
+    private void UpdateCollisionShapeForStats(EnemyStats stats)
+    {
+        var colShapeNode = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+        if (colShapeNode == null) return;
+
+        colShapeNode.Position = Vector2.Zero;
+
+        if (stats.TypeName == "Specimen Zero")
+        {
+            // Smooth circular navigation hull for the boss: covers full 134px body and glides along walls
+            colShapeNode.Shape = new CircleShape2D { Radius = 44.0f };
+            if (AttackArea != null)
+            {
+                var attackCol = AttackArea.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+                if (attackCol != null)
+                {
+                    attackCol.Position = Vector2.Zero;
+                    attackCol.Shape = new CircleShape2D { Radius = 72.0f };
+                }
+            }
+        }
+        else
+        {
+            // Circular navigation hull for standard zombies (no sharp corners snagging on walls/boxes)
+            colShapeNode.Shape = new CircleShape2D { Radius = 24.0f };
         }
     }
 

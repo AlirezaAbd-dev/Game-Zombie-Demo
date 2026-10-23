@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://ventshaft88"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/vent_shaft.png" id="1_vent_tex"]
+
+[node name="VentShaft" type="Sprite2D" groups=["vent_shaft"]]
+z_index = -1
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("1_vent_tex")

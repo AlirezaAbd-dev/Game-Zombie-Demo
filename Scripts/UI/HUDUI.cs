@@ -137,6 +137,7 @@ public partial class HUDUI : Control
     {
         float dt = (float)delta;
         UpdateBloodVignette(dt);
+        UpdateCloseCombatPrompt();
 
         if (IsInstanceValid(_player) && !_player.IsDead)
         {
@@ -205,19 +206,58 @@ public partial class HUDUI : Control
         _player.PlayerDied += OnPlayerDied;
     }
 
+    private bool _hasInteractablePrompt = false;
+
     private void OnFocusedInteractableChanged(string promptText, bool canInteract)
     {
         if (InteractionPromptLabel == null) return;
 
         if (string.IsNullOrEmpty(promptText))
         {
+            _hasInteractablePrompt = false;
             InteractionPromptLabel.Visible = false;
         }
         else
         {
+            _hasInteractablePrompt = true;
             InteractionPromptLabel.Visible = true;
             InteractionPromptLabel.Text = $"[E] {promptText.ToUpper()}";
             InteractionPromptLabel.Modulate = canInteract ? new Color(0.2f, 1.0f, 0.5f, 1.0f) : new Color(1.0f, 0.4f, 0.3f, 1.0f);
+        }
+    }
+
+    private void UpdateCloseCombatPrompt()
+    {
+        if (_hasInteractablePrompt || InteractionPromptLabel == null) return;
+        if (!IsInstanceValid(_player) || _player.IsDead) return;
+
+        var zombies = GetTree()?.GetNodesInGroup("zombies");
+        if (zombies == null) return;
+
+        Vector2 playerPos = _player.GlobalPosition;
+        bool hasCloseZombie = false;
+
+        foreach (var node in zombies)
+        {
+            if (node is Zombie z && IsInstanceValid(z) && !z.IsDead)
+            {
+                if (z.GlobalPosition.DistanceTo(playerPos) <= 95.0f)
+                {
+                    hasCloseZombie = true;
+                    break;
+                }
+            }
+        }
+
+        if (hasCloseZombie)
+        {
+            InteractionPromptLabel.Visible = true;
+            InteractionPromptLabel.Text = "[V] QUICK KNIFE";
+            InteractionPromptLabel.Modulate = new Color(1.0f, 0.85f, 0.3f, 0.95f);
+        }
+        else if (!_hasInteractablePrompt)
+        {
+            InteractionPromptLabel.Visible = false;
         }
     }
 

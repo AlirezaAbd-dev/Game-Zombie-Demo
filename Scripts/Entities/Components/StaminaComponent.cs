@@ -23,13 +23,18 @@ public partial class StaminaComponent : Node
 
     public bool CanDash() => CurrentStamina >= DashCost;
 
-    public bool TryConsumeDash()
+    public bool TryConsume(float amount)
     {
-        if (!CanDash()) return false;
+        if (CurrentStamina < amount) return false;
 
-        CurrentStamina -= DashCost;
+        CurrentStamina -= amount;
         EmitSignal(SignalName.StaminaChanged, CurrentStamina, MaxStamina);
         return true;
+    }
+
+    public bool TryConsumeDash()
+    {
+        return TryConsume(DashCost);
     }
 
     public void Regenerate(float delta)

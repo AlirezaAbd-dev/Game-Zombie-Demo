@@ -128,8 +128,16 @@ public partial class WorldManager : Node2D
         if (!clearSpawnPos.HasValue)
             return;
 
+        Vector2 spawnPos = clearSpawnPos.Value;
+        TriggerSpawnEmergenceVfx(spawnPos);
+
         var zombie = ZombieScene.Instantiate<Zombie>();
-        zombie.GlobalPosition = clearSpawnPos.Value;
+        zombie.GlobalPosition = spawnPos;
+
+        // Emergence visual fade-in
+        zombie.Modulate = new Color(1, 1, 1, 0.2f);
+        var fadeInTween = zombie.CreateTween();
+        fadeInTween.TweenProperty(zombie, "modulate:a", 1.0f, 0.35);
 
         EnemyStats chosenStats = WalkerStats;
         if (phase == StoryPhase.Act2_TerminalDefense)
@@ -151,12 +159,39 @@ public partial class WorldManager : Node2D
         AddChild(zombie);
     }
 
+    private void TriggerSpawnEmergenceVfx(Vector2 pos)
+    {
+        // Metallic vent clatter / grate break audio
+        AudioManager.Instance?.PlaySound(SoundType.VentBreak, pos, (float)GD.RandRange(0.9, 1.1));
+
+        // Dust & steam burst particles
+        var dust = new CpuParticles2D
+        {
+            GlobalPosition = pos,
+            Emitting = true,
+            OneShot = true,
+            Explosiveness = 0.90f,
+            Amount = 16,
+            Lifetime = 0.40f,
+            Spread = 180.0f,
+            InitialVelocityMin = 80.0f,
+            InitialVelocityMax = 180.0f,
+            ScaleAmountMin = 3.0f,
+            ScaleAmountMax = 6.0f,
+            Color = new Color(0.65f, 0.65f, 0.70f, 0.75f)
+        };
+        AddChild(dust);
+
+        var timer = GetTree().CreateTimer(0.6f);
+        timer.Timeout += () => dust.QueueFree();
+    }
+
     // =========================================================================
     // SECTOR PLAYABLE GEOMETRY & BOUNDS
     // =========================================================================
-    public static readonly Rect2 Sector1Bounds = new Rect2(390, 200, 420, 360);
+    public static readonly Rect2 Sector1Bounds = new Rect2(220, 200, 590, 360);
     public static readonly Rect2 Sector2Bounds = new Rect2(890, 200, 570, 300);
-    public static readonly Rect2 Sector3Bounds = new Rect2(390, -520, 420, 640);
+    public static readonly Rect2 Sector3Bounds = new Rect2(220, -520, 760, 640);
     public static readonly Rect2 Sector4Bounds = new Rect2(220, -1540, 760, 940);
 
     public static bool IsInsidePlayableArea(Vector2 pos, float margin = 0.0f)
@@ -167,11 +202,11 @@ public partial class WorldManager : Node2D
         if (Sector4Bounds.Grow(-margin).HasPoint(pos)) return true;
 
         // Corridor between Sector 1 and Sector 3 (around blast door at 600, 160)
-        Rect2 corridorS1S3 = new Rect2(550, 115, 100, 90);
+        Rect2 corridorS1S3 = new Rect2(480, 115, 240, 90);
         if (corridorS1S3.Grow(-margin).HasPoint(pos)) return true;
 
         // Corridor between Sector 3 and Sector 4 (around cargo gate at 600, -560)
-        Rect2 corridorS3S4 = new Rect2(550, -605, 100, 90);
+        Rect2 corridorS3S4 = new Rect2(480, -605, 240, 90);
         if (corridorS3S4.Grow(-margin).HasPoint(pos)) return true;
 
         // Doorway between Sector 1 and Sector 2 (around blast door at 850, 350)

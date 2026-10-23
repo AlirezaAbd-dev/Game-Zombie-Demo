@@ -41,7 +41,27 @@ public partial class Bullet : Area2D
     {
         if (!_isActive) return;
 
-        Position += Transform.X * Speed * (float)delta;
+        Vector2 step = Transform.X * Speed * (float)delta;
+
+        // Continuous collision detection raycast to prevent high-speed tunneling
+        var spaceState = GetWorld2D()?.DirectSpaceState;
+        if (spaceState != null)
+        {
+            var query = PhysicsRayQueryParameters2D.Create(GlobalPosition, GlobalPosition + step, collisionMask: 3);
+            var hit = spaceState.IntersectRay(query);
+            if (hit != null && hit.Count > 0)
+            {
+                var hitNode = hit["collider"].AsGodotObject() as Node2D;
+                if (hitNode != null && !hitNode.IsInGroup("player"))
+                {
+                    GlobalPosition = hit["position"].AsVector2();
+                    OnBodyEntered(hitNode);
+                    return;
+                }
+            }
+        }
+
+        Position += step;
         _lifetime += (float)delta;
         if (_lifetime >= MaxLifetime)
         {

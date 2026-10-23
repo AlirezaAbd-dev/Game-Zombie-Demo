@@ -33,7 +33,8 @@ public enum SoundType
     FinisherKick,
     FinisherSlash,
     EnemyStunned,
-    FinisherPrompt
+    FinisherPrompt,
+    VentBreak
 }
 
 public partial class AudioManager : Node
@@ -104,6 +105,7 @@ public partial class AudioManager : Node
         _soundCache[SoundType.FinisherSlash] = SynthesizeFinisherSlash();
         _soundCache[SoundType.EnemyStunned] = SynthesizeEnemyStunned();
         _soundCache[SoundType.FinisherPrompt] = SynthesizeFinisherPrompt();
+        _soundCache[SoundType.VentBreak] = SynthesizeVentBreak();
     }
 
     public void PlaySound(SoundType type, Vector2? worldPos = null, float pitchScale = 1.0f)
@@ -445,6 +447,24 @@ public partial class AudioManager : Node
             float harmonic = Mathf.Sin(Mathf.Tau * freq * 2.0f * t) * 0.3f;
             float val = (wave + harmonic) * env * 0.8f;
             samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 22000);
+        }
+        return BuildWav(samples);
+    }
+
+    private static AudioStreamWav SynthesizeVentBreak()
+    {
+        // Metallic vent grate bang + pressurized duct steam hiss
+        int totalSamples = (int)(SampleRate * 0.28f);
+        short[] samples = new short[totalSamples];
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            float t = (float)i / SampleRate;
+            float env = Mathf.Exp(-t * 14.0f);
+            float metalClang = Mathf.Sin(Mathf.Tau * 380f * t) * 0.5f + Mathf.Sin(Mathf.Tau * 820f * t) * 0.35f;
+            float noise = ((float)GD.RandRange(-1.0, 1.0)) * Mathf.Exp(-t * 8.0f) * 0.45f;
+            float val = (metalClang + noise) * env;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 24000);
         }
         return BuildWav(samples);
     }
