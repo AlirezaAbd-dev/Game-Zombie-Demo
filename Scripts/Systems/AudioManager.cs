@@ -39,7 +39,12 @@ public enum SoundType
 
 public partial class AudioManager : Node
 {
-    public static AudioManager Instance { get; private set; }
+    private static AudioManager _instance;
+    public static AudioManager Instance
+    {
+        get => GodotObject.IsInstanceValid(_instance) ? _instance : null;
+        private set => _instance = value;
+    }
 
     private readonly Dictionary<SoundType, AudioStreamWav> _soundCache = new();
     private readonly List<AudioStreamPlayer2D> _spatialPlayers = new();
@@ -48,12 +53,22 @@ public partial class AudioManager : Node
 
     private const int SampleRate = 22050;
 
+    public override void _EnterTree()
+    {
+        Instance = this;
+    }
+
+    public override void _ExitTree()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
+    }
+
     public override void _Ready()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
+        Instance = this;
 
         _uiPlayer = new AudioStreamPlayer { Name = "UIPlayer" };
         AddChild(_uiPlayer);

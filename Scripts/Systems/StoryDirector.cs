@@ -7,7 +7,12 @@ namespace TopDownDemo.Systems;
 
 public partial class StoryDirector : Node
 {
-    public static StoryDirector Instance { get; private set; }
+    private static StoryDirector _instance;
+    public static StoryDirector Instance
+    {
+        get => GodotObject.IsInstanceValid(_instance) ? _instance : null;
+        private set => _instance = value;
+    }
 
     [Signal]
     public delegate void PhaseChangedEventHandler(int newPhase);
@@ -53,12 +58,22 @@ public partial class StoryDirector : Node
     private Zombie _bossInstance = null;
     private Player _player;
 
+    public override void _EnterTree()
+    {
+        Instance = this;
+    }
+
+    public override void _ExitTree()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
+    }
+
     public override void _Ready()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
+        Instance = this;
 
         BossStats ??= GD.Load<EnemyStats>("res://Resources/Enemies/Zombie_Boss.tres");
         ZombieScene ??= GD.Load<PackedScene>("res://Prefabs/Zombie.tscn");

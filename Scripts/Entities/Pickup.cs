@@ -102,6 +102,21 @@ public partial class Pickup : Area2D
         }
     }
 
+    public override void _PhysicsProcess(double delta)
+    {
+        var bodies = GetOverlappingBodies();
+        for (int i = 0; i < bodies.Count; i++)
+        {
+            if (bodies[i] is Player player && IsInstanceValid(player) && !player.IsDead)
+            {
+                if (CollectByPlayer(player))
+                {
+                    return;
+                }
+            }
+        }
+    }
+
     private void OnBodyEntered(Node2D body)
     {
         if (body is Player player)
@@ -115,13 +130,10 @@ public partial class Pickup : Area2D
         if (player == null || player.IsDead || Item == null) return false;
 
         bool collected = false;
-        if (Item.Type == ItemType.Health && player.HealthComponent != null)
+        if (Item.Type == ItemType.Health && player.HealthComponent != null && player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
         {
-            if (player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
-            {
-                player.Heal(Item.Value);
-                collected = true;
-            }
+            player.Heal(Item.Value);
+            collected = true;
         }
         else if (player.InventoryComponent != null)
         {
@@ -130,24 +142,33 @@ public partial class Pickup : Area2D
 
         if (collected)
         {
-            AudioManager.Instance?.PlaySound(SoundType.PickupCollect, GlobalPosition);
-            SpawnCollectEffect();
-
-            if (Item.Type == ItemType.Key)
+            try
             {
-                StoryDirector.Instance?.EmitSignal(
-                    StoryDirector.SignalName.ObjectiveUpdated,
-                    "MISSION 1: RESTORE SECTOR POWER",
-                    "Keycard acquired! Go East to the Substation Door and press [E] to unlock."
-                );
-                StoryDirector.Instance?.TriggerRadioComms(
-                    "CMDR. REYES (HQ)",
-                    "Keycard acquired. Head to the East blast door, unlock it, and get that generator running!",
-                    5.0f
-                );
-            }
+                AudioManager.Instance?.PlaySound(SoundType.PickupCollect, GlobalPosition);
+                SpawnCollectEffect();
 
-            QueueFree();
+                if (Item.Type == ItemType.Key)
+                {
+                    StoryDirector.Instance?.EmitSignal(
+                        StoryDirector.SignalName.ObjectiveUpdated,
+                        "MISSION 1: RESTORE SECTOR POWER",
+                        "Keycard acquired! Go East to the Substation Door and press [E] to unlock."
+                    );
+                    StoryDirector.Instance?.TriggerRadioComms(
+                        "CMDR. REYES (HQ)",
+                        "Keycard acquired. Head to the East blast door, unlock it, and get that generator running!",
+                        5.0f
+                    );
+                }
+            }
+            catch (System.Exception ex)
+            {
+                GD.PrintErr($"[Pickup] Audio/Story notify notice: {ex.Message}");
+            }
+            finally
+            {
+                QueueFree();
+            }
             return true;
         }
 

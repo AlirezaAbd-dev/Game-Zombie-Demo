@@ -123,6 +123,29 @@ public partial class PlayerInteractionComponent : Area2D
             }
         }
 
+        // 3. If no door/terminal interactable is in range, check for nearby pickups
+        Pickup bestPickup = null;
+        if (bestCandidate == null)
+        {
+            var pickups = GetTree()?.GetNodesInGroup("pickups");
+            if (pickups != null)
+            {
+                float minPickupDistSq = 110.0f * 110.0f;
+                for (int i = 0; i < pickups.Count; i++)
+                {
+                    if (pickups[i] is Pickup p && IsInstanceValid(p) && p.Item != null)
+                    {
+                        float distSq = playerPos.DistanceSquaredTo(p.GlobalPosition);
+                        if (distSq < minPickupDistSq)
+                        {
+                            minPickupDistSq = distSq;
+                            bestPickup = p;
+                        }
+                    }
+                }
+            }
+        }
+
         if (bestCandidate != _currentFocus)
         {
             if (_currentFocus != null && IsInstanceValid(_currentFocus))
@@ -139,6 +162,11 @@ public partial class PlayerInteractionComponent : Area2D
                 bool canUse = _currentFocus.HasRequiredItem(_player);
                 EmitSignal(SignalName.FocusedInteractableChanged, prompt, canUse);
             }
+            else if (bestPickup != null)
+            {
+                string itemName = !string.IsNullOrEmpty(bestPickup.Item?.ItemName) ? bestPickup.Item.ItemName : "ITEM";
+                EmitSignal(SignalName.FocusedInteractableChanged, $"TAKE {itemName}", true);
+            }
             else
             {
                 EmitSignal(SignalName.FocusedInteractableChanged, string.Empty, false);
@@ -150,6 +178,15 @@ public partial class PlayerInteractionComponent : Area2D
             string prompt = _currentFocus.GetPromptText(_player);
             bool canUse = _currentFocus.HasRequiredItem(_player);
             EmitSignal(SignalName.FocusedInteractableChanged, prompt, canUse);
+        }
+        else if (bestPickup != null)
+        {
+            string itemName = !string.IsNullOrEmpty(bestPickup.Item?.ItemName) ? bestPickup.Item.ItemName : "ITEM";
+            EmitSignal(SignalName.FocusedInteractableChanged, $"TAKE {itemName}", true);
+        }
+        else
+        {
+            EmitSignal(SignalName.FocusedInteractableChanged, string.Empty, false);
         }
     }
 
@@ -163,28 +200,38 @@ public partial class PlayerInteractionComponent : Area2D
             return _currentFocus.TryInteract(_player);
         }
 
-        // 2. Proximity fallback interact with nearest interactable
-        UpdateNearestInteractable();
-        if (_currentFocus != null && IsInstanceValid(_currentFocus))
-        {
-            return _currentFocus.TryInteract(_player);
-        }
-
-        // 3. Proximity check for nearby pickups
+        // 2. Proximity check for nearby pickups
         var pickups = GetTree()?.GetNodesInGroup("pickups");
         if (pickups != null)
         {
+            Pickup closest = null;
+            float closestDist = 120.0f;
             foreach (var node in pickups)
             {
                 if (node is Pickup pickup && IsInstanceValid(pickup))
                 {
-                    if (_player.GlobalPosition.DistanceTo(pickup.GlobalPosition) <= 100.0f)
+                    float dist = _player.GlobalPosition.DistanceTo(pickup.GlobalPosition);
+                    if (dist < closestDist)
                     {
-                        pickup.CollectByPlayer(_player);
-                        return true;
+                        closestDist = dist;
+                        closest = pickup;
                     }
                 }
             }
+
+            if (closest != null)
+            {
+                bool success = closest.CollectByPlayer(_player);
+                UpdateNearestInteractable();
+                return success;
+            }
+        }
+
+        // 3. Proximity fallback interact with nearest interactable
+        UpdateNearestInteractable();
+        if (_currentFocus != null && IsInstanceValid(_currentFocus))
+        {
+            return _currentFocus.TryInteract(_player);
         }
 
         return false;

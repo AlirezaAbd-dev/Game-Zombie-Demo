@@ -6,7 +6,12 @@ namespace TopDownDemo.Systems;
 
 public partial class ProjectilePool : Node
 {
-    public static ProjectilePool Instance { get; private set; }
+    private static ProjectilePool _instance;
+    public static ProjectilePool Instance
+    {
+        get => GodotObject.IsInstanceValid(_instance) ? _instance : null;
+        private set => _instance = value;
+    }
 
     [Export] public PackedScene BulletScene { get; set; }
     [Export] public int InitialPoolSize { get; set; } = 30;
@@ -16,6 +21,14 @@ public partial class ProjectilePool : Node
     public override void _EnterTree()
     {
         Instance = this;
+    }
+
+    public override void _ExitTree()
+    {
+        if (_instance == this)
+        {
+            _instance = null;
+        }
     }
 
     public override void _Ready()

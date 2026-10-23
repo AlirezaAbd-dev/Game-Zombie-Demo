@@ -379,6 +379,7 @@ public partial class WorldManager : Node2D
         {
             if (_player == null || _player.IsDead || (StoryDirector.Instance != null && StoryDirector.Instance.CurrentPhase == StoryPhase.MissionCompleted))
             {
+                GetTree().Paused = false;
                 GetTree().ReloadCurrentScene();
             }
         }
