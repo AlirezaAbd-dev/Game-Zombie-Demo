@@ -189,10 +189,10 @@ public partial class WorldManager : Node2D
     // =========================================================================
     // SECTOR PLAYABLE GEOMETRY & BOUNDS
     // =========================================================================
-    public static readonly Rect2 Sector1Bounds = new Rect2(220, 200, 590, 360);
-    public static readonly Rect2 Sector2Bounds = new Rect2(890, 200, 570, 300);
-    public static readonly Rect2 Sector3Bounds = new Rect2(220, -520, 760, 640);
-    public static readonly Rect2 Sector4Bounds = new Rect2(220, -1540, 760, 940);
+    public static readonly Rect2 Sector1Bounds = new Rect2(180, 190, 840, 380);
+    public static readonly Rect2 Sector2Bounds = new Rect2(1080, 190, 840, 320);
+    public static readonly Rect2 Sector3Bounds = new Rect2(180, -530, 840, 660);
+    public static readonly Rect2 Sector4Bounds = new Rect2(180, -1570, 840, 980);
 
     public static bool IsInsidePlayableArea(Vector2 pos, float margin = 0.0f)
     {
@@ -201,16 +201,16 @@ public partial class WorldManager : Node2D
         if (Sector3Bounds.Grow(-margin).HasPoint(pos)) return true;
         if (Sector4Bounds.Grow(-margin).HasPoint(pos)) return true;
 
-        // Corridor between Sector 1 and Sector 3 (around blast door at 600, 160)
-        Rect2 corridorS1S3 = new Rect2(480, 115, 240, 90);
+        // Corridor between Sector 1 and Sector 3 (around blast door at 600, 160) - 180px gateway
+        Rect2 corridorS1S3 = new Rect2(490, 115, 220, 90);
         if (corridorS1S3.Grow(-margin).HasPoint(pos)) return true;
 
-        // Corridor between Sector 3 and Sector 4 (around cargo gate at 600, -560)
-        Rect2 corridorS3S4 = new Rect2(480, -605, 240, 90);
+        // Corridor between Sector 3 and Sector 4 (around cargo gate at 600, -560) - 180px gateway
+        Rect2 corridorS3S4 = new Rect2(490, -605, 220, 90);
         if (corridorS3S4.Grow(-margin).HasPoint(pos)) return true;
 
-        // Doorway between Sector 1 and Sector 2 (around blast door at 850, 350)
-        Rect2 doorS1S2 = new Rect2(805, 300, 90, 100);
+        // Doorway between Sector 1 and Sector 2 (around blast door at 1050, 350) - 180px gateway
+        Rect2 doorS1S2 = new Rect2(1005, 250, 90, 200);
         if (doorS1S2.Grow(-margin).HasPoint(pos)) return true;
 
         return false;
@@ -239,7 +239,7 @@ public partial class WorldManager : Node2D
         }
         else
         {
-            if (pos.X > 850.0f)
+            if (pos.X > 1050.0f)
             {
                 // Sector 2: Auxiliary Substation
                 return new Vector2(
@@ -292,25 +292,58 @@ public partial class WorldManager : Node2D
             return null;
         }
 
-        // Try candidate positions strictly inside eligible room bounds
+        // 1. Prioritize Infiltration Points (Vent Shafts & Breach Points)
+        var ventNodes = GetTree().GetNodesInGroup("infiltration_point");
+        var candidateVents = new System.Collections.Generic.List<Vector2>();
+
+        foreach (var node in ventNodes)
+        {
+            if (node is Node2D n2d && IsInstanceValid(n2d))
+            {
+                Vector2 vPos = n2d.GlobalPosition;
+                bool inSector = false;
+                foreach (var sector in eligibleSectors)
+                {
+                    if (sector.HasPoint(vPos))
+                    {
+                        inSector = true;
+                        break;
+                    }
+                }
+
+                if (inSector && vPos.DistanceTo(playerPos) >= 160.0f)
+                {
+                    if (phase == StoryPhase.Act2_TerminalDefense && vPos.DistanceTo(new Vector2(600, -250)) < 150.0f)
+                        continue;
+
+                    candidateVents.Add(vPos);
+                }
+            }
+        }
+
+        if (candidateVents.Count > 0)
+        {
+            int idx = (int)(GD.Randi() % candidateVents.Count);
+            Vector2 chosenVent = candidateVents[idx];
+            Vector2 jittered = chosenVent + new Vector2((float)GD.RandRange(-15, 15), (float)GD.RandRange(-15, 15));
+            return jittered;
+        }
+
+        // 2. Fallback to clear sector area
         for (int i = 0; i < 20; i++)
         {
             Rect2 targetSector = eligibleSectors[(int)(GD.Randi() % eligibleSectors.Count)];
 
-            // Generate coordinate strictly within chosen sector (inset 45px from walls)
             float candX = (float)GD.RandRange(targetSector.Position.X + 45.0f, targetSector.End.X - 45.0f);
             float candY = (float)GD.RandRange(targetSector.Position.Y + 45.0f, targetSector.End.Y - 45.0f);
             Vector2 candidate = new Vector2(candX, candY);
 
-            // Minimum distance from player so zombies don't spawn on top of player
             if (candidate.DistanceTo(playerPos) < 220.0f)
                 continue;
 
-            // In Terminal Defense, don't spawn right on the console
             if (phase == StoryPhase.Act2_TerminalDefense && candidate.DistanceTo(new Vector2(600, -250)) < 160.0f)
                 continue;
 
-            // Check if clear of obstacles/props
             if (IsPositionClear(candidate, 40.0f))
             {
                 return candidate;

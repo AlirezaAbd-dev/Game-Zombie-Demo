@@ -241,8 +241,9 @@ public partial class Zombie : CharacterBody2D, IDamageable
         if (Sprite != null)
         {
             var tween = CreateTween();
-            Sprite.Modulate = new Color(3.5f, 0.4f, 0.4f, 1.0f);
-            tween.TweenProperty(Sprite, "modulate", Stats.Tint, 0.1);
+            // Brilliant white hit-flash for punchy, immediate hit confirmation
+            Sprite.Modulate = new Color(4.5f, 4.5f, 4.5f, 1.0f);
+            tween.TweenProperty(Sprite, "modulate", Stats.Tint, 0.08);
         }
 
         FinisherTarget?.OnDamageTaken(amount);

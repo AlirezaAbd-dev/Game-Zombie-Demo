@@ -26,8 +26,8 @@ public partial class MiniMapUI : Control
     [Export] public Label MapTitleLabel { get; set; }
 
     private Player _player;
-    private readonly Vector2 _worldCenter = new(600, -350);
-    private float _mapScale = 0.09f;
+    private readonly Vector2 _worldCenter = new(1000, -500);
+    private float _mapScale = 0.075f;
 
     public override void _Ready()
     {
@@ -74,7 +74,7 @@ public partial class MiniMapUI : Control
                 RadarPanel.OffsetRight = 320;
                 RadarPanel.OffsetTop = -240;
                 RadarPanel.OffsetBottom = 240;
-                _mapScale = 0.22f;
+                _mapScale = 0.17f;
                 if (MapTitleLabel != null) MapTitleLabel.Text = "TACTICAL SECTOR BLUEPRINT [M TO CLOSE]";
             }
             else
@@ -84,7 +84,7 @@ public partial class MiniMapUI : Control
                 RadarPanel.OffsetRight = -20;
                 RadarPanel.OffsetTop = 130;
                 RadarPanel.OffsetBottom = 310;
-                _mapScale = 0.08f;
+                _mapScale = 0.075f;
                 if (MapTitleLabel != null) MapTitleLabel.Text = "TACTICAL RADAR (M)";
             }
         }
@@ -104,18 +104,11 @@ public partial class MiniMapUI : Control
 
         Vector2 canvasCenter = MapCanvas.Size * 0.5f;
 
-        // Sector room blueprint rectangles
-        // Sector 1: Checkpoint (400, 200) to (800, 560)
-        DrawSectorRect(canvas, canvasCenter, new Rect2(350, 160, 480, 420), new Color(0.12f, 0.25f, 0.4f, 0.6f), "SEC-1");
-
-        // Sector 2: Substation (900, 200) to (1450, 480)
-        DrawSectorRect(canvas, canvasCenter, new Rect2(900, 180, 560, 320), new Color(0.35f, 0.25f, 0.1f, 0.6f), "SUB-2");
-
-        // Sector 3: Bio-Lab (350, -550) to (850, 100)
-        DrawSectorRect(canvas, canvasCenter, new Rect2(350, -540, 480, 640), new Color(0.1f, 0.35f, 0.3f, 0.6f), "LAB-3");
-
-        // Sector 4: Helipad (200, -1550) to (1000, -600)
-        DrawSectorRect(canvas, canvasCenter, new Rect2(200, -1550, 800, 950), new Color(0.4f, 0.35f, 0.1f, 0.6f), "HELI-4");
+        // Sector room blueprint rectangles matching WorldManager boundaries
+        DrawSectorRect(canvas, canvasCenter, WorldManager.Sector1Bounds, new Color(0.12f, 0.25f, 0.4f, 0.6f), "SEC-1");
+        DrawSectorRect(canvas, canvasCenter, WorldManager.Sector2Bounds, new Color(0.35f, 0.25f, 0.1f, 0.6f), "SUB-2");
+        DrawSectorRect(canvas, canvasCenter, WorldManager.Sector3Bounds, new Color(0.1f, 0.35f, 0.3f, 0.6f), "LAB-3");
+        DrawSectorRect(canvas, canvasCenter, WorldManager.Sector4Bounds, new Color(0.4f, 0.35f, 0.1f, 0.6f), "HELI-4");
 
         // Draw Player position and arrow
         Vector2 playerMapPos = WorldToMapPos(canvasCenter, _player.GlobalPosition);
@@ -128,9 +121,9 @@ public partial class MiniMapUI : Control
         var phase = StoryDirector.Instance?.CurrentPhase ?? StoryPhase.Act1_Blackout;
         Vector2 targetWorld = phase switch
         {
-            StoryPhase.Act1_Blackout => new Vector2(1350, 350),      // Generator
+            StoryPhase.Act1_Blackout => new Vector2(1820, 350),          // Generator
             StoryPhase.Act2_ContainmentBreach => new Vector2(600, -250), // Terminal
-            _ => new Vector2(600, -1350)                             // Helipad
+            _ => new Vector2(600, -1350)                                 // Helipad
         };
         Vector2 objMapPos = WorldToMapPos(canvasCenter, targetWorld);
         canvas.DrawCircle(objMapPos, 6.0f, new Color(1.0f, 0.85f, 0.2f, 0.9f));

@@ -285,6 +285,18 @@ font_color = Color(0.9, 0.95, 1, 1)
 outline_size = 4
 outline_color = Color(0, 0, 0, 1)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door_h"]
+size = Vector2(180, 96)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_door_h"]
+polygon = PackedVector2Array(-90, -48, 90, -48, 90, 48, -90, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door_v"]
+size = Vector2(96, 180)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_door_v"]
+polygon = PackedVector2Array(-48, -90, 48, -90, 48, 90, -48, 90)
+
 ; =========================================================================
 ; WORLD ROOT & CORE SYSTEMS
 ; =========================================================================
@@ -310,8 +322,8 @@ InitialPoolSize = 45
 
 [node name="FloorMesh" type="MeshInstance2D" parent="." unique_id=1612091629]
 material = SubResource("ShaderMaterial_floor")
-position = Vector2(700, -500)
-scale = Vector2(4500, 4500)
+position = Vector2(1050, -500)
+scale = Vector2(5000, 5000)
 mesh = SubResource("QuadMesh_floor")
 metadata/_edit_lock_ = true
 
@@ -342,360 +354,481 @@ environment = SubResource("Environment_glow")
 ; MAP OUTER BOUNDARY BARRIERS (Prevents escaping map)
 ; =========================================================================
 [node name="Bound_West" parent="." unique_id=901 instance=ExtResource("35_map_bound")]
-position = Vector2(80, -500)
+position = Vector2(50, -500)
 rotation = 1.5708
-scale = Vector2(14, 1)
+scale = Vector2(26, 1)
 
 [node name="Bound_East" parent="." unique_id=902 instance=ExtResource("35_map_bound")]
-position = Vector2(1650, -500)
+position = Vector2(2050, -500)
 rotation = 1.5708
-scale = Vector2(14, 1)
+scale = Vector2(26, 1)
 
 [node name="Bound_South" parent="." unique_id=903 instance=ExtResource("35_map_bound")]
-position = Vector2(700, 720)
-scale = Vector2(10, 1)
+position = Vector2(1050, 720)
+scale = Vector2(22, 1)
 
 [node name="Bound_North" parent="." unique_id=904 instance=ExtResource("35_map_bound")]
 position = Vector2(600, -1720)
-scale = Vector2(8, 1)
+scale = Vector2(12, 1)
 
 ; =========================================================================
-; SECTOR 1: SECURITY CHECKPOINT (SPAWN ROOM) - SPACIOUS & GAPLESS
+; SECTOR 1: SECURITY CHECKPOINT (SPAWN ROOM) - WIDE 900PX LAYOUT
 ; =========================================================================
 [node name="WallS1_S0" parent="." unique_id=100 instance=ExtResource("28_wall_steel")]
-position = Vector2(265, 600)
+position = Vector2(150, 600)
 
 [node name="WallS1_S1" parent="." unique_id=101 instance=ExtResource("28_wall_steel")]
-position = Vector2(350, 600)
+position = Vector2(235, 600)
 
 [node name="WallS1_S2" parent="." unique_id=102 instance=ExtResource("28_wall_steel")]
-position = Vector2(435, 600)
+position = Vector2(320, 600)
 
 [node name="WallS1_S3" parent="." unique_id=103 instance=ExtResource("28_wall_steel")]
-position = Vector2(520, 600)
+position = Vector2(405, 600)
 
 [node name="WallS1_S4" parent="." unique_id=117 instance=ExtResource("28_wall_steel")]
-position = Vector2(600, 600)
+position = Vector2(490, 600)
 
 [node name="WallS1_S5" parent="." unique_id=118 instance=ExtResource("28_wall_steel")]
-position = Vector2(685, 600)
+position = Vector2(575, 600)
 
 [node name="WallS1_S6" parent="." unique_id=119 instance=ExtResource("28_wall_steel")]
-position = Vector2(770, 600)
+position = Vector2(660, 600)
 
 [node name="WallS1_S7" parent="." unique_id=120 instance=ExtResource("28_wall_steel")]
-position = Vector2(850, 600)
+position = Vector2(745, 600)
+
+[node name="WallS1_S8" parent="." unique_id=141 instance=ExtResource("28_wall_steel")]
+position = Vector2(830, 600)
+
+[node name="WallS1_S9" parent="." unique_id=142 instance=ExtResource("28_wall_steel")]
+position = Vector2(915, 600)
+
+[node name="WallS1_S10" parent="." unique_id=143 instance=ExtResource("28_wall_steel")]
+position = Vector2(1000, 600)
+
+[node name="WallS1_S11" parent="." unique_id=144 instance=ExtResource("28_wall_steel")]
+position = Vector2(1050, 600)
 
 [node name="WallS1_W1" parent="." unique_id=104 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, 160)
+position = Vector2(150, 160)
 
 [node name="WallS1_W2" parent="." unique_id=105 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, 245)
+position = Vector2(150, 245)
 
 [node name="WallS1_W3" parent="." unique_id=121 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, 330)
+position = Vector2(150, 330)
 
 [node name="WallS1_W4" parent="." unique_id=122 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, 415)
+position = Vector2(150, 415)
 
 [node name="WallS1_W5" parent="." unique_id=123 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, 500)
+position = Vector2(150, 500)
 
 [node name="WallS1_W6" parent="." unique_id=129 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, 600)
+position = Vector2(150, 600)
 
 [node name="WallS1_E1" parent="." unique_id=106 instance=ExtResource("28_wall_steel")]
-position = Vector2(850, 160)
+position = Vector2(1050, 160)
 
 [node name="WallS1_E2" parent="." unique_id=124 instance=ExtResource("28_wall_steel")]
-position = Vector2(850, 250)
+position = Vector2(1050, 235)
 
 [node name="WallS1_E3" parent="." unique_id=125 instance=ExtResource("28_wall_steel")]
-position = Vector2(850, 430)
+position = Vector2(1050, 465)
 
 [node name="WallS1_E4" parent="." unique_id=126 instance=ExtResource("28_wall_steel")]
-position = Vector2(850, 520)
+position = Vector2(1050, 540)
+
+[node name="WallS1_E5" parent="." unique_id=145 instance=ExtResource("28_wall_steel")]
+position = Vector2(1050, 600)
 
 [node name="WallS1_N0" parent="." unique_id=130 instance=ExtResource("28_wall_steel")]
-position = Vector2(265, 160)
+position = Vector2(150, 160)
 
 [node name="WallS1_N1" parent="." unique_id=107 instance=ExtResource("28_wall_steel")]
-position = Vector2(350, 160)
+position = Vector2(235, 160)
 
 [node name="WallS1_N2" parent="." unique_id=108 instance=ExtResource("28_wall_steel")]
-position = Vector2(435, 160)
+position = Vector2(320, 160)
 
 [node name="WallS1_N3" parent="." unique_id=127 instance=ExtResource("28_wall_steel")]
-position = Vector2(765, 160)
+position = Vector2(405, 160)
 
 [node name="WallS1_N4" parent="." unique_id=128 instance=ExtResource("28_wall_steel")]
-position = Vector2(850, 160)
+position = Vector2(480, 160)
 
-; Checkpoint Props & Decor
+[node name="WallS1_N5" parent="." unique_id=146 instance=ExtResource("28_wall_steel")]
+position = Vector2(720, 160)
+
+[node name="WallS1_N6" parent="." unique_id=147 instance=ExtResource("28_wall_steel")]
+position = Vector2(795, 160)
+
+[node name="WallS1_N7" parent="." unique_id=148 instance=ExtResource("28_wall_steel")]
+position = Vector2(870, 160)
+
+[node name="WallS1_N8" parent="." unique_id=149 instance=ExtResource("28_wall_steel")]
+position = Vector2(955, 160)
+
+[node name="WallS1_N9" parent="." unique_id=150 instance=ExtResource("28_wall_steel")]
+position = Vector2(1050, 160)
+
+; Sector 1 Recessed Props & Tactical Infiltration Grates
 [node name="SecurityStationLight" type="PointLight2D" parent="." unique_id=109]
-position = Vector2(550, 360)
+position = Vector2(600, 380)
 color = Color(1, 0.25, 0.2, 1)
 energy = 1.15
 texture = ExtResource("7_light")
-texture_scale = 2.4
+texture_scale = 2.6
 
-[node name="VentShaft_S1" parent="." unique_id=131 instance=ExtResource("43_vent_shaft")]
-position = Vector2(260, 240)
+[node name="VentShaft_S1_NW" parent="." unique_id=131 instance=ExtResource("43_vent_shaft")]
+position = Vector2(240, 230)
+
+[node name="VentShaft_S1_SW" parent="." unique_id=132 instance=ExtResource("43_vent_shaft")]
+position = Vector2(240, 530)
+
+[node name="VentShaft_S1_NE" parent="." unique_id=133 instance=ExtResource("43_vent_shaft")]
+position = Vector2(960, 230)
 
 [node name="GuardDesk" parent="." unique_id=115 instance=ExtResource("30_prop_desk")]
-position = Vector2(300, 360)
+position = Vector2(230, 360)
 
 [node name="KeycardPickup" parent="." unique_id=110 instance=ExtResource("6_pickup_scene")]
-position = Vector2(300, 410)
+position = Vector2(230, 410)
 Item = ExtResource("26_keycard")
 
 [node name="KeycardGlowDesk" type="PointLight2D" parent="." unique_id=114]
-position = Vector2(300, 410)
+position = Vector2(230, 410)
 color = Color(0.1, 0.95, 1, 1)
 energy = 1.6
 texture = ExtResource("7_light")
 texture_scale = 1.6
 
 [node name="AmmoPickupPistol" parent="." unique_id=111 instance=ExtResource("6_pickup_scene")]
-position = Vector2(420, 520)
+position = Vector2(400, 540)
 Item = ExtResource("14_ammo_item")
 
 [node name="HerbPickupGreen1" parent="." unique_id=116 instance=ExtResource("6_pickup_scene")]
-position = Vector2(260, 520)
+position = Vector2(280, 540)
 Item = ExtResource("39_herb_green")
 
+; Blast Doors with 180px Wide Gateways
 [node name="SubstationDoor" parent="." unique_id=112 instance=ExtResource("22_blast_door")]
-position = Vector2(850, 350)
+position = Vector2(1050, 350)
 DoorId = "door_substation"
 RequiredItemId = "keycard_substation"
 LockedPromptText = "LOCKED - REQUIRES SUBSTATION KEYCARD"
-SlideOffset = Vector2(0, 95)
+SlideOffset = Vector2(0, 180)
+
+[node name="DoorSprite" parent="SubstationDoor"]
+scale = Vector2(1, 1.875)
+
+[node name="CollisionShape2D" parent="SubstationDoor"]
+shape = SubResource("RectangleShape2D_door_v")
+
+[node name="LightOccluder2D" parent="SubstationDoor"]
+occluder = SubResource("OccluderPolygon2D_door_v")
 
 [node name="LabDoor" parent="." unique_id=113 instance=ExtResource("22_blast_door")]
 position = Vector2(600, 160)
 DoorId = "door_central_lab"
 OpenOnPowerRestored = true
-SlideOffset = Vector2(130, 0)
+SlideOffset = Vector2(180, 0)
+
+[node name="DoorSprite" parent="LabDoor"]
+scale = Vector2(1.875, 1)
+
+[node name="CollisionShape2D" parent="LabDoor"]
+shape = SubResource("RectangleShape2D_door_h")
+
+[node name="LightOccluder2D" parent="LabDoor"]
+occluder = SubResource("OccluderPolygon2D_door_h")
 
 [node name="Player" parent="." unique_id=2146031906 instance=ExtResource("4_player_scene")]
-position = Vector2(550, 460)
+position = Vector2(600, 450)
 
 ; =========================================================================
-; SECTOR 2: AUXILIARY SUBSTATION & GENERATOR ROOM - FULLY SEALED GAPLESS WALLS
+; SECTOR 2: AUXILIARY SUBSTATION & GENERATOR ROOM - WIDE 900PX EXPANSION
 ; =========================================================================
 [node name="WallS2_N1" parent="." unique_id=201 instance=ExtResource("28_wall_steel")]
-position = Vector2(935, 160)
+position = Vector2(1050, 160)
 
 [node name="WallS2_N2" parent="." unique_id=202 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, 160)
+position = Vector2(1135, 160)
 
 [node name="WallS2_N3" parent="." unique_id=203 instance=ExtResource("28_wall_steel")]
-position = Vector2(1105, 160)
+position = Vector2(1220, 160)
 
 [node name="WallS2_N4" parent="." unique_id=217 instance=ExtResource("28_wall_steel")]
-position = Vector2(1190, 160)
+position = Vector2(1305, 160)
 
 [node name="WallS2_N5" parent="." unique_id=218 instance=ExtResource("28_wall_steel")]
-position = Vector2(1275, 160)
+position = Vector2(1390, 160)
 
 [node name="WallS2_N6" parent="." unique_id=219 instance=ExtResource("28_wall_steel")]
-position = Vector2(1360, 160)
+position = Vector2(1475, 160)
 
 [node name="WallS2_N7" parent="." unique_id=220 instance=ExtResource("28_wall_steel")]
-position = Vector2(1445, 160)
+position = Vector2(1560, 160)
 
 [node name="WallS2_N8" parent="." unique_id=221 instance=ExtResource("28_wall_steel")]
-position = Vector2(1500, 160)
+position = Vector2(1645, 160)
+
+[node name="WallS2_N9" parent="." unique_id=231 instance=ExtResource("28_wall_steel")]
+position = Vector2(1730, 160)
+
+[node name="WallS2_N10" parent="." unique_id=232 instance=ExtResource("28_wall_steel")]
+position = Vector2(1815, 160)
+
+[node name="WallS2_N11" parent="." unique_id=233 instance=ExtResource("28_wall_steel")]
+position = Vector2(1900, 160)
+
+[node name="WallS2_N12" parent="." unique_id=234 instance=ExtResource("28_wall_steel")]
+position = Vector2(1950, 160)
 
 [node name="WallS2_S1" parent="." unique_id=204 instance=ExtResource("28_wall_steel")]
-position = Vector2(935, 540)
+position = Vector2(1050, 540)
 
 [node name="WallS2_S2" parent="." unique_id=205 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, 540)
+position = Vector2(1135, 540)
 
 [node name="WallS2_S3" parent="." unique_id=206 instance=ExtResource("28_wall_steel")]
-position = Vector2(1105, 540)
+position = Vector2(1220, 540)
 
 [node name="WallS2_S4" parent="." unique_id=222 instance=ExtResource("28_wall_steel")]
-position = Vector2(1190, 540)
+position = Vector2(1305, 540)
 
 [node name="WallS2_S5" parent="." unique_id=223 instance=ExtResource("28_wall_steel")]
-position = Vector2(1275, 540)
+position = Vector2(1390, 540)
 
 [node name="WallS2_S6" parent="." unique_id=224 instance=ExtResource("28_wall_steel")]
-position = Vector2(1360, 540)
+position = Vector2(1475, 540)
 
 [node name="WallS2_S7" parent="." unique_id=225 instance=ExtResource("28_wall_steel")]
-position = Vector2(1445, 540)
+position = Vector2(1560, 540)
 
 [node name="WallS2_S8" parent="." unique_id=226 instance=ExtResource("28_wall_steel")]
-position = Vector2(1500, 540)
+position = Vector2(1645, 540)
+
+[node name="WallS2_S9" parent="." unique_id=235 instance=ExtResource("28_wall_steel")]
+position = Vector2(1730, 540)
+
+[node name="WallS2_S10" parent="." unique_id=236 instance=ExtResource("28_wall_steel")]
+position = Vector2(1815, 540)
+
+[node name="WallS2_S11" parent="." unique_id=237 instance=ExtResource("28_wall_steel")]
+position = Vector2(1900, 540)
+
+[node name="WallS2_S12" parent="." unique_id=238 instance=ExtResource("28_wall_steel")]
+position = Vector2(1950, 540)
 
 [node name="WallS2_E1" parent="." unique_id=207 instance=ExtResource("28_wall_steel")]
-position = Vector2(1500, 245)
+position = Vector2(1950, 160)
 
 [node name="WallS2_E2" parent="." unique_id=227 instance=ExtResource("28_wall_steel")]
-position = Vector2(1500, 330)
+position = Vector2(1950, 235)
 
 [node name="WallS2_E3" parent="." unique_id=228 instance=ExtResource("28_wall_steel")]
-position = Vector2(1500, 415)
+position = Vector2(1950, 310)
 
 [node name="WallS2_E4" parent="." unique_id=229 instance=ExtResource("28_wall_steel")]
-position = Vector2(1500, 500)
+position = Vector2(1950, 385)
 
-; Substation Props & Decor
+[node name="WallS2_E5" parent="." unique_id=239 instance=ExtResource("28_wall_steel")]
+position = Vector2(1950, 460)
+
+[node name="WallS2_E6" parent="." unique_id=240 instance=ExtResource("28_wall_steel")]
+position = Vector2(1950, 540)
+
+; Substation Recessed Props & Tactical Emergence Vents
 [node name="SubstationLight" type="PointLight2D" parent="." unique_id=208]
-position = Vector2(1200, 350)
+position = Vector2(1500, 350)
 color = Color(1, 0.65, 0.2, 1)
-energy = 0.9
+energy = 0.95
 texture = ExtResource("7_light")
-texture_scale = 1.9
+texture_scale = 2.4
 
 [node name="PowerGenerator" parent="." unique_id=209 instance=ExtResource("23_generator")]
-position = Vector2(1380, 350)
+position = Vector2(1820, 350)
 
-[node name="VentShaft_S2" parent="." unique_id=230 instance=ExtResource("43_vent_shaft")]
-position = Vector2(1420, 220)
+[node name="VentShaft_S2_NE" parent="." unique_id=230 instance=ExtResource("43_vent_shaft")]
+position = Vector2(1860, 230)
+
+[node name="VentShaft_S2_SE" parent="." unique_id=241 instance=ExtResource("43_vent_shaft")]
+position = Vector2(1860, 470)
+
+[node name="VentShaft_S2_Mid" parent="." unique_id=242 instance=ExtResource("43_vent_shaft")]
+position = Vector2(1500, 220)
 
 [node name="SubstationZombie1" parent="." unique_id=210 instance=ExtResource("5_zombie_scene")]
-position = Vector2(1120, 350)
+position = Vector2(1380, 350)
 Stats = ExtResource("15_zombie_walker")
 
 [node name="SubstationZombie2" parent="." unique_id=211 instance=ExtResource("5_zombie_scene")]
-position = Vector2(1280, 420)
+position = Vector2(1650, 420)
 Stats = ExtResource("15_zombie_walker")
 
 [node name="BarrelSubstation1" parent="." unique_id=213 instance=ExtResource("33_prop_barrel")]
-position = Vector2(1040, 260)
+position = Vector2(1200, 220)
 
 [node name="BarrelSubstation2" parent="." unique_id=214 instance=ExtResource("33_prop_barrel")]
-position = Vector2(1420, 450)
+position = Vector2(1700, 480)
 
 [node name="HerbPickupBlue" parent="." unique_id=215 instance=ExtResource("6_pickup_scene")]
-position = Vector2(1150, 460)
+position = Vector2(1350, 480)
 Item = ExtResource("40_herb_blue")
 
 [node name="AdrenalinePickup" parent="." unique_id=216 instance=ExtResource("6_pickup_scene")]
-position = Vector2(1420, 260)
+position = Vector2(1820, 240)
 Item = ExtResource("41_adrenaline")
 
 ; =========================================================================
-; SECTOR 3: CENTRAL BIO-RESEARCH LAB & ARMORY - EXPANDED & SPACIOUS
+; SECTOR 3: CENTRAL BIO-RESEARCH LAB & ARMORY - WIDE 900PX EXPANSION
 ; =========================================================================
 [node name="WallS3_W1" parent="." unique_id=301 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, 75)
+position = Vector2(150, 160)
 
 [node name="WallS3_W2" parent="." unique_id=302 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, -10)
+position = Vector2(150, 85)
 
 [node name="WallS3_W3" parent="." unique_id=303 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, -95)
+position = Vector2(150, 10)
 
 [node name="WallS3_W4" parent="." unique_id=304 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, -180)
+position = Vector2(150, -65)
 
 [node name="WallS3_W5" parent="." unique_id=326 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, -265)
+position = Vector2(150, -140)
 
 [node name="WallS3_W6" parent="." unique_id=327 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, -350)
+position = Vector2(150, -215)
 
 [node name="WallS3_W7" parent="." unique_id=328 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, -435)
+position = Vector2(150, -290)
 
 [node name="WallS3_W8" parent="." unique_id=329 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, -520)
+position = Vector2(150, -365)
 
 [node name="WallS3_W9" parent="." unique_id=330 instance=ExtResource("29_wall_lab")]
-position = Vector2(180, -560)
+position = Vector2(150, -440)
+
+[node name="WallS3_W10" parent="." unique_id=342 instance=ExtResource("29_wall_lab")]
+position = Vector2(150, -515)
+
+[node name="WallS3_W11" parent="." unique_id=343 instance=ExtResource("29_wall_lab")]
+position = Vector2(150, -560)
 
 [node name="WallS3_E1" parent="." unique_id=305 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, 75)
+position = Vector2(1050, 160)
 
 [node name="WallS3_E2" parent="." unique_id=306 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, -10)
+position = Vector2(1050, 85)
 
 [node name="WallS3_E3" parent="." unique_id=307 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, -95)
+position = Vector2(1050, 10)
 
 [node name="WallS3_E4" parent="." unique_id=308 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, -180)
+position = Vector2(1050, -65)
 
 [node name="WallS3_E5" parent="." unique_id=331 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, -265)
+position = Vector2(1050, -140)
 
 [node name="WallS3_E6" parent="." unique_id=332 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, -350)
+position = Vector2(1050, -215)
 
 [node name="WallS3_E7" parent="." unique_id=333 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, -435)
+position = Vector2(1050, -290)
 
 [node name="WallS3_E8" parent="." unique_id=334 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, -520)
+position = Vector2(1050, -365)
 
 [node name="WallS3_E9" parent="." unique_id=335 instance=ExtResource("29_wall_lab")]
-position = Vector2(1020, -560)
+position = Vector2(1050, -440)
+
+[node name="WallS3_E10" parent="." unique_id=344 instance=ExtResource("29_wall_lab")]
+position = Vector2(1050, -515)
+
+[node name="WallS3_E11" parent="." unique_id=345 instance=ExtResource("29_wall_lab")]
+position = Vector2(1050, -560)
 
 [node name="WallS3_N0" parent="." unique_id=338 instance=ExtResource("29_wall_lab")]
-position = Vector2(265, -560)
+position = Vector2(150, -560)
 
 [node name="WallS3_N1" parent="." unique_id=309 instance=ExtResource("29_wall_lab")]
-position = Vector2(350, -560)
+position = Vector2(235, -560)
 
 [node name="WallS3_N2" parent="." unique_id=310 instance=ExtResource("29_wall_lab")]
-position = Vector2(435, -560)
+position = Vector2(320, -560)
 
 [node name="WallS3_N3" parent="." unique_id=336 instance=ExtResource("29_wall_lab")]
-position = Vector2(765, -560)
+position = Vector2(405, -560)
 
 [node name="WallS3_N4" parent="." unique_id=337 instance=ExtResource("29_wall_lab")]
-position = Vector2(850, -560)
+position = Vector2(480, -560)
 
 [node name="WallS3_N5" parent="." unique_id=339 instance=ExtResource("29_wall_lab")]
-position = Vector2(935, -560)
+position = Vector2(720, -560)
 
-; Bio-Lab Props & Infiltration Vents
+[node name="WallS3_N6" parent="." unique_id=346 instance=ExtResource("29_wall_lab")]
+position = Vector2(795, -560)
+
+[node name="WallS3_N7" parent="." unique_id=347 instance=ExtResource("29_wall_lab")]
+position = Vector2(870, -560)
+
+[node name="WallS3_N8" parent="." unique_id=348 instance=ExtResource("29_wall_lab")]
+position = Vector2(955, -560)
+
+[node name="WallS3_N9" parent="." unique_id=349 instance=ExtResource("29_wall_lab")]
+position = Vector2(1050, -560)
+
+; Bio-Lab Recessed Props & Tactical Grates (Clear 740px Center Lane)
 [node name="LabLightCyan" type="PointLight2D" parent="." unique_id=311]
 position = Vector2(600, -250)
 color = Color(0.15, 0.85, 1, 1)
-energy = 1.15
+energy = 1.2
 texture = ExtResource("7_light")
-texture_scale = 2.6
+texture_scale = 2.8
 
-[node name="VentShaft_S3_West" parent="." unique_id=340 instance=ExtResource("43_vent_shaft")]
-position = Vector2(280, -480)
+[node name="VentShaft_S3_NW" parent="." unique_id=340 instance=ExtResource("43_vent_shaft")]
+position = Vector2(240, -480)
 
-[node name="VentShaft_S3_East" parent="." unique_id=341 instance=ExtResource("43_vent_shaft")]
-position = Vector2(920, -480)
+[node name="VentShaft_S3_NE" parent="." unique_id=341 instance=ExtResource("43_vent_shaft")]
+position = Vector2(960, -480)
+
+[node name="VentShaft_S3_SW" parent="." unique_id=350 instance=ExtResource("43_vent_shaft")]
+position = Vector2(240, 60)
+
+[node name="VentShaft_S3_SE" parent="." unique_id=351 instance=ExtResource("43_vent_shaft")]
+position = Vector2(960, 60)
 
 [node name="LabCryoTube1" parent="." unique_id=320 instance=ExtResource("31_prop_cryo")]
-position = Vector2(260, -100)
+position = Vector2(230, -100)
 
 [node name="LabCryoTube2" parent="." unique_id=321 instance=ExtResource("31_prop_cryo")]
-position = Vector2(940, -100)
+position = Vector2(970, -100)
 
 [node name="LabGurney" parent="." unique_id=322 instance=ExtResource("34_prop_gurney")]
-position = Vector2(940, -280)
+position = Vector2(970, -320)
 
 [node name="ArmoryLocker1" parent="." unique_id=323 instance=ExtResource("32_prop_locker")]
-position = Vector2(260, -260)
+position = Vector2(230, -260)
 
 [node name="ArmoryLocker2" parent="." unique_id=324 instance=ExtResource("32_prop_locker")]
-position = Vector2(260, -360)
+position = Vector2(230, -380)
 
 [node name="SecurityTerminal" parent="." unique_id=313 instance=ExtResource("24_terminal")]
 position = Vector2(600, -250)
 
 [node name="AmmoPickupShotgun" parent="." unique_id=314 instance=ExtResource("6_pickup_scene")]
-position = Vector2(340, -360)
+position = Vector2(300, -380)
 Item = ExtResource("18_ammo_shotgun")
 
 [node name="AmmoPickupRifle" parent="." unique_id=315 instance=ExtResource("6_pickup_scene")]
-position = Vector2(340, -260)
+position = Vector2(300, -260)
 Item = ExtResource("19_ammo_rifle")
 
 [node name="HerbPickupGreen2" parent="." unique_id=325 instance=ExtResource("6_pickup_scene")]
-position = Vector2(860, -360)
+position = Vector2(910, -320)
 Item = ExtResource("39_herb_green")
 
 [node name="LabZombieRunner" parent="." unique_id=317 instance=ExtResource("5_zombie_scene")]
@@ -703,147 +836,171 @@ position = Vector2(600, -420)
 Stats = ExtResource("16_zombie_runner")
 
 [node name="LabZombieWalker" parent="." unique_id=318 instance=ExtResource("5_zombie_scene")]
-position = Vector2(600, -80)
+position = Vector2(600, -70)
 Stats = ExtResource("15_zombie_walker")
 
 [node name="CargoGate" parent="." unique_id=319 instance=ExtResource("22_blast_door")]
 position = Vector2(600, -560)
 DoorId = "door_cargo_helipad"
 OpenOnEvacPhase = true
-SlideOffset = Vector2(95, 0)
+SlideOffset = Vector2(180, 0)
+
+[node name="DoorSprite" parent="CargoGate"]
+scale = Vector2(1.875, 1)
+
+[node name="CollisionShape2D" parent="CargoGate"]
+shape = SubResource("RectangleShape2D_door_h")
+
+[node name="LightOccluder2D" parent="CargoGate"]
+occluder = SubResource("OccluderPolygon2D_door_h")
 
 ; =========================================================================
-; SECTOR 4: SURFACE CARGO HELIPAD ARENA - FULLY SEALED GAPLESS WALLS
+; SECTOR 4: SURFACE CARGO HELIPAD ARENA - WIDE 900PX BOSS COLISEUM
 ; =========================================================================
-[node name="ArenaWall_SW1" parent="." unique_id=401 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -560)
-
-[node name="ArenaWall_SW2" parent="." unique_id=402 instance=ExtResource("28_wall_steel")]
-position = Vector2(265, -560)
-
-[node name="ArenaWall_SE1" parent="." unique_id=403 instance=ExtResource("28_wall_steel")]
-position = Vector2(935, -560)
-
-[node name="ArenaWall_SE2" parent="." unique_id=404 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -560)
-
 [node name="ArenaWall_W1" parent="." unique_id=405 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -645)
+position = Vector2(150, -560)
 
 [node name="ArenaWall_W2" parent="." unique_id=406 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -730)
+position = Vector2(150, -640)
 
 [node name="ArenaWall_W3" parent="." unique_id=407 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -815)
+position = Vector2(150, -720)
 
 [node name="ArenaWall_W4" parent="." unique_id=408 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -900)
+position = Vector2(150, -800)
 
 [node name="ArenaWall_W5" parent="." unique_id=424 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -985)
+position = Vector2(150, -880)
 
 [node name="ArenaWall_W6" parent="." unique_id=425 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -1070)
+position = Vector2(150, -960)
 
 [node name="ArenaWall_W7" parent="." unique_id=426 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -1155)
+position = Vector2(150, -1040)
 
 [node name="ArenaWall_W8" parent="." unique_id=427 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -1240)
+position = Vector2(150, -1120)
 
 [node name="ArenaWall_W9" parent="." unique_id=428 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -1325)
+position = Vector2(150, -1200)
 
 [node name="ArenaWall_W10" parent="." unique_id=429 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -1410)
+position = Vector2(150, -1280)
 
 [node name="ArenaWall_W11" parent="." unique_id=430 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -1495)
+position = Vector2(150, -1360)
 
 [node name="ArenaWall_W12" parent="." unique_id=431 instance=ExtResource("28_wall_steel")]
-position = Vector2(180, -1580)
+position = Vector2(150, -1440)
+
+[node name="ArenaWall_W13" parent="." unique_id=452 instance=ExtResource("28_wall_steel")]
+position = Vector2(150, -1510)
+
+[node name="ArenaWall_W14" parent="." unique_id=453 instance=ExtResource("28_wall_steel")]
+position = Vector2(150, -1580)
 
 [node name="ArenaWall_E1" parent="." unique_id=409 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -645)
+position = Vector2(1050, -560)
 
 [node name="ArenaWall_E2" parent="." unique_id=410 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -730)
+position = Vector2(1050, -640)
 
 [node name="ArenaWall_E3" parent="." unique_id=411 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -815)
+position = Vector2(1050, -720)
 
 [node name="ArenaWall_E4" parent="." unique_id=412 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -900)
+position = Vector2(1050, -800)
 
 [node name="ArenaWall_E5" parent="." unique_id=432 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -985)
+position = Vector2(1050, -880)
 
 [node name="ArenaWall_E6" parent="." unique_id=433 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -1070)
+position = Vector2(1050, -960)
 
 [node name="ArenaWall_E7" parent="." unique_id=434 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -1155)
+position = Vector2(1050, -1040)
 
 [node name="ArenaWall_E8" parent="." unique_id=435 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -1240)
+position = Vector2(1050, -1120)
 
 [node name="ArenaWall_E9" parent="." unique_id=436 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -1325)
+position = Vector2(1050, -1200)
 
 [node name="ArenaWall_E10" parent="." unique_id=437 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -1410)
+position = Vector2(1050, -1280)
 
 [node name="ArenaWall_E11" parent="." unique_id=438 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -1495)
+position = Vector2(1050, -1360)
 
 [node name="ArenaWall_E12" parent="." unique_id=439 instance=ExtResource("28_wall_steel")]
-position = Vector2(1020, -1580)
+position = Vector2(1050, -1440)
+
+[node name="ArenaWall_E13" parent="." unique_id=454 instance=ExtResource("28_wall_steel")]
+position = Vector2(1050, -1510)
+
+[node name="ArenaWall_E14" parent="." unique_id=455 instance=ExtResource("28_wall_steel")]
+position = Vector2(1050, -1580)
 
 [node name="ArenaWall_N1" parent="." unique_id=440 instance=ExtResource("28_wall_steel")]
-position = Vector2(265, -1580)
+position = Vector2(150, -1580)
 
 [node name="ArenaWall_N2" parent="." unique_id=441 instance=ExtResource("28_wall_steel")]
-position = Vector2(350, -1580)
+position = Vector2(235, -1580)
 
 [node name="ArenaWall_N3" parent="." unique_id=442 instance=ExtResource("28_wall_steel")]
-position = Vector2(435, -1580)
+position = Vector2(320, -1580)
 
 [node name="ArenaWall_N4" parent="." unique_id=443 instance=ExtResource("28_wall_steel")]
-position = Vector2(520, -1580)
+position = Vector2(405, -1580)
 
 [node name="ArenaWall_N5" parent="." unique_id=444 instance=ExtResource("28_wall_steel")]
-position = Vector2(605, -1580)
+position = Vector2(490, -1580)
 
 [node name="ArenaWall_N6" parent="." unique_id=445 instance=ExtResource("28_wall_steel")]
-position = Vector2(690, -1580)
+position = Vector2(575, -1580)
 
 [node name="ArenaWall_N7" parent="." unique_id=446 instance=ExtResource("28_wall_steel")]
-position = Vector2(775, -1580)
+position = Vector2(660, -1580)
 
 [node name="ArenaWall_N8" parent="." unique_id=447 instance=ExtResource("28_wall_steel")]
-position = Vector2(860, -1580)
+position = Vector2(745, -1580)
 
 [node name="ArenaWall_N9" parent="." unique_id=448 instance=ExtResource("28_wall_steel")]
-position = Vector2(935, -1580)
+position = Vector2(830, -1580)
 
-; Helipad Tactical Props & Cover
-[node name="VentShaft_S4_West" parent="." unique_id=450 instance=ExtResource("43_vent_shaft")]
-position = Vector2(260, -750)
+[node name="ArenaWall_N10" parent="." unique_id=456 instance=ExtResource("28_wall_steel")]
+position = Vector2(915, -1580)
 
-[node name="VentShaft_S4_East" parent="." unique_id=451 instance=ExtResource("43_vent_shaft")]
-position = Vector2(940, -750)
+[node name="ArenaWall_N11" parent="." unique_id=457 instance=ExtResource("28_wall_steel")]
+position = Vector2(1000, -1580)
+
+[node name="ArenaWall_N12" parent="." unique_id=458 instance=ExtResource("28_wall_steel")]
+position = Vector2(1050, -1580)
+
+; Helipad Tactical Props & Cover (Hugging Walls)
+[node name="VentShaft_S4_NW" parent="." unique_id=450 instance=ExtResource("43_vent_shaft")]
+position = Vector2(240, -1480)
+
+[node name="VentShaft_S4_NE" parent="." unique_id=451 instance=ExtResource("43_vent_shaft")]
+position = Vector2(960, -1480)
+
+[node name="VentShaft_S4_W1" parent="." unique_id=459 instance=ExtResource("43_vent_shaft")]
+position = Vector2(240, -850)
+
+[node name="VentShaft_S4_E1" parent="." unique_id=460 instance=ExtResource("43_vent_shaft")]
+position = Vector2(960, -850)
 
 [node name="HelipadBarrel1" parent="." unique_id=420 instance=ExtResource("33_prop_barrel")]
-position = Vector2(260, -900)
+position = Vector2(230, -1050)
 
 [node name="HelipadBarrel2" parent="." unique_id=421 instance=ExtResource("33_prop_barrel")]
-position = Vector2(940, -900)
+position = Vector2(970, -1050)
 
 [node name="HelipadBarrel3" parent="." unique_id=422 instance=ExtResource("33_prop_barrel")]
-position = Vector2(260, -1250)
+position = Vector2(230, -1300)
 
 [node name="HelipadBarrel4" parent="." unique_id=423 instance=ExtResource("33_prop_barrel")]
-position = Vector2(940, -1250)
+position = Vector2(970, -1300)
 
 [node name="BossSpawnPoint" type="Node2D" parent="." unique_id=413]
 unique_name_in_owner = true
@@ -865,7 +1022,7 @@ energy = 0.85
 texture = ExtResource("7_light")
 
 [node name="GateZombieBrute" parent="." unique_id=417 instance=ExtResource("5_zombie_scene")]
-position = Vector2(600, -780)
+position = Vector2(600, -720)
 Stats = ExtResource("17_zombie_brute")
 
 ; =========================================================================
