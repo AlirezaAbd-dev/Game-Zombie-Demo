@@ -343,6 +343,7 @@ public partial class HUDUI : Control
 
     private void OnMissionCompleted()
     {
+        Input.MouseMode = Input.MouseModeEnum.Visible;
         if (VictoryPanel != null)
         {
             VictoryPanel.Visible = true;
@@ -439,6 +440,7 @@ public partial class HUDUI : Control
 
     private void OnPlayerDied()
     {
+        Input.MouseMode = Input.MouseModeEnum.Visible;
         if (GameOverPanel != null)
         {
             GameOverPanel.Visible = true;

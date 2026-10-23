@@ -128,6 +128,7 @@ public partial class InventoryUI : Control
     {
         Visible = !Visible;
         GetTree().Paused = Visible;
+        Input.MouseMode = Visible ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
 
         if (Visible)
         {

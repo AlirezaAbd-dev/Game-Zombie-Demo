@@ -64,6 +64,7 @@ public partial class MiniMapUI : Control
     {
         IsFullscreen = !IsFullscreen;
         GetTree().Paused = IsFullscreen;
+        Input.MouseMode = IsFullscreen ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
 
         if (RadarPanel != null)
         {

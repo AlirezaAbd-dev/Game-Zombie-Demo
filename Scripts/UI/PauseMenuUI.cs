@@ -64,6 +64,7 @@ public partial class PauseMenuUI : Control
     {
         Visible = !Visible;
         GetTree().Paused = Visible;
+        Input.MouseMode = Visible ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
     }
 
     private void OnInventoryPressed()
@@ -81,6 +82,7 @@ public partial class PauseMenuUI : Control
     private void OnRestartPressed()
     {
         GetTree().Paused = false;
+        Input.MouseMode = Input.MouseModeEnum.Hidden;
         GetTree().ReloadCurrentScene();
     }
 
