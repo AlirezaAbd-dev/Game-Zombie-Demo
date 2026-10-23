@@ -228,34 +228,56 @@ public partial class HUDUI : Control
 
     private void UpdateCloseCombatPrompt()
     {
-        if (_hasInteractablePrompt || InteractionPromptLabel == null) return;
+        if (InteractionPromptLabel == null) return;
         if (!IsInstanceValid(_player) || _player.IsDead) return;
 
         var zombies = GetTree()?.GetNodesInGroup("zombies");
-        if (zombies == null) return;
+        if (zombies == null)
+        {
+            if (!_hasInteractablePrompt) InteractionPromptLabel.Visible = false;
+            return;
+        }
 
         Vector2 playerPos = _player.GlobalPosition;
+        Zombie finisherTarget = null;
         bool hasCloseZombie = false;
 
         foreach (var node in zombies)
         {
             if (node is Zombie z && IsInstanceValid(z) && !z.IsDead)
             {
+                if (z.FinisherTarget != null && z.FinisherTarget.CanBeFinishedBy(_player))
+                {
+                    finisherTarget = z;
+                    break;
+                }
+
                 if (z.GlobalPosition.DistanceTo(playerPos) <= 95.0f)
                 {
                     hasCloseZombie = true;
-                    break;
                 }
             }
         }
 
-        if (hasCloseZombie)
+        if (finisherTarget != null)
+        {
+            InteractionPromptLabel.Visible = true;
+            string actionName = finisherTarget.Stats?.TypeName == "Specimen Zero" ? "POWER STRIKE" : "KICK / FINISH";
+            InteractionPromptLabel.Text = $"[F] {actionName}";
+            InteractionPromptLabel.Modulate = new Color(1.0f, 0.95f, 0.2f, 1.0f);
+        }
+        else if (_hasInteractablePrompt)
+        {
+            // Retain active interactable prompt (doors, terminals, generators)
+            return;
+        }
+        else if (hasCloseZombie)
         {
             InteractionPromptLabel.Visible = true;
             InteractionPromptLabel.Text = "[V] QUICK KNIFE";
             InteractionPromptLabel.Modulate = new Color(1.0f, 0.85f, 0.3f, 0.95f);
         }
-        else if (!_hasInteractablePrompt)
+        else
         {
             InteractionPromptLabel.Visible = false;
         }

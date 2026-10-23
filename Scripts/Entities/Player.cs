@@ -163,12 +163,6 @@ public partial class Player : CharacterBody2D, IDamageable
         // Weapon Switch Inputs
         HandleWeaponSwitchInput();
 
-        if (Input.IsActionJustPressed("knife"))
-        {
-            TryExecuteKnifeAttack();
-            return;
-        }
-
         if (Input.IsActionJustPressed("finisher"))
         {
             if (TryExecuteFinisher())
@@ -184,6 +178,17 @@ public partial class Player : CharacterBody2D, IDamageable
                 return;
             }
             InteractionComponent?.TryTriggerInteraction();
+        }
+
+        if (Input.IsActionJustPressed("knife"))
+        {
+            // If near a stunned enemy, execute finisher; otherwise perform tactical quick knife attack
+            if (TryExecuteFinisher())
+            {
+                return;
+            }
+            TryExecuteKnifeAttack();
+            return;
         }
 
         if (Input.IsActionJustPressed("reload"))

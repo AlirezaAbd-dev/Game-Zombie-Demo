@@ -22,8 +22,8 @@ public partial class FinisherTargetComponent : Node2D
 
     [Export] public float StunDuration { get; set; } = 3.5f;
     [Export] public float StunCooldownDuration { get; set; } = 4.0f;
-    [Export] public float HeavyDamageThreshold { get; set; } = 30.0f;
-    [Export] public float LowHealthThresholdRatio { get; set; } = 0.35f;
+    [Export] public float HeavyDamageThreshold { get; set; } = 45.0f;
+    [Export] public float LowHealthThresholdRatio { get; set; } = 0.55f;
     [Export] public float FinisherRange { get; set; } = 140.0f;
 
     public bool IsStunned { get; private set; } = false;
@@ -150,15 +150,45 @@ public partial class FinisherTargetComponent : Node2D
         var spaceState = GetWorld2D()?.DirectSpaceState;
         if (spaceState == null) return true;
 
+        var exclude = new Godot.Collections.Array<Rid> { player.GetRid() };
+        if (_zombie != null && IsInstanceValid(_zombie))
+        {
+            exclude.Add(_zombie.GetRid());
+        }
+
+        // Exclude all other zombies so crowds do not block finisher line-of-sight
+        var zombies = GetTree()?.GetNodesInGroup("zombies");
+        if (zombies != null)
+        {
+            foreach (var node in zombies)
+            {
+                if (node is CollisionObject2D col && IsInstanceValid(col))
+                {
+                    exclude.Add(col.GetRid());
+                }
+            }
+        }
+
         var query = PhysicsRayQueryParameters2D.Create(
             GlobalPosition,
             player.GlobalPosition,
-            collisionMask: 1 // Layer 1: Obstacles, Walls, Boundaries
+            collisionMask: 1, // Layer 1: Obstacles, Walls, Boundaries
+            exclude: exclude
         );
 
         var result = spaceState.IntersectRay(query);
-        // If ray hit nothing, direct line of sight is clear!
-        return result == null || result.Count == 0;
+        if (result != null && result.Count > 0)
+        {
+            var collider = result["collider"].AsGodotObject();
+            if (collider == player || collider == _zombie || collider is Zombie)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // Clear direct line of sight without any walls or boundaries
+        return true;
     }
 
     private void UpdateFinisherPrompt()

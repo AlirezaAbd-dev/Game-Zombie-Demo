@@ -48,17 +48,28 @@ public class PlayerFinisherState : PlayerState
         var spaceState = Player.GetWorld2D()?.DirectSpaceState;
         if (spaceState != null)
         {
+            var exclude = new Godot.Collections.Array<Rid> { Player.GetRid() };
+            if (_target != null && GodotObject.IsInstanceValid(_target))
+            {
+                exclude.Add(_target.GetRid());
+            }
+
             var rayQuery = PhysicsRayQueryParameters2D.Create(
                 startPos,
                 targetStrikePos,
-                collisionMask: 1 // Layer 1: Obstacles, Walls, Boundaries
+                collisionMask: 1, // Layer 1: Obstacles, Walls, Boundaries
+                exclude: exclude
             );
             var hit = spaceState.IntersectRay(rayQuery);
             if (hit != null && hit.Count > 0)
             {
-                Vector2 hitPoint = hit["position"].AsVector2();
-                Vector2 hitNormal = hit["normal"].AsVector2();
-                safeStrikePos = hitPoint + hitNormal * 28.0f;
+                var collider = hit["collider"].AsGodotObject();
+                if (collider != Player && collider != _target && collider is not Zombie)
+                {
+                    Vector2 hitPoint = hit["position"].AsVector2();
+                    Vector2 hitNormal = hit["normal"].AsVector2();
+                    safeStrikePos = hitPoint + hitNormal * 28.0f;
+                }
             }
         }
 

@@ -87,12 +87,9 @@ public class PlayerKnifeState : PlayerState
                         Vector2 hitDir = toZombie.Normalized();
                         if (hitDir == Vector2.Zero) hitDir = forward;
 
-                        // Deal knife damage & knockback
+                        // Deal knife damage & knockback (TakeDamage also triggers FinisherTarget stun accumulation)
                         z.TakeDamage(KnifeDamage, hitDir);
                         z.MovementComponent?.ApplyKnockback(hitDir, KnifeKnockback);
-
-                        // Accumulate stun damage for follow-up finisher stagger
-                        z.FinisherTarget?.OnDamageTaken(KnifeDamage);
 
                         // Blood splash impact
                         SpawnBloodSplash(z.GlobalPosition);
@@ -182,6 +179,15 @@ public class PlayerKnifeState : PlayerState
     public override void PhysicsUpdate(float delta)
     {
         _knifeTimer -= delta;
+
+        // Allow immediate animation cancel into finisher if an enemy is stunned and player presses finisher/knife
+        if (Input.IsActionJustPressed("finisher") || Input.IsActionJustPressed("interact") || Input.IsActionJustPressed("knife"))
+        {
+            if (Player.TryExecuteFinisher())
+            {
+                return;
+            }
+        }
 
         // Controlled responsive movement during knife attack
         Vector2 moveInput = Player.GetMovementInput();
