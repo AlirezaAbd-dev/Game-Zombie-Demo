@@ -2,12 +2,13 @@ using Godot;
 using TopDownDemo.Core;
 using TopDownDemo.Entities;
 using TopDownDemo.Entities.Components;
+using TopDownDemo.Systems;
 
 namespace TopDownDemo.UI;
 
 public partial class HUDUI : Control
 {
-    [ExportGroup("UI Elements")]
+    [ExportGroup("Standard HUD")]
     [Export] public ProgressBar HealthBar { get; set; }
     [Export] public Label HealthLabel { get; set; }
     [Export] public ProgressBar StaminaBar { get; set; }
@@ -17,10 +18,58 @@ public partial class HUDUI : Control
     [Export] public Label KillLabel { get; set; }
     [Export] public Control GameOverPanel { get; set; }
 
+    [ExportGroup("Story & Objectives")]
+    [Export] public Label ObjectiveTitleLabel { get; set; }
+    [Export] public Label ObjectiveSubtaskLabel { get; set; }
+    [Export] public Label PurgeTimerLabel { get; set; }
+    [Export] public ProgressBar DefenseProgressBar { get; set; }
+    [Export] public Label DefenseProgressLabel { get; set; }
+
+    [ExportGroup("Radio Comms")]
+    [Export] public Control RadioCommsPanel { get; set; }
+    [Export] public Label RadioSpeakerLabel { get; set; }
+    [Export] public Label RadioMessageLabel { get; set; }
+
+    [ExportGroup("Interaction Prompt")]
+    [Export] public Label InteractionPromptLabel { get; set; }
+
+    [ExportGroup("Boss Bar")]
+    [Export] public Control BossBarContainer { get; set; }
+    [Export] public ProgressBar BossProgressBar { get; set; }
+    [Export] public Label BossTitleLabel { get; set; }
+
+    [ExportGroup("Victory Screen")]
+    [Export] public Control VictoryPanel { get; set; }
+    [Export] public Label VictoryRankLabel { get; set; }
+    [Export] public Label VictoryStatsLabel { get; set; }
+
     private Player _player;
     private WeaponData _currentWeapon;
+    private int _kills = 0;
+
+    private float _radioTimer = 0.0f;
+    private string _fullRadioMessage = string.Empty;
+    private float _typewriterIndex = 0.0f;
 
     public override void _Ready()
+    {
+        BindNodes();
+
+        if (GameOverPanel != null) GameOverPanel.Visible = false;
+        if (RadioCommsPanel != null) RadioCommsPanel.Visible = false;
+        if (InteractionPromptLabel != null) InteractionPromptLabel.Visible = false;
+        if (DefenseProgressBar != null) DefenseProgressBar.Visible = false;
+        if (BossBarContainer != null) BossBarContainer.Visible = false;
+        if (VictoryPanel != null) VictoryPanel.Visible = false;
+        if (PurgeTimerLabel != null) PurgeTimerLabel.Visible = false;
+
+        BindPlayer();
+        BindStoryDirector();
+
+        Zombie.OnAnyZombieKilled += OnZombieKilled;
+    }
+
+    private void BindNodes()
     {
         HealthBar ??= GetNodeOrNull<ProgressBar>("%HealthBar");
         HealthLabel ??= GetNodeOrNull<Label>("%HealthLabel");
@@ -31,13 +80,38 @@ public partial class HUDUI : Control
         KillLabel ??= GetNodeOrNull<Label>("%KillLabel");
         GameOverPanel ??= GetNodeOrNull<Control>("%GameOverPanel");
 
-        if (GameOverPanel != null)
-        {
-            GameOverPanel.Visible = false;
-        }
+        ObjectiveTitleLabel ??= GetNodeOrNull<Label>("%ObjectiveTitleLabel");
+        ObjectiveSubtaskLabel ??= GetNodeOrNull<Label>("%ObjectiveSubtaskLabel");
+        PurgeTimerLabel ??= GetNodeOrNull<Label>("%PurgeTimerLabel");
+        DefenseProgressBar ??= GetNodeOrNull<ProgressBar>("%DefenseProgressBar");
+        DefenseProgressLabel ??= GetNodeOrNull<Label>("%DefenseProgressLabel");
 
-        BindPlayer();
-        Zombie.OnAnyZombieKilled += OnZombieKilled;
+        RadioCommsPanel ??= GetNodeOrNull<Control>("%RadioCommsPanel");
+        RadioSpeakerLabel ??= GetNodeOrNull<Label>("%RadioSpeakerLabel");
+        RadioMessageLabel ??= GetNodeOrNull<Label>("%RadioMessageLabel");
+
+        InteractionPromptLabel ??= GetNodeOrNull<Label>("%InteractionPromptLabel");
+
+        BossBarContainer ??= GetNodeOrNull<Control>("%BossBarContainer");
+        BossProgressBar ??= GetNodeOrNull<ProgressBar>("%BossProgressBar");
+        BossTitleLabel ??= GetNodeOrNull<Label>("%BossTitleLabel");
+
+        VictoryPanel ??= GetNodeOrNull<Control>("%VictoryPanel");
+        VictoryRankLabel ??= GetNodeOrNull<Label>("%VictoryRankLabel");
+        VictoryStatsLabel ??= GetNodeOrNull<Label>("%VictoryStatsLabel");
+    }
+
+    private void BindStoryDirector()
+    {
+        if (StoryDirector.Instance == null) return;
+
+        StoryDirector.Instance.ObjectiveUpdated += OnObjectiveUpdated;
+        StoryDirector.Instance.RadioTransmissionTriggered += OnRadioTransmission;
+        StoryDirector.Instance.PurgeTimerUpdated += OnPurgeTimerUpdated;
+        StoryDirector.Instance.DefenseProgressUpdated += OnDefenseProgressUpdated;
+        StoryDirector.Instance.BossSpawned += OnBossSpawned;
+        StoryDirector.Instance.BossHealthUpdated += OnBossHealthUpdated;
+        StoryDirector.Instance.MissionCompleted += OnMissionCompleted;
     }
 
     public override void _ExitTree()
@@ -47,6 +121,8 @@ public partial class HUDUI : Control
 
     public override void _Process(double delta)
     {
+        float dt = (float)delta;
+
         if (IsInstanceValid(_player) && !_player.IsDead)
         {
             if (WeaponLabel != null && _currentWeapon != null)
@@ -54,6 +130,25 @@ public partial class HUDUI : Control
                 string aimIndicator = _player.IsAiming ? " [AIMING]" : "";
                 WeaponLabel.Text = $"{_currentWeapon.WeaponName.ToUpper()}{aimIndicator} (Q/1-3)";
                 WeaponLabel.Modulate = _player.IsAiming ? new Color(1.0f, 0.4f, 0.4f, 1.0f) : new Color(0.85f, 0.9f, 1.0f, 0.9f);
+            }
+        }
+
+        // Radio typewriter effect
+        if (_radioTimer > 0.0f)
+        {
+            _radioTimer -= dt;
+            _typewriterIndex += dt * 42.0f;
+            int len = Mathf.Min((int)_typewriterIndex, _fullRadioMessage.Length);
+            if (RadioMessageLabel != null)
+            {
+                RadioMessageLabel.Text = _fullRadioMessage[..len];
+            }
+
+            if (_radioTimer <= 0.0f && RadioCommsPanel != null)
+            {
+                var tween = CreateTween();
+                tween.TweenProperty(RadioCommsPanel, "modulate:a", 0.0f, 0.4);
+                tween.TweenCallback(Callable.From(() => RadioCommsPanel.Visible = false));
             }
         }
     }
@@ -87,7 +182,134 @@ public partial class HUDUI : Control
             OnAmmoChanged(_player.InventoryComponent.CurrentAmmo, _player.InventoryComponent.CurrentReserve, _player.InventoryComponent.IsReloading);
         }
 
+        if (_player.InteractionComponent != null)
+        {
+            _player.InteractionComponent.FocusedInteractableChanged += OnFocusedInteractableChanged;
+        }
+
         _player.PlayerDied += OnPlayerDied;
+    }
+
+    private void OnFocusedInteractableChanged(string promptText, bool canInteract)
+    {
+        if (InteractionPromptLabel == null) return;
+
+        if (string.IsNullOrEmpty(promptText))
+        {
+            InteractionPromptLabel.Visible = false;
+        }
+        else
+        {
+            InteractionPromptLabel.Visible = true;
+            InteractionPromptLabel.Text = $"[E] {promptText.ToUpper()}";
+            InteractionPromptLabel.Modulate = canInteract ? new Color(0.2f, 1.0f, 0.5f, 1.0f) : new Color(1.0f, 0.4f, 0.3f, 1.0f);
+        }
+    }
+
+    private void OnObjectiveUpdated(string title, string subtask)
+    {
+        if (ObjectiveTitleLabel != null) ObjectiveTitleLabel.Text = title;
+        if (ObjectiveSubtaskLabel != null) ObjectiveSubtaskLabel.Text = subtask;
+
+        if (ObjectiveTitleLabel != null)
+        {
+            var tween = CreateTween();
+            ObjectiveTitleLabel.Modulate = new Color(1.5f, 1.5f, 0.5f, 1.0f);
+            tween.TweenProperty(ObjectiveTitleLabel, "modulate", Colors.White, 0.4);
+        }
+    }
+
+    private void OnRadioTransmission(string speaker, string message, float duration)
+    {
+        if (RadioCommsPanel == null) return;
+
+        RadioCommsPanel.Visible = true;
+        RadioCommsPanel.Modulate = Colors.White;
+        if (RadioSpeakerLabel != null) RadioSpeakerLabel.Text = speaker;
+        _fullRadioMessage = message;
+        _typewriterIndex = 0.0f;
+        _radioTimer = duration;
+    }
+
+    private void OnPurgeTimerUpdated(float remainingSeconds, bool isVisible)
+    {
+        if (PurgeTimerLabel == null) return;
+
+        PurgeTimerLabel.Visible = isVisible;
+        if (isVisible)
+        {
+            int mins = (int)(remainingSeconds / 60);
+            int secs = (int)(remainingSeconds % 60);
+            PurgeTimerLabel.Text = $"PURGE IMMINENT: {mins:D2}:{secs:D2}";
+            PurgeTimerLabel.Modulate = remainingSeconds < 120 ? new Color(1f, 0.2f, 0.2f, 1f) : new Color(1f, 0.8f, 0.2f, 1f);
+        }
+    }
+
+    private void OnDefenseProgressUpdated(float progress, bool isVisible)
+    {
+        if (DefenseProgressBar != null)
+        {
+            DefenseProgressBar.Visible = isVisible;
+            DefenseProgressBar.Value = progress * 100f;
+        }
+        if (DefenseProgressLabel != null)
+        {
+            DefenseProgressLabel.Visible = isVisible;
+            DefenseProgressLabel.Text = $"DATA UPLOAD: {(int)(progress * 100f)}%";
+        }
+    }
+
+    private void OnBossSpawned(Zombie boss)
+    {
+        if (BossBarContainer != null)
+        {
+            BossBarContainer.Visible = true;
+            if (BossTitleLabel != null) BossTitleLabel.Text = "SPECIMEN ZERO - CONTAINMENT ALPHA";
+            if (BossProgressBar != null)
+            {
+                BossProgressBar.MaxValue = boss.Stats?.MaxHealth ?? 420f;
+                BossProgressBar.Value = BossProgressBar.MaxValue;
+            }
+        }
+    }
+
+    private void OnBossHealthUpdated(float current, float max)
+    {
+        if (BossBarContainer != null)
+        {
+            BossBarContainer.Visible = current > 0;
+            if (BossProgressBar != null)
+            {
+                BossProgressBar.MaxValue = max;
+                BossProgressBar.Value = current;
+            }
+        }
+    }
+
+    private void OnMissionCompleted()
+    {
+        if (VictoryPanel != null)
+        {
+            VictoryPanel.Visible = true;
+            var stats = StoryDirector.Instance?.Stats ?? new MissionStats();
+
+            if (VictoryRankLabel != null)
+            {
+                VictoryRankLabel.Text = $"SURVIVOR GRADE: {stats.CalculateRank()}";
+            }
+
+            if (VictoryStatsLabel != null)
+            {
+                int mins = (int)(stats.PlaytimeSeconds / 60);
+                int secs = (int)(stats.PlaytimeSeconds % 60);
+                VictoryStatsLabel.Text = $"ESCAPE TIME: {mins:D2}:{secs:D2}\n" +
+                                        $"HOSTILES PURGED: {stats.TotalKills}\n" +
+                                        $"ACCURACY: {stats.AccuracyPercentage:F1}%\n" +
+                                        $"DOCUMENTS RECOVERED: {stats.DocumentsFound} / 1\n\n" +
+                                        $"STATUS: EXTRACTION SUCCESSFUL\n" +
+                                        $"PRESS 'R' TO REPLAY MISSION";
+            }
+        }
     }
 
     private void OnWeaponChanged(WeaponData newWeapon)
@@ -149,7 +371,6 @@ public partial class HUDUI : Control
         }
     }
 
-    private int _kills = 0;
     private void OnZombieKilled()
     {
         _kills++;

@@ -6,11 +6,14 @@ A modular, component-based 2D top-down survival horror demo built with **Godot 4
 
 ## 🎮 Core Gameplay Mechanics
 
-- **Movement & Aiming:** 8-directional top-down character movement (`CharacterBody2D`) with precision mouse cursor aiming and laser-sight targeting.
+- **Movement & Aiming:** 8-directional top-down character movement (`CharacterBody2D`) with precision mouse cursor aiming, RMB tactical aim mode (zoom, tight spread, slower walk), and laser-sight targeting.
+- **Dynamic 10-Minute Story Campaign ("Incident at Sector-4"):** Episodic 3-act narrative with radio comms, live objectives, power restoration, 30s terminal defense, and cargo helipad evacuation.
+- **Contextual Interaction System (`[E]`):** Examine terminals, pick up keycards, activate generators, and open hydraulic blast doors.
+- **Weapon Arsenal & Switching:** Handgun (semi-auto), Pump Shotgun (8 pellets, high spread), and Assault Rifle (high-velocity full-auto), switchable via `1-3`, `Q`, or Mouse Wheel.
 - **Resource-Heavy Combat:** Scarce ammunition, tactical reserve ammo management, and deliberate, interruptible reload timings.
-- **Flashlight & Lighting:** Pitch-black ambient environment relying on a directional flashlight cone (`PointLight2D` attached to player rotation) with realistic voltage flickers.
+- **Dynamic Lighting & Audio:** Emergency red blackout transitioning to bright sterile facility lighting, accompanied by a zero-GC procedural sound engine (gunshots, sirens, radio comms, zombie roars).
 - **Stamina & Evasion:** Dash ability with temporary invulnerability frames and after-image ghosting, governed by a regenerating stamina meter.
-- **Dynamic Pickups:** Data-driven item drops (First Aid kits, 9mm ammo boxes) dropped on enemy defeat.
+- **Diverse Enemy Variants & Boss:** Standard Walkers, fast crimson Runners, heavy Brutes, and the terrifying "Specimen Zero" Goliath Boss.
 
 ---
 
@@ -127,11 +130,14 @@ godot --path . res://Scenes/World.tscn
 | Action | Key / Input |
 | :--- | :--- |
 | **Move** | `W`, `A`, `S`, `D` / Arrow Keys |
-| **Aim** | Mouse Cursor |
+| **Aim Direction** | Mouse Cursor |
+| **Tactical Aim Mode** | Right Mouse Button (`RMB` Hold) |
 | **Shoot** | Left Mouse Button (`LMB`) |
+| **Interact / Examine** | `E` / Gamepad `A` / `Cross` |
+| **Switch Weapon** | `1`, `2`, `3` / `Q` / Mouse Scroll Wheel |
 | **Reload** | `R` |
 | **Dash (Evade)** | `Space` |
-| **Restart (Game Over)** | `R` |
+| **Restart / Replay** | `R` |
 | **Quit Game** | `Escape` |
 
 ---

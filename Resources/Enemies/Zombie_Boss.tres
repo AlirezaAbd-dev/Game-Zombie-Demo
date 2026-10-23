@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="EnemyStats" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/EnemyStats.cs" id="1_enemystats"]
+[ext_resource type="Texture2D" path="res://Assets/textures/zombie_boss.png" id="2_boss_texture"]
+
+[resource]
+script = ExtResource("1_enemystats")
+TypeName = "Specimen Zero"
+MaxHealth = 420.0
+BaseSpeed = 160.0
+AttackDamage = 45.0
+AttackInterval = 1.0
+AttackRange = 75.0
+StopDistance = 50.0
+ScaleMultiplier = 1.85
+KnockbackResistance = 0.88
+Tint = Color(1, 0.8, 0.95, 1)
+CustomTexture = ExtResource("2_boss_texture")
+EyeLightColor = Color(1, 0.1, 0.35, 1)
+EyeLightEnergy = 1.4
+AmmoDropChance = 1.0
+MedkitDropChance = 1.0

@@ -3,11 +3,15 @@ using Godot;
 using TopDownDemo.Core;
 using TopDownDemo.Entities.Components;
 using TopDownDemo.Entities.States;
+using TopDownDemo.Systems;
 
 namespace TopDownDemo.Entities;
 
 public partial class Zombie : CharacterBody2D, IDamageable
 {
+    [Signal]
+    public delegate void DiedEventHandler();
+
     public static event Action OnAnyZombieKilled;
 
     [Export] public EnemyStats Stats { get; set; }
@@ -176,6 +180,9 @@ public partial class Zombie : CharacterBody2D, IDamageable
         float effectiveKnockback = 320.0f * (1.0f - Mathf.Clamp(Stats.KnockbackResistance, 0.0f, 0.9f));
         MovementComponent?.ApplyKnockback(knockbackDir, effectiveKnockback);
 
+        SoundType sType = Stats.TypeName == "Specimen Zero" ? SoundType.BossRoar : SoundType.ZombieGroan;
+        AudioManager.Instance?.PlaySound(sType, GlobalPosition, (float)GD.RandRange(0.85, 1.15));
+
         if (Sprite != null)
         {
             var tween = CreateTween();
@@ -212,6 +219,8 @@ public partial class Zombie : CharacterBody2D, IDamageable
             SpawnDrop(parent);
         }
 
+        StoryDirector.Instance?.RecordKill();
+        EmitSignal(SignalName.Died);
         OnAnyZombieKilled?.Invoke();
         QueueFree();
     }

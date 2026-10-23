@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://f3m5o6p7q8r9t"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/EvacHelipad.cs" id="1_helipad"]
+[ext_resource type="Texture2D" path="res://Assets/textures/helipad.png" id="2_pad_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="3_light_tex"]
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="4_interact_comp"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pad"]
+radius = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pad_interact"]
+radius = 110.0
+
+[node name="EvacHelipad" type="Area2D" unique_id=71829304]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_helipad")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=82930415]
+shape = SubResource("CircleShape2D_pad")
+
+[node name="PadSprite" type="Sprite2D" parent="." unique_id=93041526]
+unique_name_in_owner = true
+texture_filter = 1
+texture = ExtResource("2_pad_tex")
+
+[node name="BeaconLight" type="PointLight2D" parent="." unique_id=14152637]
+unique_name_in_owner = true
+scale = Vector2(2.5, 2.5)
+color = Color(0.2, 1, 0.4, 1)
+energy = 1.2
+texture = ExtResource("3_light_tex")
+
+[node name="InteractableComponent" type="Area2D" parent="." unique_id=25263748]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("4_interact_comp")
+PromptText = "BOARD EVACUATION TRANSPORT (VULTURE-9)"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableComponent" unique_id=36374859]
+shape = SubResource("CircleShape2D_pad_interact")

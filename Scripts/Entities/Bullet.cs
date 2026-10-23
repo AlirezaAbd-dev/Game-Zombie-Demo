@@ -57,6 +57,7 @@ public partial class Bullet : Area2D
         if (body is IDamageable damageable)
         {
             damageable.TakeDamage(Damage, Transform.X);
+            StoryDirector.Instance?.RecordShotHit();
             SpawnBloodImpact(GlobalPosition);
         }
         else

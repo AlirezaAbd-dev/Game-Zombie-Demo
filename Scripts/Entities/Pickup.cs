@@ -1,5 +1,6 @@
 using Godot;
 using TopDownDemo.Core;
+using TopDownDemo.Systems;
 
 namespace TopDownDemo.Entities;
 
@@ -79,9 +80,15 @@ public partial class Pickup : Area2D
                 player.InventoryComponent.AddItem(Item);
                 collected = true;
             }
+            else if ((Item.Type == ItemType.Key || Item.Type == ItemType.Document) && player.InventoryComponent != null)
+            {
+                player.InventoryComponent.AddItem(Item);
+                collected = true;
+            }
 
             if (collected)
             {
+                AudioManager.Instance?.PlaySound(SoundType.PickupCollect, GlobalPosition);
                 SpawnCollectEffect();
                 QueueFree();
             }

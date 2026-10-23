@@ -17,6 +17,7 @@ public partial class Player : CharacterBody2D, IDamageable
     [Export] public StaminaComponent StaminaComponent { get; set; }
     [Export] public InventoryComponent InventoryComponent { get; set; }
     [Export] public FlashlightComponent FlashlightComponent { get; set; }
+    [Export] public PlayerInteractionComponent InteractionComponent { get; set; }
 
     [ExportGroup("Visual Nodes")]
     [Export] public Sprite2D BodySprite { get; set; }
@@ -84,6 +85,7 @@ public partial class Player : CharacterBody2D, IDamageable
         StaminaComponent ??= GetNodeOrNull<StaminaComponent>("%StaminaComponent");
         InventoryComponent ??= GetNodeOrNull<InventoryComponent>("%InventoryComponent");
         FlashlightComponent ??= GetNodeOrNull<FlashlightComponent>("%FlashlightComponent");
+        InteractionComponent ??= GetNodeOrNull<PlayerInteractionComponent>("%InteractionComponent");
 
         BodySprite ??= GetNodeOrNull<Sprite2D>("%Body");
         GunSprite ??= GetNodeOrNull<Sprite2D>("%Gun");
@@ -147,6 +149,11 @@ public partial class Player : CharacterBody2D, IDamageable
 
         // Weapon Switch Inputs
         HandleWeaponSwitchInput();
+
+        if (Input.IsActionJustPressed("interact"))
+        {
+            InteractionComponent?.TryTriggerInteraction();
+        }
 
         if (Input.IsActionJustPressed("reload"))
         {
@@ -260,6 +267,16 @@ public partial class Player : CharacterBody2D, IDamageable
 
         AddTrauma(weapon.CameraTrauma);
 
+        StoryDirector.Instance?.RecordShotFired();
+
+        SoundType sType = weapon.WeaponId switch
+        {
+            "shotgun" => SoundType.ShotgunShot,
+            "rifle" => SoundType.RifleShot,
+            _ => SoundType.PistolShot
+        };
+        AudioManager.Instance?.PlaySound(sType, GlobalPosition);
+
         if (InventoryComponent.CurrentAmmo == 0)
         {
             StartReload();
@@ -346,6 +363,7 @@ public partial class Player : CharacterBody2D, IDamageable
         HealthComponent?.TakeDamage(amount, knockbackDir);
         MovementComponent?.ApplyKnockback(knockbackDir, 240.0f);
         AddTrauma(0.4f);
+        AudioManager.Instance?.PlaySound(SoundType.PlayerHurt, GlobalPosition);
 
         if (BodySprite != null)
         {

@@ -11,6 +11,10 @@
 [ext_resource type="Texture2D" uid="uid://jto1upswoasf" path="res://Assets/textures/gun.png" id="9_dqkch"]
 [ext_resource type="Texture2D" path="res://Assets/textures/flashlight_cone.png" id="10_flashlight"]
 [ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="11_radial"]
+[ext_resource type="Script" path="res://Scripts/Entities/Components/PlayerInteractionComponent.cs" id="14_interact_comp"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
+radius = 90.0
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_jpud8"]
 radius = 24.0
@@ -60,6 +64,15 @@ ReloadDuration = 1.2
 [node name="FlashlightComponent" type="Node2D" parent="." unique_id=55446677]
 unique_name_in_owner = true
 script = ExtResource("6_light_comp")
+
+[node name="InteractionComponent" type="Area2D" parent="." unique_id=77889900]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 2147483647
+script = ExtResource("14_interact_comp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionComponent" unique_id=88990011]
+shape = SubResource("CircleShape2D_interact")
 
 [node name="Shadow" type="Sprite2D" parent="." unique_id=98712345]
 modulate = Color(1, 1, 1, 0.7)

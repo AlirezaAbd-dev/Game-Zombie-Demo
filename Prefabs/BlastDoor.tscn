@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://c7m5yq1p2j8k0"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/BlastDoor.cs" id="1_blast_door"]
+[ext_resource type="Texture2D" path="res://Assets/textures/door_blast.png" id="2_door_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="3_light_tex"]
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="4_interact_comp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(96, 96)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_door"]
+polygon = PackedVector2Array(-48, -48, 48, -48, 48, 48, -48, 48)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_door_interact"]
+radius = 80.0
+
+[node name="BlastDoor" type="StaticBody2D" unique_id=61728394]
+collision_layer = 1
+collision_mask = 3
+script = ExtResource("1_blast_door")
+
+[node name="DoorSprite" type="Sprite2D" parent="." unique_id=72839405]
+unique_name_in_owner = true
+texture_filter = 1
+texture = ExtResource("2_door_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=83940516]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_door")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=94051627]
+unique_name_in_owner = true
+occluder = SubResource("OccluderPolygon2D_door")
+
+[node name="StatusLight" type="PointLight2D" parent="." unique_id=10516273]
+unique_name_in_owner = true
+scale = Vector2(0.6, 0.6)
+color = Color(1, 0.2, 0.2, 1)
+energy = 0.8
+texture = ExtResource("3_light_tex")
+
+[node name="InteractableComponent" type="Area2D" parent="." unique_id=21627384]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("4_interact_comp")
+PromptText = "OPEN BLAST DOOR"
+LockedPromptText = "LOCKED - KEYCARD REQUIRED"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableComponent" unique_id=32738495]
+shape = SubResource("CircleShape2D_door_interact")

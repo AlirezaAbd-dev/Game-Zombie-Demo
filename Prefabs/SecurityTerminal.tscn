@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://e2l4n5o6p7q8s"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/SecurityTerminal.cs" id="1_terminal"]
+[ext_resource type="Texture2D" path="res://Assets/textures/terminal.png" id="2_term_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="3_light_tex"]
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="4_interact_comp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_term"]
+size = Vector2(96, 96)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_term"]
+polygon = PackedVector2Array(-46, -46, 46, -46, 46, 46, -46, 46)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_term_interact"]
+radius = 90.0
+
+[node name="SecurityTerminal" type="StaticBody2D" unique_id=31627384]
+collision_layer = 1
+collision_mask = 3
+script = ExtResource("1_terminal")
+
+[node name="ScreenSprite" type="Sprite2D" parent="." unique_id=42738495]
+unique_name_in_owner = true
+texture_filter = 1
+texture = ExtResource("2_term_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=53849506]
+unique_name_in_owner = true
+shape = SubResource("RectangleShape2D_term")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=64950617]
+unique_name_in_owner = true
+occluder = SubResource("OccluderPolygon2D_term")
+
+[node name="ScreenLight" type="PointLight2D" parent="." unique_id=75061728]
+unique_name_in_owner = true
+scale = Vector2(1.1, 1.1)
+color = Color(0.1, 0.85, 1, 1)
+energy = 0.75
+texture = ExtResource("3_light_tex")
+
+[node name="InteractableComponent" type="Area2D" parent="." unique_id=86172839]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("4_interact_comp")
+PromptText = "DOWNLOAD PATHOGEN TELEMETRY"
+OneShot = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractableComponent" unique_id=97283940]
+shape = SubResource("CircleShape2D_term_interact")
