@@ -18,7 +18,11 @@ public enum SoundType
     BossRoar,
     PickupCollect,
     PlayerHurt,
-    ItemUnlock
+    ItemUnlock,
+    FinisherKick,
+    FinisherSlash,
+    EnemyStunned,
+    FinisherPrompt
 }
 
 public partial class AudioManager : Node
@@ -70,6 +74,10 @@ public partial class AudioManager : Node
         _soundCache[SoundType.PickupCollect] = SynthesizePickupChime();
         _soundCache[SoundType.PlayerHurt] = SynthesizeImpactThud();
         _soundCache[SoundType.ItemUnlock] = SynthesizeClick();
+        _soundCache[SoundType.FinisherKick] = SynthesizeFinisherKick();
+        _soundCache[SoundType.FinisherSlash] = SynthesizeFinisherSlash();
+        _soundCache[SoundType.EnemyStunned] = SynthesizeEnemyStunned();
+        _soundCache[SoundType.FinisherPrompt] = SynthesizeFinisherPrompt();
     }
 
     public void PlaySound(SoundType type, Vector2? worldPos = null, float pitchScale = 1.0f)
@@ -314,6 +322,84 @@ public partial class AudioManager : Node
             float env = Mathf.Exp(-t * 80.0f);
             float wave = Mathf.Sin(Mathf.Tau * 1200.0f * t);
             samples[i] = (short)(wave * env * 16000);
+        }
+        return BuildWav(samples);
+    }
+
+    private static AudioStreamWav SynthesizeFinisherKick()
+    {
+        // Heavy RE4 roundhouse kick impact: sub-bass thud + crunching burst
+        int totalSamples = (int)(SampleRate * 0.38f);
+        short[] samples = new short[totalSamples];
+        var rng = new Random(9912);
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            float t = (float)i / SampleRate;
+            float env = Mathf.Exp(-t * 14.0f);
+            float subBass = Mathf.Sin(Mathf.Tau * (70.0f * Mathf.Exp(-t * 12.0f)) * t);
+            float noise = ((float)rng.NextDouble() * 2.0f - 1.0f) * Mathf.Exp(-t * 30.0f);
+            float body = Mathf.Sin(Mathf.Tau * 120.0f * t) * Mathf.Exp(-t * 22.0f);
+            float val = (subBass * 0.65f + noise * 0.45f + body * 0.3f) * env;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 31000);
+        }
+        return BuildWav(samples);
+    }
+
+    private static AudioStreamWav SynthesizeFinisherSlash()
+    {
+        // Sharp tactical knife execution: high metallic whoosh + wet laceration
+        int totalSamples = (int)(SampleRate * 0.28f);
+        short[] samples = new short[totalSamples];
+        var rng = new Random(5541);
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            float t = (float)i / SampleRate;
+            float env = Mathf.Exp(-t * 16.0f);
+            float freq = 450.0f + 1600.0f * (1.0f - Mathf.Exp(-t * 20.0f));
+            float bladeTone = Mathf.Sin(Mathf.Tau * freq * t);
+            float fleshTear = ((float)rng.NextDouble() * 2.0f - 1.0f) * Mathf.Exp(-t * 25.0f);
+            float val = (bladeTone * 0.55f + fleshTear * 0.45f) * env;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 28000);
+        }
+        return BuildWav(samples);
+    }
+
+    private static AudioStreamWav SynthesizeEnemyStunned()
+    {
+        // Dazed high-pitched electric dizziness ringing
+        int totalSamples = (int)(SampleRate * 0.45f);
+        short[] samples = new short[totalSamples];
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            float t = (float)i / SampleRate;
+            float env = Mathf.Exp(-t * 6.5f);
+            float tremolo = 1.0f + 0.35f * Mathf.Sin(Mathf.Tau * 18.0f * t);
+            float tone1 = Mathf.Sin(Mathf.Tau * 880.0f * t);
+            float tone2 = Mathf.Sin(Mathf.Tau * 660.0f * t);
+            float val = ((tone1 + tone2) * 0.5f) * tremolo * env;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 20000);
+        }
+        return BuildWav(samples);
+    }
+
+    private static AudioStreamWav SynthesizeFinisherPrompt()
+    {
+        // RE4 tactical action button alert chime (B5 to E6 ascending)
+        int totalSamples = (int)(SampleRate * 0.22f);
+        short[] samples = new short[totalSamples];
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            float t = (float)i / SampleRate;
+            float freq = t < 0.10f ? 987.77f : 1318.51f; // B5 -> E6
+            float env = Mathf.Exp(-((t % 0.10f) * 22.0f));
+            float wave = Mathf.Sin(Mathf.Tau * freq * t);
+            float harmonic = Mathf.Sin(Mathf.Tau * freq * 2.0f * t) * 0.3f;
+            float val = (wave + harmonic) * env * 0.8f;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 22000);
         }
         return BuildWav(samples);
     }

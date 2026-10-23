@@ -160,8 +160,20 @@ public partial class Player : CharacterBody2D, IDamageable
         // Weapon Switch Inputs
         HandleWeaponSwitchInput();
 
+        if (Input.IsActionJustPressed("finisher"))
+        {
+            if (TryExecuteFinisher())
+            {
+                return;
+            }
+        }
+
         if (Input.IsActionJustPressed("interact"))
         {
+            if (TryExecuteFinisher())
+            {
+                return;
+            }
             InteractionComponent?.TryTriggerInteraction();
         }
 
@@ -338,6 +350,59 @@ public partial class Player : CharacterBody2D, IDamageable
         {
             DustParticles.Emitting = false;
         }
+    }
+
+    public bool TryExecuteFinisher()
+    {
+        if (IsDead || StateMachine?.CurrentState is PlayerFinisherState)
+            return false;
+
+        var zombies = GetTree()?.GetNodesInGroup("zombies");
+        if (zombies == null) return false;
+
+        Zombie bestCandidate = null;
+        float minDistance = float.MaxValue;
+        Vector2 playerPos = GlobalPosition;
+
+        foreach (var node in zombies)
+        {
+            if (node is Zombie z && IsInstanceValid(z) && !z.IsDead)
+            {
+                if (z.FinisherTarget != null && z.FinisherTarget.CanBeFinishedBy(this))
+                {
+                    float dist = playerPos.DistanceTo(z.GlobalPosition);
+                    if (dist < minDistance)
+                    {
+                        minDistance = dist;
+                        bestCandidate = z;
+                    }
+                }
+            }
+        }
+
+        if (bestCandidate != null)
+        {
+            int nearbyEnemies = 0;
+            foreach (var node in zombies)
+            {
+                if (node is Zombie other && IsInstanceValid(other) && !other.IsDead)
+                {
+                    if (bestCandidate.GlobalPosition.DistanceTo(other.GlobalPosition) <= 150.0f)
+                    {
+                        nearbyEnemies++;
+                    }
+                }
+            }
+
+            FinisherType finisherType = (nearbyEnemies > 1 || (float)GD.RandRange(0.0, 1.0) > 0.5f)
+                ? FinisherType.RoundhouseKick
+                : FinisherType.CombatKnife;
+
+            StateMachine.ChangeState(new PlayerFinisherState(this, bestCandidate, finisherType));
+            return true;
+        }
+
+        return false;
     }
 
     public void SpawnDashGhost()

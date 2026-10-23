@@ -8,6 +8,9 @@ A modular, component-based 2D top-down survival horror demo built with **Godot 4
 
 - **Movement & Aiming:** 8-directional top-down character movement (`CharacterBody2D`) with precision mouse cursor aiming, RMB tactical aim mode (zoom, tight spread, slower walk), and laser-sight targeting.
 - **Dynamic 10-Minute Story Campaign ("Incident at Sector-4"):** Episodic 3-act narrative with radio comms, live objectives, power restoration, 30s terminal defense, and cargo helipad evacuation.
+- **RE4-Style Finishing Movements (`[F]` / `[E]` Melee Takedown):** Inflict heavy burst damage (shotgun blast, rapid fire) or reduce an enemy's health below 35% to stun them. Approaching a dazed zombie reveals a pulsating action prompt badge (`[F] KICK / FINISH`). Triggering it performs an invulnerable cinematic lunge with slow-motion hit-stop and camera trauma:
+  - **Roundhouse Kick**: 360-degree spin kick executing the target with an explosive shockwave that sends surrounding zombies flying backward with ragdoll momentum.
+  - **Tactical Combat Knife**: Fast cross-cut slash with gleaming blade trails and violent blood bursts.
 - **Resident Evil 2D Inventory System (`[Tab]` / `[I]`):** Classic 8-slot grid inventory with an animated ECG heartbeat monitor (FINE / CAUTION / DANGER), item inspection, consumption, and item combining mechanics (e.g., Green Herb + Blue Herb = Mixed Herb).
 - **Tactical Facility Map & Radar (`[M]`):** Dynamic corner radar HUD tracking player position, facing angle, and objective waypoints, plus a full-screen facility blueprint view.
 - **Pause Menu System (`[Escape]` / `[P]`):** Seamless game pause with quick access to resume, inventory, tactical map, restart, and exit.
@@ -138,6 +141,7 @@ godot --path . res://Scenes/World.tscn
 | **Tactical Aim Mode** | Right Mouse Button (`RMB` Hold) |
 | **Shoot** | Left Mouse Button (`LMB`) |
 | **Interact / Examine** | `E` / Gamepad `A` / `Cross` |
+| **Melee Finisher (Stunned Enemy)** | `F` / `E` / Gamepad `X` / `Square` |
 | **Open Inventory (RE 8-Slot)** | `Tab` / `I` |
 | **Toggle Tactical Map** | `M` |
 | **Pause Game Menu** | `Escape` / `P` |

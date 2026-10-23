@@ -19,6 +19,7 @@ public partial class Zombie : CharacterBody2D, IDamageable
     [ExportGroup("Components")]
     [Export] public HealthComponent HealthComponent { get; set; }
     [Export] public MovementComponent MovementComponent { get; set; }
+    [Export] public FinisherTargetComponent FinisherTarget { get; set; }
 
     [ExportGroup("Visuals & Triggers")]
     [Export] public Sprite2D Sprite { get; set; }
@@ -32,6 +33,7 @@ public partial class Zombie : CharacterBody2D, IDamageable
     public ZombieIdleState IdleState { get; private set; }
     public ZombieChaseState ChaseState { get; private set; }
     public ZombieAttackState AttackState { get; private set; }
+    public ZombieStunnedState StunnedState { get; private set; }
     public ZombieDeadState DeadState { get; private set; }
 
     public Node2D TargetPlayer { get; private set; }
@@ -58,6 +60,7 @@ public partial class Zombie : CharacterBody2D, IDamageable
         IdleState = new ZombieIdleState(this);
         ChaseState = new ZombieChaseState(this);
         AttackState = new ZombieAttackState(this);
+        StunnedState = new ZombieStunnedState(this);
         DeadState = new ZombieDeadState(this);
 
         if (HealthComponent != null)
@@ -107,6 +110,13 @@ public partial class Zombie : CharacterBody2D, IDamageable
         Sprite ??= GetNodeOrNull<Sprite2D>("%Sprite2D");
         AttackArea ??= GetNodeOrNull<Area2D>("%AttackArea");
         EyeGlow ??= GetNodeOrNull<PointLight2D>("%EyeGlow");
+        FinisherTarget ??= GetNodeOrNull<FinisherTargetComponent>("%FinisherTargetComponent");
+
+        if (FinisherTarget == null)
+        {
+            FinisherTarget = new FinisherTargetComponent { Name = "FinisherTargetComponent" };
+            AddChild(FinisherTarget);
+        }
 
         if (HealthComponent == null) GD.PrintErr($"[Zombie] Missing HealthComponent on {GetPath()}");
         if (MovementComponent == null) GD.PrintErr($"[Zombie] Missing MovementComponent on {GetPath()}");
@@ -189,6 +199,20 @@ public partial class Zombie : CharacterBody2D, IDamageable
             Sprite.Modulate = new Color(3.5f, 0.4f, 0.4f, 1.0f);
             tween.TweenProperty(Sprite, "modulate", Stats.Tint, 0.1);
         }
+
+        FinisherTarget?.OnDamageTaken(amount);
+    }
+
+    public void OnStunned()
+    {
+        if (IsDead) return;
+        StateMachine?.ChangeState(StunnedState);
+    }
+
+    public void OnStunRecovered()
+    {
+        if (IsDead) return;
+        StateMachine?.ChangeState(HasValidTarget() ? ChaseState : IdleState);
     }
 
     public void PerformDeath()

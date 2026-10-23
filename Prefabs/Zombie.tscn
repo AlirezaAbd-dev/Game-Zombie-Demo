@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" path="res://Assets/textures/drop_shadow.png" id="8_shadow_tex"]
 [ext_resource type="Texture2D" uid="uid://clveldwgoxvhn" path="res://Assets/textures/zombie.png" id="9_zombie_tex"]
 [ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="10_radial_tex"]
+[ext_resource type="Script" path="res://Scripts/Entities/Components/FinisherTargetComponent.cs" id="11_finisher_comp"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_zombie"]
 radius = 24.0
@@ -64,3 +65,7 @@ scale = Vector2(0.35, 0.35)
 color = Color(1, 0.2, 0.15, 1)
 energy = 0.65
 texture = ExtResource("10_radial_tex")
+
+[node name="FinisherTargetComponent" type="Node2D" parent="." unique_id=67281905]
+unique_name_in_owner = true
+script = ExtResource("11_finisher_comp")
