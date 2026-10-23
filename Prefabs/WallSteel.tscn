@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://b1steelwall99"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/wall_steel.png" id="1_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/box_shadow.png" id="2_shadow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(96, 96)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_wall"]
+polygon = PackedVector2Array(-46, -46, 46, -46, 46, 46, -46, 46)
+
+[node name="WallSteel" type="StaticBody2D" unique_id=91001122]
+collision_layer = 1
+collision_mask = 3
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=91001123]
+modulate = Color(1, 1, 1, 0.6)
+position = Vector2(0, 6)
+scale = Vector2(0.68, 0.68)
+texture = ExtResource("2_shadow")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=91001124]
+texture_filter = 1
+texture = ExtResource("1_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=91001125]
+shape = SubResource("RectangleShape2D_wall")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=91001126]
+occluder = SubResource("OccluderPolygon2D_wall")

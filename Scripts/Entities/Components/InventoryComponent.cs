@@ -2,8 +2,15 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using TopDownDemo.Core;
+using TopDownDemo.Systems;
 
 namespace TopDownDemo.Entities.Components;
+
+public class InventorySlot
+{
+    public ItemData Item { get; set; }
+    public int Count { get; set; }
+}
 
 [GlobalClass]
 public partial class InventoryComponent : Node
@@ -20,7 +27,13 @@ public partial class InventoryComponent : Node
     [Signal]
     public delegate void AmmoChangedEventHandler(int currentInMag, int reserve, bool isReloading);
 
+    [Signal]
+    public delegate void InventoryUpdatedEventHandler();
+
     [Export] public Godot.Collections.Array<WeaponData> Weapons { get; set; } = new();
+
+    public const int MaxSlots = 8;
+    public List<InventorySlot> Slots { get; private set; } = new();
 
     public int CurrentWeaponIndex { get; private set; } = 0;
     public WeaponData CurrentWeapon => Weapons != null && Weapons.Count > CurrentWeaponIndex ? Weapons[CurrentWeaponIndex] : null;
@@ -37,6 +50,11 @@ public partial class InventoryComponent : Node
 
     public override void _Ready()
     {
+        for (int i = 0; i < MaxSlots; i++)
+        {
+            Slots.Add(new InventorySlot());
+        }
+
         InitializeDefaultWeapons();
 
         if (CurrentWeapon != null)
@@ -70,7 +88,6 @@ public partial class InventoryComponent : Node
 
             if (!_reserveAmmo.ContainsKey(weapon.AmmoId))
             {
-                // Initial starting ammo
                 _reserveAmmo[weapon.AmmoId] = weapon.WeaponId switch
                 {
                     "handgun" => 45,
@@ -168,26 +185,49 @@ public partial class InventoryComponent : Node
         }
     }
 
-    public void AddItem(ItemData item, int amount = 1)
+    public bool AddItem(ItemData item, int amount = 1)
     {
-        if (item == null) return;
+        if (item == null) return false;
 
         if (item.Type == ItemType.Ammo)
         {
             AddReserveAmmo(item.Id, (int)item.Value * amount);
-            return;
+            return true;
         }
 
-        if (_items.ContainsKey(item.Id))
+        // Stacking into existing slot
+        for (int i = 0; i < Slots.Count; i++)
         {
-            _items[item.Id] += amount;
-        }
-        else
-        {
-            _items[item.Id] = amount;
+            if (Slots[i].Item != null && Slots[i].Item.Id == item.Id && Slots[i].Count < item.MaxStack)
+            {
+                int canAdd = Mathf.Min(amount, item.MaxStack - Slots[i].Count);
+                Slots[i].Count += canAdd;
+                amount -= canAdd;
+
+                _items[item.Id] = _items.GetValueOrDefault(item.Id, 0) + canAdd;
+                EmitSignal(SignalName.ItemAdded, item.Id, _items[item.Id]);
+                EmitSignal(SignalName.InventoryUpdated);
+
+                if (amount <= 0) return true;
+            }
         }
 
-        EmitSignal(SignalName.ItemAdded, item.Id, _items[item.Id]);
+        // Place into first empty slot
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            if (Slots[i].Item == null)
+            {
+                Slots[i].Item = item;
+                Slots[i].Count = amount;
+
+                _items[item.Id] = _items.GetValueOrDefault(item.Id, 0) + amount;
+                EmitSignal(SignalName.ItemAdded, item.Id, _items[item.Id]);
+                EmitSignal(SignalName.InventoryUpdated);
+                return true;
+            }
+        }
+
+        return false; // Inventory full
     }
 
     public bool HasItem(string itemId) => _items.ContainsKey(itemId) && _items[itemId] > 0;
@@ -202,7 +242,100 @@ public partial class InventoryComponent : Node
             _items.Remove(itemId);
         }
 
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            if (Slots[i].Item != null && Slots[i].Item.Id == itemId)
+            {
+                int take = Mathf.Min(amount, Slots[i].Count);
+                Slots[i].Count -= take;
+                amount -= take;
+
+                if (Slots[i].Count <= 0)
+                {
+                    Slots[i].Item = null;
+                    Slots[i].Count = 0;
+                }
+
+                if (amount <= 0) break;
+            }
+        }
+
         EmitSignal(SignalName.ItemRemoved, itemId, _items.GetValueOrDefault(itemId, 0));
+        EmitSignal(SignalName.InventoryUpdated);
         return true;
+    }
+
+    public bool UseSlot(int slotIndex, Player player)
+    {
+        if (slotIndex < 0 || slotIndex >= Slots.Count || Slots[slotIndex].Item == null || player == null)
+            return false;
+
+        var item = Slots[slotIndex].Item;
+        bool used = false;
+
+        if (item.Type == ItemType.Health || item.Type == ItemType.Herb)
+        {
+            if (player.HealthComponent != null && player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
+            {
+                player.Heal(item.Value);
+                used = true;
+            }
+            else if (item.Id == "herb_blue" || item.Id == "herb_mixed")
+            {
+                player.StaminaComponent?.Regenerate(item.Value);
+                used = true;
+            }
+        }
+        else if (item.Type == ItemType.Booster)
+        {
+            player.ApplyAdrenalineBoost(15.0f);
+            used = true;
+        }
+
+        if (used)
+        {
+            ConsumeItem(item.Id, 1);
+            AudioManager.Instance?.PlaySound(SoundType.ItemUnlock);
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool CombineSlots(int slotA, int slotB)
+    {
+        if (slotA < 0 || slotA >= Slots.Count || slotB < 0 || slotB >= Slots.Count || slotA == slotB)
+            return false;
+
+        var itemA = Slots[slotA].Item;
+        var itemB = Slots[slotB].Item;
+
+        if (itemA == null || itemB == null)
+            return false;
+
+        if (itemA.CombineWithId == itemB.Id && !string.IsNullOrEmpty(itemA.CombineResultId))
+        {
+            string resultPath = $"res://Resources/Items/{itemA.CombineResultId}.tres";
+            if (!ResourceLoader.Exists(resultPath))
+            {
+                resultPath = itemA.CombineResultId switch
+                {
+                    "herb_mixed" => "res://Resources/Items/Herb_Mixed.tres",
+                    _ => resultPath
+                };
+            }
+
+            var resultItem = GD.Load<ItemData>(resultPath);
+            if (resultItem != null)
+            {
+                ConsumeItem(itemA.Id, 1);
+                ConsumeItem(itemB.Id, 1);
+                AddItem(resultItem, 1);
+                AudioManager.Instance?.PlaySound(SoundType.PickupCollect);
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -114,15 +114,9 @@ public partial class Pickup : Area2D
                     collected = true;
                 }
             }
-            else if (Item.Type == ItemType.Ammo && player.InventoryComponent != null)
+            else if (player.InventoryComponent != null)
             {
-                player.InventoryComponent.AddItem(Item);
-                collected = true;
-            }
-            else if ((Item.Type == ItemType.Key || Item.Type == ItemType.Document) && player.InventoryComponent != null)
-            {
-                player.InventoryComponent.AddItem(Item);
-                collected = true;
+                collected = player.InventoryComponent.AddItem(Item);
             }
 
             if (collected)

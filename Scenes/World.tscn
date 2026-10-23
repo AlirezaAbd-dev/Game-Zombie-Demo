@@ -27,6 +27,20 @@
 [ext_resource type="PackedScene" path="res://Prefabs/EvacHelipad.tscn" id="25_helipad"]
 [ext_resource type="Resource" path="res://Resources/Items/Keycard_Substation.tres" id="26_keycard"]
 [ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Boss.tres" id="27_boss_stats"]
+[ext_resource type="PackedScene" path="res://Prefabs/WallSteel.tscn" id="28_wall_steel"]
+[ext_resource type="PackedScene" path="res://Prefabs/WallLab.tscn" id="29_wall_lab"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="30_prop_desk"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropCryoTube.tscn" id="31_prop_cryo"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropLocker.tscn" id="32_prop_locker"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="33_prop_barrel"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropGurney.tscn" id="34_prop_gurney"]
+[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="35_map_bound"]
+[ext_resource type="Script" path="res://Scripts/UI/InventoryUI.cs" id="36_inv_ui"]
+[ext_resource type="Script" path="res://Scripts/UI/MiniMapUI.cs" id="37_minimap_ui"]
+[ext_resource type="Script" path="res://Scripts/UI/PauseMenuUI.cs" id="38_pause_ui"]
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="39_herb_green"]
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Blue.tres" id="40_herb_blue"]
+[ext_resource type="Resource" path="res://Resources/Items/Adrenaline.tres" id="41_adrenaline"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("2_floor_shader")
@@ -102,6 +116,42 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_re_inv"]
+bg_color = Color(0.06, 0.08, 0.12, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.3, 0.5, 0.7, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ecg"]
+bg_color = Color(0.03, 0.12, 0.06, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.8, 0.4, 0.7)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_radar"]
+bg_color = Color(0.04, 0.08, 0.12, 0.88)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.75, 1, 0.85)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [sub_resource type="LabelSettings" id="LabelSettings_hud"]
 font_size = 13
@@ -203,6 +253,39 @@ font_color = Color(0.9, 0.92, 0.95, 1)
 outline_size = 2
 outline_color = Color(0, 0, 0, 0.9)
 
+[sub_resource type="LabelSettings" id="LabelSettings_inv_title"]
+font_size = 16
+font_color = Color(0.3, 0.85, 1, 1)
+outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_item_name"]
+font_size = 15
+font_color = Color(1, 0.9, 0.3, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_item_desc"]
+font_size = 12
+font_color = Color(0.85, 0.9, 0.95, 0.95)
+outline_size = 2
+outline_color = Color(0, 0, 0, 0.9)
+
+[sub_resource type="LabelSettings" id="LabelSettings_ecg"]
+font_size = 13
+font_color = Color(0.2, 1, 0.4, 1)
+outline_size = 2
+outline_color = Color(0, 0, 0, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_pause_title"]
+font_size = 30
+font_color = Color(0.9, 0.95, 1, 1)
+outline_size = 4
+outline_color = Color(0, 0, 0, 1)
+
+; =========================================================================
+; WORLD ROOT & CORE SYSTEMS
+; =========================================================================
 [node name="World" type="Node2D" unique_id=10821732]
 script = ExtResource("1_world_script")
 ZombieScene = ExtResource("5_zombie_scene")
@@ -253,37 +336,64 @@ color = Color(0.75, 0.85, 1, 0.25)
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=55443322]
 environment = SubResource("Environment_glow")
 
-;  ==================== SECTOR 1: SECURITY CHECKPOINT ====================
-[node name="WallS1_South1" parent="." unique_id=101 instance=ExtResource("3_box_scene")]
+; =========================================================================
+; MAP OUTER BOUNDARY BARRIERS (Prevents escaping map)
+; =========================================================================
+[node name="Bound_West" parent="." unique_id=901 instance=ExtResource("35_map_bound")]
+position = Vector2(80, -500)
+rotation = 1.5708
+scale = Vector2(14, 1)
+
+[node name="Bound_East" parent="." unique_id=902 instance=ExtResource("35_map_bound")]
+position = Vector2(1650, -500)
+rotation = 1.5708
+scale = Vector2(14, 1)
+
+[node name="Bound_South" parent="." unique_id=903 instance=ExtResource("35_map_bound")]
+position = Vector2(700, 720)
+scale = Vector2(10, 1)
+
+[node name="Bound_North" parent="." unique_id=904 instance=ExtResource("35_map_bound")]
+position = Vector2(600, -1720)
+scale = Vector2(8, 1)
+
+; =========================================================================
+; SECTOR 1: SECURITY CHECKPOINT (SPAWN ROOM)
+; =========================================================================
+[node name="WallS1_South1" parent="." unique_id=101 instance=ExtResource("28_wall_steel")]
 position = Vector2(450, 600)
 
-[node name="WallS1_South2" parent="." unique_id=102 instance=ExtResource("3_box_scene")]
+[node name="WallS1_South2" parent="." unique_id=102 instance=ExtResource("28_wall_steel")]
 position = Vector2(600, 600)
 
-[node name="WallS1_South3" parent="." unique_id=103 instance=ExtResource("3_box_scene")]
+[node name="WallS1_South3" parent="." unique_id=103 instance=ExtResource("28_wall_steel")]
 position = Vector2(750, 600)
 
-[node name="WallS1_West1" parent="." unique_id=104 instance=ExtResource("3_box_scene")]
-position = Vector2(350, 450)
+[node name="WallS1_West1" parent="." unique_id=104 instance=ExtResource("28_wall_steel")]
+position = Vector2(350, 480)
 
-[node name="WallS1_West2" parent="." unique_id=105 instance=ExtResource("3_box_scene")]
-position = Vector2(350, 300)
+[node name="WallS1_West2" parent="." unique_id=105 instance=ExtResource("28_wall_steel")]
+position = Vector2(350, 320)
 
-[node name="WallS1_East1" parent="." unique_id=106 instance=ExtResource("3_box_scene")]
+[node name="WallS1_East1" parent="." unique_id=106 instance=ExtResource("28_wall_steel")]
 position = Vector2(850, 500)
 
-[node name="WallS1_North1" parent="." unique_id=107 instance=ExtResource("3_box_scene")]
+[node name="WallS1_North1" parent="." unique_id=107 instance=ExtResource("28_wall_steel")]
 position = Vector2(450, 160)
 
-[node name="WallS1_North2" parent="." unique_id=108 instance=ExtResource("3_box_scene")]
+[node name="WallS1_North2" parent="." unique_id=108 instance=ExtResource("28_wall_steel")]
 position = Vector2(750, 160)
 
+; Checkpoint Props & Decor
 [node name="SecurityStationLight" type="PointLight2D" parent="." unique_id=109]
-position = Vector2(600, 360)
-color = Color(1, 0.2, 0.2, 1)
-energy = 0.95
+position = Vector2(600, 350)
+color = Color(1, 0.25, 0.2, 1)
+energy = 1.1
 texture = ExtResource("7_light")
-texture_scale = 1.9
+texture_scale = 2.2
+
+[node name="GuardDesk" parent="." unique_id=115 instance=ExtResource("30_prop_desk")]
+position = Vector2(600, 350)
 
 [node name="KeycardPickup" parent="." unique_id=110 instance=ExtResource("6_pickup_scene")]
 position = Vector2(600, 350)
@@ -291,14 +401,18 @@ Item = ExtResource("26_keycard")
 
 [node name="KeycardGlowDesk" type="PointLight2D" parent="." unique_id=114]
 position = Vector2(600, 350)
-color = Color(0.1, 0.9, 1, 1)
-energy = 1.4
+color = Color(0.1, 0.95, 1, 1)
+energy = 1.6
 texture = ExtResource("7_light")
-texture_scale = 1.5
+texture_scale = 1.6
 
 [node name="AmmoPickupPistol" parent="." unique_id=111 instance=ExtResource("6_pickup_scene")]
-position = Vector2(420, 420)
+position = Vector2(440, 420)
 Item = ExtResource("14_ammo_item")
+
+[node name="HerbPickupGreen1" parent="." unique_id=116 instance=ExtResource("6_pickup_scene")]
+position = Vector2(420, 520)
+Item = ExtResource("39_herb_green")
 
 [node name="SubstationDoor" parent="." unique_id=112 instance=ExtResource("22_blast_door")]
 position = Vector2(850, 350)
@@ -314,39 +428,42 @@ OpenOnPowerRestored = true
 SlideOffset = Vector2(95, 0)
 
 [node name="Player" parent="." unique_id=2146031906 instance=ExtResource("4_player_scene")]
-position = Vector2(600, 450)
+position = Vector2(600, 480)
 
-;  ==================== SECTOR 2: AUXILIARY SUBSTATION ====================
-[node name="WallS2_North1" parent="." unique_id=201 instance=ExtResource("3_box_scene")]
-position = Vector2(1050, 200)
+; =========================================================================
+; SECTOR 2: AUXILIARY SUBSTATION & GENERATOR ROOM
+; =========================================================================
+[node name="WallS2_North1" parent="." unique_id=201 instance=ExtResource("28_wall_steel")]
+position = Vector2(1050, 180)
 
-[node name="WallS2_North2" parent="." unique_id=202 instance=ExtResource("3_box_scene")]
-position = Vector2(1200, 200)
+[node name="WallS2_North2" parent="." unique_id=202 instance=ExtResource("28_wall_steel")]
+position = Vector2(1200, 180)
 
-[node name="WallS2_North3" parent="." unique_id=203 instance=ExtResource("3_box_scene")]
-position = Vector2(1350, 200)
+[node name="WallS2_North3" parent="." unique_id=203 instance=ExtResource("28_wall_steel")]
+position = Vector2(1350, 180)
 
-[node name="WallS2_South1" parent="." unique_id=204 instance=ExtResource("3_box_scene")]
-position = Vector2(1050, 500)
+[node name="WallS2_South1" parent="." unique_id=204 instance=ExtResource("28_wall_steel")]
+position = Vector2(1050, 520)
 
-[node name="WallS2_South2" parent="." unique_id=205 instance=ExtResource("3_box_scene")]
-position = Vector2(1200, 500)
+[node name="WallS2_South2" parent="." unique_id=205 instance=ExtResource("28_wall_steel")]
+position = Vector2(1200, 520)
 
-[node name="WallS2_South3" parent="." unique_id=206 instance=ExtResource("3_box_scene")]
-position = Vector2(1350, 500)
+[node name="WallS2_South3" parent="." unique_id=206 instance=ExtResource("28_wall_steel")]
+position = Vector2(1350, 520)
 
-[node name="WallS2_East" parent="." unique_id=207 instance=ExtResource("3_box_scene")]
-position = Vector2(1480, 350)
+[node name="WallS2_East" parent="." unique_id=207 instance=ExtResource("28_wall_steel")]
+position = Vector2(1500, 350)
 
+; Substation Props & Decor
 [node name="SubstationLight" type="PointLight2D" parent="." unique_id=208]
 position = Vector2(1200, 350)
 color = Color(1, 0.65, 0.2, 1)
-energy = 0.85
+energy = 0.9
 texture = ExtResource("7_light")
-texture_scale = 1.8
+texture_scale = 1.9
 
 [node name="PowerGenerator" parent="." unique_id=209 instance=ExtResource("23_generator")]
-position = Vector2(1350, 350)
+position = Vector2(1380, 350)
 
 [node name="SubstationZombie1" parent="." unique_id=210 instance=ExtResource("5_zombie_scene")]
 position = Vector2(1120, 350)
@@ -356,67 +473,90 @@ Stats = ExtResource("15_zombie_walker")
 position = Vector2(1280, 420)
 Stats = ExtResource("15_zombie_walker")
 
-[node name="MedkitSubstation" parent="." unique_id=212 instance=ExtResource("6_pickup_scene")]
-position = Vector2(1380, 450)
+[node name="BarrelSubstation1" parent="." unique_id=213 instance=ExtResource("33_prop_barrel")]
+position = Vector2(1040, 260)
 
-;  ==================== SECTOR 3: CENTRAL BIO-RESEARCH LAB & ARMORY ====================
-[node name="WallS3_West1" parent="." unique_id=301 instance=ExtResource("3_box_scene")]
+[node name="BarrelSubstation2" parent="." unique_id=214 instance=ExtResource("33_prop_barrel")]
+position = Vector2(1420, 450)
+
+[node name="HerbPickupBlue" parent="." unique_id=215 instance=ExtResource("6_pickup_scene")]
+position = Vector2(1150, 460)
+Item = ExtResource("40_herb_blue")
+
+[node name="AdrenalinePickup" parent="." unique_id=216 instance=ExtResource("6_pickup_scene")]
+position = Vector2(1420, 260)
+Item = ExtResource("41_adrenaline")
+
+; =========================================================================
+; SECTOR 3: CENTRAL BIO-RESEARCH LAB & ARMORY
+; =========================================================================
+[node name="WallS3_West1" parent="." unique_id=301 instance=ExtResource("29_wall_lab")]
 position = Vector2(350, 0)
 
-[node name="WallS3_West2" parent="." unique_id=302 instance=ExtResource("3_box_scene")]
+[node name="WallS3_West2" parent="." unique_id=302 instance=ExtResource("29_wall_lab")]
 position = Vector2(350, -150)
 
-[node name="WallS3_West3" parent="." unique_id=303 instance=ExtResource("3_box_scene")]
+[node name="WallS3_West3" parent="." unique_id=303 instance=ExtResource("29_wall_lab")]
 position = Vector2(350, -300)
 
-[node name="WallS3_West4" parent="." unique_id=304 instance=ExtResource("3_box_scene")]
+[node name="WallS3_West4" parent="." unique_id=304 instance=ExtResource("29_wall_lab")]
 position = Vector2(350, -450)
 
-[node name="WallS3_East1" parent="." unique_id=305 instance=ExtResource("3_box_scene")]
+[node name="WallS3_East1" parent="." unique_id=305 instance=ExtResource("29_wall_lab")]
 position = Vector2(850, 0)
 
-[node name="WallS3_East2" parent="." unique_id=306 instance=ExtResource("3_box_scene")]
+[node name="WallS3_East2" parent="." unique_id=306 instance=ExtResource("29_wall_lab")]
 position = Vector2(850, -150)
 
-[node name="WallS3_East3" parent="." unique_id=307 instance=ExtResource("3_box_scene")]
+[node name="WallS3_East3" parent="." unique_id=307 instance=ExtResource("29_wall_lab")]
 position = Vector2(850, -300)
 
-[node name="WallS3_East4" parent="." unique_id=308 instance=ExtResource("3_box_scene")]
+[node name="WallS3_East4" parent="." unique_id=308 instance=ExtResource("29_wall_lab")]
 position = Vector2(850, -450)
 
-[node name="WallS3_North1" parent="." unique_id=309 instance=ExtResource("3_box_scene")]
+[node name="WallS3_North1" parent="." unique_id=309 instance=ExtResource("29_wall_lab")]
 position = Vector2(450, -560)
 
-[node name="WallS3_North2" parent="." unique_id=310 instance=ExtResource("3_box_scene")]
+[node name="WallS3_North2" parent="." unique_id=310 instance=ExtResource("29_wall_lab")]
 position = Vector2(750, -560)
 
+; Bio-Lab Props & Decor
 [node name="LabLightCyan" type="PointLight2D" parent="." unique_id=311]
 position = Vector2(600, -250)
-color = Color(0.15, 0.8, 1, 1)
-energy = 0.95
+color = Color(0.15, 0.85, 1, 1)
+energy = 1.05
 texture = ExtResource("7_light")
-texture_scale = 1.9
+texture_scale = 2.1
 
-[node name="LabLightGreen" type="PointLight2D" parent="." unique_id=312]
-position = Vector2(480, -350)
-color = Color(0.2, 1, 0.5, 1)
-energy = 0.8
-texture = ExtResource("7_light")
-texture_scale = 1.6
+[node name="LabCryoTube1" parent="." unique_id=320 instance=ExtResource("31_prop_cryo")]
+position = Vector2(480, -80)
+
+[node name="LabCryoTube2" parent="." unique_id=321 instance=ExtResource("31_prop_cryo")]
+position = Vector2(720, -250)
+
+[node name="LabGurney" parent="." unique_id=322 instance=ExtResource("34_prop_gurney")]
+position = Vector2(680, -140)
+
+[node name="ArmoryLocker1" parent="." unique_id=323 instance=ExtResource("32_prop_locker")]
+position = Vector2(420, -250)
+
+[node name="ArmoryLocker2" parent="." unique_id=324 instance=ExtResource("32_prop_locker")]
+position = Vector2(420, -350)
 
 [node name="SecurityTerminal" parent="." unique_id=313 instance=ExtResource("24_terminal")]
 position = Vector2(600, -250)
 
 [node name="AmmoPickupShotgun" parent="." unique_id=314 instance=ExtResource("6_pickup_scene")]
-position = Vector2(440, -380)
+position = Vector2(480, -380)
 Item = ExtResource("18_ammo_shotgun")
 
 [node name="AmmoPickupRifle" parent="." unique_id=315 instance=ExtResource("6_pickup_scene")]
-position = Vector2(440, -280)
+position = Vector2(480, -280)
 Item = ExtResource("19_ammo_rifle")
 
-[node name="MedkitLab" parent="." unique_id=316 instance=ExtResource("6_pickup_scene")]
-position = Vector2(440, -180)
+[node name="HerbPickupGreen2" parent="." unique_id=325 instance=ExtResource("6_pickup_scene")]
+position = Vector2(720, -380)
+Item = ExtResource("39_herb_green")
 
 [node name="LabZombieRunner" parent="." unique_id=317 instance=ExtResource("5_zombie_scene")]
 position = Vector2(650, -380)
@@ -432,42 +572,57 @@ DoorId = "door_cargo_helipad"
 OpenOnEvacPhase = true
 SlideOffset = Vector2(95, 0)
 
-;  ==================== SECTOR 4: CARGO HELIPAD ARENA ====================
-[node name="ArenaWall_W1" parent="." unique_id=401 instance=ExtResource("3_box_scene")]
+; =========================================================================
+; SECTOR 4: SURFACE CARGO HELIPAD ARENA
+; =========================================================================
+[node name="ArenaWall_W1" parent="." unique_id=401 instance=ExtResource("28_wall_steel")]
 position = Vector2(250, -750)
 
-[node name="ArenaWall_E1" parent="." unique_id=402 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_E1" parent="." unique_id=402 instance=ExtResource("28_wall_steel")]
 position = Vector2(950, -750)
 
-[node name="ArenaWall_W2" parent="." unique_id=403 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_W2" parent="." unique_id=403 instance=ExtResource("28_wall_steel")]
 position = Vector2(180, -950)
 
-[node name="ArenaWall_E2" parent="." unique_id=404 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_E2" parent="." unique_id=404 instance=ExtResource("28_wall_steel")]
 position = Vector2(1020, -950)
 
-[node name="ArenaWall_W3" parent="." unique_id=405 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_W3" parent="." unique_id=405 instance=ExtResource("28_wall_steel")]
 position = Vector2(180, -1150)
 
-[node name="ArenaWall_E3" parent="." unique_id=406 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_E3" parent="." unique_id=406 instance=ExtResource("28_wall_steel")]
 position = Vector2(1020, -1150)
 
-[node name="ArenaWall_W4" parent="." unique_id=407 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_W4" parent="." unique_id=407 instance=ExtResource("28_wall_steel")]
 position = Vector2(180, -1350)
 
-[node name="ArenaWall_E4" parent="." unique_id=408 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_E4" parent="." unique_id=408 instance=ExtResource("28_wall_steel")]
 position = Vector2(1020, -1350)
 
-[node name="ArenaWall_N1" parent="." unique_id=409 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_N1" parent="." unique_id=409 instance=ExtResource("28_wall_steel")]
 position = Vector2(350, -1550)
 
-[node name="ArenaWall_N2" parent="." unique_id=410 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_N2" parent="." unique_id=410 instance=ExtResource("28_wall_steel")]
 position = Vector2(500, -1550)
 
-[node name="ArenaWall_N3" parent="." unique_id=411 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_N3" parent="." unique_id=411 instance=ExtResource("28_wall_steel")]
 position = Vector2(700, -1550)
 
-[node name="ArenaWall_N4" parent="." unique_id=412 instance=ExtResource("3_box_scene")]
+[node name="ArenaWall_N4" parent="." unique_id=412 instance=ExtResource("28_wall_steel")]
 position = Vector2(850, -1550)
+
+; Helipad Tactical Props & Cover
+[node name="HelipadBarrel1" parent="." unique_id=420 instance=ExtResource("33_prop_barrel")]
+position = Vector2(380, -900)
+
+[node name="HelipadBarrel2" parent="." unique_id=421 instance=ExtResource("33_prop_barrel")]
+position = Vector2(820, -900)
+
+[node name="HelipadBarrel3" parent="." unique_id=422 instance=ExtResource("33_prop_barrel")]
+position = Vector2(400, -1250)
+
+[node name="HelipadBarrel4" parent="." unique_id=423 instance=ExtResource("33_prop_barrel")]
+position = Vector2(800, -1250)
 
 [node name="BossSpawnPoint" type="Node2D" parent="." unique_id=413]
 unique_name_in_owner = true
@@ -479,20 +634,22 @@ position = Vector2(600, -1350)
 [node name="HelipadBeaconLight1" type="PointLight2D" parent="." unique_id=415]
 position = Vector2(400, -1150)
 color = Color(1, 0.7, 0.2, 1)
-energy = 0.8
+energy = 0.85
 texture = ExtResource("7_light")
 
 [node name="HelipadBeaconLight2" type="PointLight2D" parent="." unique_id=416]
 position = Vector2(800, -1150)
 color = Color(1, 0.7, 0.2, 1)
-energy = 0.8
+energy = 0.85
 texture = ExtResource("7_light")
 
 [node name="GateZombieBrute" parent="." unique_id=417 instance=ExtResource("5_zombie_scene")]
-position = Vector2(600, -800)
+position = Vector2(600, -780)
 Stats = ExtResource("17_zombie_brute")
 
-;  ==================== UI & HUD LAYER ====================
+; =========================================================================
+; UI & HUD LAYER (CanvasLayer 10)
+; =========================================================================
 [node name="UIOverlay" type="CanvasLayer" parent="." unique_id=44332211]
 layer = 10
 
@@ -515,7 +672,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("11_hud_script")
 
-;  Health & Stamina Bars
+; Health & Stamina Bars
 [node name="HealthBar" type="ProgressBar" parent="UIOverlay/HUD" unique_id=22558833]
 unique_name_in_owner = true
 layout_mode = 0
@@ -566,7 +723,7 @@ label_settings = SubResource("LabelSettings_sp")
 horizontal_alignment = 1
 vertical_alignment = 1
 
-;  Weapon & Ammo & Kills
+; Weapon & Ammo & Controls Reminder
 [node name="WeaponLabel" type="Label" parent="UIOverlay/HUD" unique_id=66778811]
 unique_name_in_owner = true
 layout_mode = 1
@@ -612,7 +769,7 @@ text = "KILLS: 0"
 label_settings = SubResource("LabelSettings_kill")
 horizontal_alignment = 2
 
-;  Mission Objective Banner
+; Mission Objective Banner
 [node name="ObjectiveContainer" type="VBoxContainer" parent="UIOverlay/HUD" unique_id=501]
 layout_mode = 0
 offset_left = 30.0
@@ -630,10 +787,10 @@ label_settings = SubResource("LabelSettings_obj_title")
 [node name="ObjectiveSubtaskLabel" type="Label" parent="UIOverlay/HUD/ObjectiveContainer" unique_id=503]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Locate Auxiliary Substation Keycard in Guard Post."
+text = "Grab the glowing Substation Keycard in front of you."
 label_settings = SubResource("LabelSettings_obj_sub")
 
-;  Purge Countdown & Defense Progress
+; Purge Countdown & Defense Progress
 [node name="PurgeTimerLabel" type="Label" parent="UIOverlay/HUD" unique_id=504]
 unique_name_in_owner = true
 visible = false
@@ -680,7 +837,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_defense_fill")
 value = 0.0
 show_percentage = false
 
-;  Boss Bar
+; Boss Bar
 [node name="BossBarContainer" type="VBoxContainer" parent="UIOverlay/HUD" unique_id=508]
 unique_name_in_owner = true
 visible = false
@@ -711,7 +868,7 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_boss_fill")
 value = 420.0
 show_percentage = false
 
-;  Radio Comms Overlay
+; Radio Comms Overlay
 [node name="RadioCommsPanel" type="PanelContainer" parent="UIOverlay/HUD" unique_id=511]
 unique_name_in_owner = true
 visible = false
@@ -753,7 +910,7 @@ text = "Cole, do you read me? Main containment in Sector-4 collapsed..."
 label_settings = SubResource("LabelSettings_radio_msg")
 autowrap_mode = 2
 
-;  Context Interaction Prompt
+; Context Interaction Prompt
 [node name="InteractionPromptLabel" type="Label" parent="UIOverlay/HUD" unique_id=516]
 unique_name_in_owner = true
 visible = false
@@ -773,7 +930,283 @@ text = "[E] INTERACT"
 label_settings = SubResource("LabelSettings_prompt")
 horizontal_alignment = 1
 
-;  Game Over Screen
+; =========================================================================
+; TACTICAL RADAR / MINI-MAP UI
+; =========================================================================
+[node name="MiniMapUI" type="Control" parent="UIOverlay" unique_id=601]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("37_minimap_ui")
+
+[node name="RadarPanel" type="PanelContainer" parent="UIOverlay/MiniMapUI" unique_id=602]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 95.0
+offset_right = -20.0
+offset_bottom = 275.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_radar")
+
+[node name="VBox" type="VBoxContainer" parent="UIOverlay/MiniMapUI/RadarPanel" unique_id=603]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="MapTitleLabel" type="Label" parent="UIOverlay/MiniMapUI/RadarPanel/VBox" unique_id=604]
+unique_name_in_owner = true
+layout_mode = 2
+text = "TACTICAL RADAR (M)"
+label_settings = SubResource("LabelSettings_hud")
+horizontal_alignment = 1
+
+[node name="MapCanvas" type="Control" parent="UIOverlay/MiniMapUI/RadarPanel/VBox" unique_id=605]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 140)
+layout_mode = 2
+size_flags_vertical = 3
+
+; =========================================================================
+; RESIDENT EVIL INVENTORY UI (TAB / I)
+; =========================================================================
+[node name="InventoryUI" type="Control" parent="UIOverlay" unique_id=701]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("36_inv_ui")
+
+[node name="DimOverlay" type="ColorRect" parent="UIOverlay/InventoryUI" unique_id=702]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="MainPanel" type="Panel" parent="UIOverlay/InventoryUI" unique_id=703]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -220.0
+offset_right = 340.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_re_inv")
+
+[node name="TitleLabel" type="Label" parent="UIOverlay/InventoryUI/MainPanel" unique_id=704]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 320.0
+offset_bottom = 42.0
+text = "TACTICAL EQUIPMENT (TAB)"
+label_settings = SubResource("LabelSettings_inv_title")
+
+; ECG Health Monitor (Resident Evil style)
+[node name="EcgContainer" type="Panel" parent="UIOverlay/InventoryUI/MainPanel" unique_id=705]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = 98.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_ecg")
+
+[node name="EcgStatusLabel" type="Label" parent="UIOverlay/InventoryUI/MainPanel/EcgContainer" unique_id=706]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 6.0
+offset_bottom = 26.0
+grow_horizontal = 2
+text = "CONDITION: FINE"
+label_settings = SubResource("LabelSettings_ecg")
+horizontal_alignment = 1
+
+[node name="EcgPulseLine" type="ColorRect" parent="UIOverlay/InventoryUI/MainPanel/EcgContainer" unique_id=707]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 16.0
+offset_top = 40.0
+offset_right = 240.0
+offset_bottom = 44.0
+color = Color(0.2, 1, 0.4, 1)
+
+; 8-Slot Inventory Grid (2x4)
+[node name="SlotGrid" type="GridContainer" parent="UIOverlay/InventoryUI/MainPanel" unique_id=708]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 24.0
+offset_top = 60.0
+offset_right = 376.0
+offset_bottom = 236.0
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
+columns = 4
+
+; Item Detail Panel
+[node name="DetailBox" type="VBoxContainer" parent="UIOverlay/InventoryUI/MainPanel" unique_id=709]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 250.0
+offset_right = 480.0
+offset_bottom = 360.0
+theme_override_constants/separation = 4
+
+[node name="ItemNameLabel" type="Label" parent="UIOverlay/InventoryUI/MainPanel/DetailBox" unique_id=710]
+unique_name_in_owner = true
+layout_mode = 2
+text = "GREEN HERB"
+label_settings = SubResource("LabelSettings_item_name")
+
+[node name="ItemDescLabel" type="Label" parent="UIOverlay/InventoryUI/MainPanel/DetailBox" unique_id=711]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Restores 40 Health. Can be combined with Blue Herb."
+label_settings = SubResource("LabelSettings_item_desc")
+autowrap_mode = 2
+
+[node name="HintLabel" type="Label" parent="UIOverlay/InventoryUI/MainPanel/DetailBox" unique_id=712]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Click an item to inspect or use."
+label_settings = SubResource("LabelSettings_hud")
+
+; Action Buttons
+[node name="ActionBox" type="VBoxContainer" parent="UIOverlay/InventoryUI/MainPanel" unique_id=713]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -170.0
+offset_top = 30.0
+offset_right = -24.0
+offset_bottom = 190.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="UseButton" type="Button" parent="UIOverlay/InventoryUI/MainPanel/ActionBox" unique_id=714]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "USE / EQUIP"
+
+[node name="CombineButton" type="Button" parent="UIOverlay/InventoryUI/MainPanel/ActionBox" unique_id=715]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "COMBINE"
+
+[node name="CloseButton" type="Button" parent="UIOverlay/InventoryUI/MainPanel/ActionBox" unique_id=716]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "CLOSE (TAB)"
+
+; =========================================================================
+; PAUSE MENU UI (ESCAPE / P)
+; =========================================================================
+[node name="PauseMenuUI" type="Control" parent="UIOverlay" unique_id=801]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("38_pause_ui")
+
+[node name="DimOverlay" type="ColorRect" parent="UIOverlay/PauseMenuUI" unique_id=802]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.75)
+
+[node name="VBox" type="VBoxContainer" parent="UIOverlay/PauseMenuUI" unique_id=803]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -160.0
+offset_right = 150.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="PauseTitle" type="Label" parent="UIOverlay/PauseMenuUI/VBox" unique_id=804]
+layout_mode = 2
+text = "GAME PAUSED"
+label_settings = SubResource("LabelSettings_pause_title")
+horizontal_alignment = 1
+
+[node name="ResumeButton" type="Button" parent="UIOverlay/PauseMenuUI/VBox" unique_id=805]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "RESUME MISSION"
+
+[node name="InventoryButton" type="Button" parent="UIOverlay/PauseMenuUI/VBox" unique_id=806]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "EQUIPMENT / ITEMS (TAB)"
+
+[node name="MapButton" type="Button" parent="UIOverlay/PauseMenuUI/VBox" unique_id=807]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "TACTICAL MAP (M)"
+
+[node name="RestartButton" type="Button" parent="UIOverlay/PauseMenuUI/VBox" unique_id=808]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "RESTART MISSION (R)"
+
+[node name="QuitButton" type="Button" parent="UIOverlay/PauseMenuUI/VBox" unique_id=809]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "QUIT TO DESKTOP (ESC)"
+
+; =========================================================================
+; GAME OVER SCREEN
+; =========================================================================
 [node name="GameOverPanel" type="Control" parent="UIOverlay" unique_id=55881166]
 unique_name_in_owner = true
 visible = false
@@ -823,7 +1256,9 @@ text = "PRESS 'R' TO RESTART"
 label_settings = SubResource("LabelSettings_restart")
 horizontal_alignment = 1
 
-;  Mission Complete / Victory Screen
+; =========================================================================
+; MISSION COMPLETE / VICTORY SCREEN
+; =========================================================================
 [node name="VictoryPanel" type="Control" parent="UIOverlay" unique_id=517]
 unique_name_in_owner = true
 visible = false
@@ -885,7 +1320,9 @@ PRESS 'R' TO REPLAY MISSION"
 label_settings = SubResource("LabelSettings_victory_stats")
 horizontal_alignment = 1
 
-;  Crosshair
+; =========================================================================
+; CROSSHAIR
+; =========================================================================
 [node name="Crosshair" type="Sprite2D" parent="UIOverlay" unique_id=22110099]
 texture = ExtResource("9_crosshair")
 script = ExtResource("10_crosshair_script")

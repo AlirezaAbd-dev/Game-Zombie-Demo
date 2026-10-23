@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://d3propdesk77"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_desk.png" id="1_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/box_shadow.png" id="2_shadow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_desk"]
+size = Vector2(88, 80)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_desk"]
+polygon = PackedVector2Array(-42, -38, 42, -38, 42, 38, -42, 38)
+
+[node name="PropDesk" type="StaticBody2D" unique_id=93003344]
+collision_layer = 1
+collision_mask = 3
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=93003345]
+modulate = Color(1, 1, 1, 0.6)
+position = Vector2(0, 8)
+scale = Vector2(0.65, 0.6)
+texture = ExtResource("2_shadow")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=93003346]
+texture_filter = 1
+texture = ExtResource("1_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=93003347]
+shape = SubResource("RectangleShape2D_desk")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=93003348]
+occluder = SubResource("OccluderPolygon2D_desk")

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/herb_mixed.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "herb_mixed"
+ItemName = "Mixed Herb (G+B)"
+Description = "Potent botanical compound. Fully restores Health and Stamina to maximum capacity."
+Type = 4
+Value = 100.0
+MaxStack = 3
+Icon = ExtResource("2_texture")

@@ -8,6 +8,10 @@ A modular, component-based 2D top-down survival horror demo built with **Godot 4
 
 - **Movement & Aiming:** 8-directional top-down character movement (`CharacterBody2D`) with precision mouse cursor aiming, RMB tactical aim mode (zoom, tight spread, slower walk), and laser-sight targeting.
 - **Dynamic 10-Minute Story Campaign ("Incident at Sector-4"):** Episodic 3-act narrative with radio comms, live objectives, power restoration, 30s terminal defense, and cargo helipad evacuation.
+- **Resident Evil 2D Inventory System (`[Tab]` / `[I]`):** Classic 8-slot grid inventory with an animated ECG heartbeat monitor (FINE / CAUTION / DANGER), item inspection, consumption, and item combining mechanics (e.g., Green Herb + Blue Herb = Mixed Herb).
+- **Tactical Facility Map & Radar (`[M]`):** Dynamic corner radar HUD tracking player position, facing angle, and objective waypoints, plus a full-screen facility blueprint view.
+- **Pause Menu System (`[Escape]` / `[P]`):** Seamless game pause with quick access to resume, inventory, tactical map, restart, and exit.
+- **Rich Environmental World:** Multi-themed facility sectors (Security Checkpoint, Substation, Bio-Lab, Armory, Helipad) featuring reinforced steel walls, cleanroom lab panels, office desks, cryo containment tubes with bubbling particles, biohazard barrels, and armory lockers, fully sealed with impenetrable perimeter boundaries.
 - **Contextual Interaction System (`[E]`):** Examine terminals, pick up keycards, activate generators, and open hydraulic blast doors.
 - **Weapon Arsenal & Switching:** Handgun (semi-auto), Pump Shotgun (8 pellets, high spread), and Assault Rifle (high-velocity full-auto), switchable via `1-3`, `Q`, or Mouse Wheel.
 - **Resource-Heavy Combat:** Scarce ammunition, tactical reserve ammo management, and deliberate, interruptible reload timings.
@@ -134,11 +138,12 @@ godot --path . res://Scenes/World.tscn
 | **Tactical Aim Mode** | Right Mouse Button (`RMB` Hold) |
 | **Shoot** | Left Mouse Button (`LMB`) |
 | **Interact / Examine** | `E` / Gamepad `A` / `Cross` |
+| **Open Inventory (RE 8-Slot)** | `Tab` / `I` |
+| **Toggle Tactical Map** | `M` |
+| **Pause Game Menu** | `Escape` / `P` |
 | **Switch Weapon** | `1`, `2`, `3` / `Q` / Mouse Scroll Wheel |
 | **Reload** | `R` |
 | **Dash (Evade)** | `Space` |
-| **Restart / Replay** | `R` |
-| **Quit Game** | `Escape` |
 
 ---
 

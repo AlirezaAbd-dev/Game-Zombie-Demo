@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://h7gurney33"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_gurney.png" id="1_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/box_shadow.png" id="2_shadow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gurney"]
+size = Vector2(88, 56)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_gurney"]
+polygon = PackedVector2Array(-42, -26, 42, -26, 42, 26, -42, 26)
+
+[node name="PropGurney" type="StaticBody2D" unique_id=97007788]
+collision_layer = 1
+collision_mask = 3
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=97007789]
+modulate = Color(1, 1, 1, 0.5)
+position = Vector2(0, 8)
+scale = Vector2(0.65, 0.45)
+texture = ExtResource("2_shadow")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=97007790]
+texture_filter = 1
+texture = ExtResource("1_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=97007791]
+shape = SubResource("RectangleShape2D_gurney")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=97007792]
+occluder = SubResource("OccluderPolygon2D_gurney")

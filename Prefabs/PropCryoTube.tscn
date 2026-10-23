@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://e4cryotube66"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_cryo_tube.png" id="1_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="2_light"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tube"]
+size = Vector2(76, 88)
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_tube"]
+polygon = PackedVector2Array(-36, -42, 36, -42, 36, 42, -36, 42)
+
+[node name="PropCryoTube" type="StaticBody2D" unique_id=94004455]
+collision_layer = 1
+collision_mask = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=94004456]
+texture_filter = 1
+texture = ExtResource("1_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=94004457]
+shape = SubResource("RectangleShape2D_tube")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=94004458]
+occluder = SubResource("OccluderPolygon2D_tube")
+
+[node name="GreenGlow" type="PointLight2D" parent="." unique_id=94004459]
+scale = Vector2(1.2, 1.2)
+color = Color(0.15, 1, 0.45, 1)
+energy = 1.2
+texture = ExtResource("2_light")
+
+[node name="Bubbles" type="CPUParticles2D" parent="." unique_id=94004460]
+position = Vector2(0, 20)
+amount = 12
+lifetime = 1.2
+emission_shape = 3
+emission_rect_extents = Vector2(18, 2)
+direction = Vector2(0, -1)
+spread = 15.0
+gravity = Vector2(0, -20)
+initial_velocity_min = 15.0
+initial_velocity_max = 35.0
+scale_amount_min = 2.0
+scale_amount_max = 3.5
+color = Color(0.3, 1, 0.6, 0.8)

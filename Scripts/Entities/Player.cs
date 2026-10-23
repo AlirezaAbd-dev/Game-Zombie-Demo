@@ -116,6 +116,16 @@ public partial class Player : CharacterBody2D, IDamageable
         {
             GunSprite.Position = GunSprite.Position.Lerp(_gunRestPos, dt * 15.0f);
         }
+
+        if (_adrenalineTimer > 0.0f)
+        {
+            _adrenalineTimer -= dt;
+            StaminaComponent?.Regenerate(dt * 45.0f);
+            if (_adrenalineTimer <= 0.0f && MovementComponent != null)
+            {
+                MovementComponent.BaseSpeed = 300.0f;
+            }
+        }
     }
 
     public override void _PhysicsProcess(double delta)
@@ -383,6 +393,26 @@ public partial class Player : CharacterBody2D, IDamageable
             var tween = CreateTween();
             BodySprite.Modulate = new Color(0.4f, 2.5f, 0.6f, 1.0f);
             tween.TweenProperty(BodySprite, "modulate", Colors.White, 0.2);
+        }
+    }
+
+    private float _adrenalineTimer = 0.0f;
+
+    public void ApplyAdrenalineBoost(float duration)
+    {
+        if (IsDead) return;
+        _adrenalineTimer = duration;
+
+        if (MovementComponent != null)
+        {
+            MovementComponent.BaseSpeed = 420.0f;
+        }
+
+        if (BodySprite != null)
+        {
+            var tween = CreateTween();
+            tween.TweenProperty(BodySprite, "modulate", new Color(2.5f, 0.5f, 0.5f, 1.0f), 0.2);
+            tween.TweenProperty(BodySprite, "modulate", Colors.White, 0.3);
         }
     }
 

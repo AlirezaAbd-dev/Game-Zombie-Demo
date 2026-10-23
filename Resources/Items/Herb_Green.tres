@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/herb_green.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "herb_green"
+ItemName = "Green Herb"
+Description = "Indigenous medicinal plant. Restores 40 Health. Can be combined with Blue Herb."
+Type = 4
+Value = 40.0
+MaxStack = 5
+Icon = ExtResource("2_texture")
+CombineWithId = "herb_blue"
+CombineResultId = "herb_mixed"

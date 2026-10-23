@@ -7,7 +7,9 @@ public enum ItemType
     Health,
     Ammo,
     Key,
-    Document
+    Document,
+    Herb,
+    Booster
 }
 
 [GlobalClass]
@@ -20,4 +22,6 @@ public partial class ItemData : Resource
     [Export] public float Value { get; set; } = 35.0f;
     [Export] public int MaxStack { get; set; } = 99;
     [Export] public Texture2D Icon { get; set; }
+    [Export] public string CombineWithId { get; set; } = string.Empty;
+    [Export] public string CombineResultId { get; set; } = string.Empty;
 }

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://g6barrel44"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_hazard_barrel.png" id="1_tex"]
+[ext_resource type="Texture2D" path="res://Assets/textures/drop_shadow.png" id="2_shadow"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_barrel"]
+radius = 36.0
+
+[sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_barrel"]
+polygon = PackedVector2Array(-30, -20, 0, -32, 30, -20, 36, 10, 20, 32, -20, 32, -36, 10)
+
+[node name="PropHazardBarrel" type="StaticBody2D" unique_id=96006677]
+collision_layer = 1
+collision_mask = 3
+
+[node name="Shadow" type="Sprite2D" parent="." unique_id=96006678]
+modulate = Color(1, 1, 1, 0.6)
+position = Vector2(0, 16)
+scale = Vector2(0.9, 0.6)
+texture = ExtResource("2_shadow")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=96006679]
+texture_filter = 1
+texture = ExtResource("1_tex")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=96006680]
+shape = SubResource("CircleShape2D_barrel")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="." unique_id=96006681]
+occluder = SubResource("OccluderPolygon2D_barrel")

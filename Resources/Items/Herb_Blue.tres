@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/herb_blue.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "herb_blue"
+ItemName = "Blue Herb"
+Description = "Rare restorative herb. Cures toxins and restores 50 Stamina. Can be combined with Green Herb."
+Type = 4
+Value = 50.0
+MaxStack = 5
+Icon = ExtResource("2_texture")
+CombineWithId = "herb_green"
+CombineResultId = "herb_mixed"
