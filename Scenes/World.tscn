@@ -41,6 +41,7 @@
 [ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="39_herb_green"]
 [ext_resource type="Resource" path="res://Resources/Items/Herb_Blue.tres" id="40_herb_blue"]
 [ext_resource type="Resource" path="res://Resources/Items/Adrenaline.tres" id="41_adrenaline"]
+[ext_resource type="Texture2D" path="res://Assets/textures/blood_vignette.png" id="42_blood_vignette"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("2_floor_shader")
@@ -857,6 +858,21 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("11_hud_script")
+
+; Low Health Bloody Vignette
+[node name="BloodVignette" type="TextureRect" parent="UIOverlay/HUD" unique_id=77889901]
+unique_name_in_owner = true
+visible = false
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("42_blood_vignette")
+expand_mode = 1
+stretch_mode = 0
 
 ; Health & Stamina Bars
 [node name="HealthBar" type="ProgressBar" parent="UIOverlay/HUD" unique_id=22558833]

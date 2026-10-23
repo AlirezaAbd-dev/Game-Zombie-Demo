@@ -8,6 +8,9 @@ namespace TopDownDemo.UI;
 
 public partial class HUDUI : Control
 {
+    [ExportGroup("Low Health Vignette")]
+    [Export] public TextureRect BloodVignette { get; set; }
+
     [ExportGroup("Standard HUD")]
     [Export] public ProgressBar HealthBar { get; set; }
     [Export] public Label HealthLabel { get; set; }
@@ -47,6 +50,10 @@ public partial class HUDUI : Control
     private WeaponData _currentWeapon;
     private int _kills = 0;
 
+    private float _healthRatio = 1.0f;
+    private float _currentVignetteAlpha = 0.0f;
+    private float _heartbeatPhase = 0.0f;
+
     private float _radioTimer = 0.0f;
     private string _fullRadioMessage = string.Empty;
     private float _typewriterIndex = 0.0f;
@@ -71,6 +78,13 @@ public partial class HUDUI : Control
 
     private void BindNodes()
     {
+        BloodVignette ??= GetNodeOrNull<TextureRect>("%BloodVignette");
+        if (BloodVignette != null)
+        {
+            BloodVignette.Modulate = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+            BloodVignette.Visible = false;
+        }
+
         HealthBar ??= GetNodeOrNull<ProgressBar>("%HealthBar");
         HealthLabel ??= GetNodeOrNull<Label>("%HealthLabel");
         StaminaBar ??= GetNodeOrNull<ProgressBar>("%StaminaBar");
@@ -122,6 +136,7 @@ public partial class HUDUI : Control
     public override void _Process(double delta)
     {
         float dt = (float)delta;
+        UpdateBloodVignette(dt);
 
         if (IsInstanceValid(_player) && !_player.IsDead)
         {
@@ -323,6 +338,11 @@ public partial class HUDUI : Control
 
     public void OnHealthChanged(float current, float maximum)
     {
+        if (maximum > 0.0f)
+        {
+            _healthRatio = Mathf.Clamp(current / maximum, 0.0f, 1.0f);
+        }
+
         if (HealthBar != null)
         {
             HealthBar.MaxValue = maximum;
@@ -382,6 +402,64 @@ public partial class HUDUI : Control
         if (GameOverPanel != null)
         {
             GameOverPanel.Visible = true;
+        }
+    }
+
+    private void UpdateBloodVignette(float dt)
+    {
+        if (BloodVignette == null) return;
+
+        if (IsInstanceValid(_player) && _player.IsDead)
+        {
+            BloodVignette.Visible = true;
+            _currentVignetteAlpha = Mathf.MoveToward(_currentVignetteAlpha, 0.95f, dt * 2.0f);
+            BloodVignette.Modulate = new Color(0.9f, 0.1f, 0.1f, _currentVignetteAlpha);
+            return;
+        }
+
+        if (_healthRatio > 0.40f)
+        {
+            if (_currentVignetteAlpha > 0.001f)
+            {
+                _currentVignetteAlpha = Mathf.MoveToward(_currentVignetteAlpha, 0.0f, dt * 2.5f);
+                BloodVignette.Modulate = new Color(1.0f, 1.0f, 1.0f, _currentVignetteAlpha);
+                BloodVignette.Visible = true;
+            }
+            else
+            {
+                _currentVignetteAlpha = 0.0f;
+                BloodVignette.Visible = false;
+                _heartbeatPhase = 0.0f;
+            }
+            return;
+        }
+
+        // Low health active
+        BloodVignette.Visible = true;
+
+        if (_healthRatio > 0.20f)
+        {
+            // Warning stage: 20% < HP <= 40% (Resident Evil Caution)
+            float severity = (0.40f - _healthRatio) / 0.20f;
+            _heartbeatPhase += dt * 3.5f;
+
+            float pulse = Mathf.Sin(_heartbeatPhase) * 0.08f;
+            float targetAlpha = Mathf.Clamp(0.25f + (severity * 0.25f) + pulse, 0.15f, 0.65f);
+
+            _currentVignetteAlpha = Mathf.MoveToward(_currentVignetteAlpha, targetAlpha, dt * 2.5f);
+            BloodVignette.Modulate = new Color(1.0f, 0.92f, 0.92f, _currentVignetteAlpha);
+        }
+        else
+        {
+            // Critical stage: HP <= 20% (Resident Evil Danger rhythmic pulse)
+            _heartbeatPhase += dt * 7.5f;
+            float pulse = Mathf.Pow(Mathf.Max(0.0f, Mathf.Sin(_heartbeatPhase)), 2.2f);
+
+            float targetAlpha = 0.48f + (pulse * 0.40f);
+            float redTint = 1.0f - (pulse * 0.12f);
+
+            _currentVignetteAlpha = Mathf.MoveToward(_currentVignetteAlpha, targetAlpha, dt * 5.0f);
+            BloodVignette.Modulate = new Color(1.0f, redTint, redTint, _currentVignetteAlpha);
         }
     }
 }
