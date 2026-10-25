@@ -35,7 +35,8 @@ public enum SoundType
     FinisherSlash,
     EnemyStunned,
     FinisherPrompt,
-    VentBreak
+    VentBreak,
+    MedicalHeal
 }
 
 public partial class AudioManager : Node
@@ -265,6 +266,7 @@ public partial class AudioManager : Node
         _soundCache[SoundType.EnemyStunned] = SynthesizeEnemyStunned();
         _soundCache[SoundType.FinisherPrompt] = SynthesizeFinisherPrompt();
         _soundCache[SoundType.VentBreak] = SynthesizeVentBreak();
+        _soundCache[SoundType.MedicalHeal] = SynthesizeMedicalHeal();
     }
 
     public void PlaySound(SoundType type, Vector2? worldPos = null, float pitchScale = 1.0f)
@@ -624,6 +626,31 @@ public partial class AudioManager : Node
             float noise = ((float)GD.RandRange(-1.0, 1.0)) * Mathf.Exp(-t * 8.0f) * 0.45f;
             float val = (metalClang + noise) * env;
             samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 24000);
+        }
+        return BuildWav(samples);
+    }
+
+    private static AudioStreamWav SynthesizeMedicalHeal()
+    {
+        // Medical treatment: gentle antiseptic aerosol spray hiss followed by warm restorative tri-tone chime
+        int totalSamples = (int)(SampleRate * 0.48f);
+        short[] samples = new short[totalSamples];
+        var rng = new Random(8812);
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            float t = (float)i / SampleRate;
+            float sprayEnv = Mathf.Exp(-t * 9.0f);
+            float spray = ((float)rng.NextDouble() * 2.0f - 1.0f) * sprayEnv * 0.35f;
+
+            // Restorative ascending arpeggio (E5: 659.25Hz -> G#5: 830.61Hz -> B5: 987.77Hz)
+            float chimeTime = Mathf.Max(0.0f, t - 0.08f);
+            float chimeEnv = Mathf.Exp(-chimeTime * 6.0f);
+            float chimeFreq = chimeTime < 0.12f ? 659.25f : (chimeTime < 0.24f ? 830.61f : 987.77f);
+            float chime = Mathf.Sin(Mathf.Tau * chimeFreq * chimeTime) * chimeEnv * 0.55f;
+
+            float val = spray + chime;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 26000);
         }
         return BuildWav(samples);
     }

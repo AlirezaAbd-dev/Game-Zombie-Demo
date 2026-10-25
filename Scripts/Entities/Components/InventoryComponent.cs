@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using TopDownDemo.Core;
 using TopDownDemo.Systems;
+using TopDownDemo.UI;
 
 namespace TopDownDemo.Entities.Components;
 
@@ -301,18 +302,29 @@ public partial class InventoryComponent : Node
             if (player.HealthComponent != null && player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
             {
                 player.Heal(item.Value);
+                if (item.Id == "herb_mixed")
+                {
+                    player.StaminaComponent?.Regenerate(100.0f);
+                }
                 used = true;
+                HUDUI.Instance?.ShowHealNotification(item.ItemName, item.Value);
+                AudioManager.Instance?.PlaySound(SoundType.MedicalHeal, player.GlobalPosition);
             }
             else if (item.Id == "herb_blue" || item.Id == "herb_mixed")
             {
                 player.StaminaComponent?.Regenerate(item.Value);
                 used = true;
+                HUDUI.Instance?.ShowHealNotification(item.ItemName, 0, "STAMINA FULLY RESTORED");
+                AudioManager.Instance?.PlaySound(SoundType.MedicalHeal, player.GlobalPosition);
             }
         }
         else if (item.Type == ItemType.Booster)
         {
             player.ApplyAdrenalineBoost(15.0f);
+            player.Heal(item.Value);
             used = true;
+            HUDUI.Instance?.ShowHealNotification(item.ItemName, item.Value, "ADRENALINE BOOST (15s)");
+            AudioManager.Instance?.PlaySound(SoundType.MedicalHeal, player.GlobalPosition);
         }
         else if (item.Type == ItemType.Key)
         {
@@ -380,6 +392,46 @@ public partial class InventoryComponent : Node
         return false;
     }
 
+    public bool QuickHeal(Player player)
+    {
+        if (player == null || player.IsDead || player.HealthComponent == null)
+            return false;
+
+        float currentHp = player.HealthComponent.CurrentHealth;
+        float maxHp = player.HealthComponent.MaxHealth;
+        float missingHp = maxHp - currentHp;
+
+        if (missingHp <= 0.0f)
+            return false;
+
+        int bestSlotIndex = -1;
+        float bestFitDifference = float.MaxValue;
+
+        // Find the healing item whose heal amount best matches missing HP without excess waste
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            var item = Slots[i].Item;
+            if (item == null) continue;
+
+            if (item.Type == ItemType.Health || item.Type == ItemType.Herb)
+            {
+                float diff = Mathf.Abs(missingHp - item.Value);
+                if (diff < bestFitDifference)
+                {
+                    bestFitDifference = diff;
+                    bestSlotIndex = i;
+                }
+            }
+        }
+
+        if (bestSlotIndex >= 0)
+        {
+            return UseSlot(bestSlotIndex, player);
+        }
+
+        return false;
+    }
+
     public bool CombineSlots(int slotA, int slotB)
     {
         if (slotA < 0 || slotA >= Slots.Count || slotB < 0 || slotB >= Slots.Count || slotA == slotB)
@@ -391,18 +443,33 @@ public partial class InventoryComponent : Node
         if (itemA == null || itemB == null)
             return false;
 
-        if (itemA.CombineWithId == itemB.Id && !string.IsNullOrEmpty(itemA.CombineResultId))
-        {
-            string resultPath = $"res://Resources/Items/{itemA.CombineResultId}.tres";
-            if (!ResourceLoader.Exists(resultPath))
-            {
-                resultPath = itemA.CombineResultId switch
-                {
-                    "herb_mixed" => "res://Resources/Items/Herb_Mixed.tres",
-                    _ => resultPath
-                };
-            }
+        string idA = itemA.Id.ToLower();
+        string idB = itemB.Id.ToLower();
+        string resultPath = null;
 
+        // Recipe 1: Green Herb + Green Herb -> Double Green Herb (+70 HP)
+        if (idA == "herb_green" && idB == "herb_green")
+        {
+            resultPath = "res://Resources/Items/Herb_Green_Double.tres";
+        }
+        // Recipe 2: Green Herb + Blue Herb -> Mixed Herb G+B (+60 HP & 100 Stamina)
+        else if ((idA == "herb_green" && idB == "herb_blue") || (idA == "herb_blue" && idB == "herb_green"))
+        {
+            resultPath = "res://Resources/Items/Herb_Mixed.tres";
+        }
+        // Recipe 3: Double Green Herb + Green Herb -> First Aid Spray (G+G+G = Full 100 HP Heal!)
+        else if ((idA == "herb_green_double" && idB == "herb_green") || (idA == "herb_green" && idB == "herb_green_double"))
+        {
+            resultPath = "res://Resources/Items/TraumaKit.tres";
+        }
+        // General fallback to ItemData Combine properties
+        else if (itemA.CombineWithId == itemB.Id && !string.IsNullOrEmpty(itemA.CombineResultId))
+        {
+            resultPath = $"res://Resources/Items/{itemA.CombineResultId}.tres";
+        }
+
+        if (!string.IsNullOrEmpty(resultPath) && ResourceLoader.Exists(resultPath))
+        {
             var resultItem = GD.Load<ItemData>(resultPath);
             if (resultItem != null)
             {

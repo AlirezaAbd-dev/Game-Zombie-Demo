@@ -47,6 +47,8 @@ public partial class HUDUI : Control
     [Export] public Label VictoryStatsLabel { get; set; }
 
     private Player _player;
+    public static HUDUI Instance { get; private set; }
+
     private WeaponData _currentWeapon;
     private int _kills = 0;
 
@@ -57,6 +59,14 @@ public partial class HUDUI : Control
     private float _radioTimer = 0.0f;
     private string _fullRadioMessage = string.Empty;
     private float _typewriterIndex = 0.0f;
+
+    private Label _floatingNotifyLabel;
+    private Tween _floatingNotifyTween;
+
+    public override void _EnterTree()
+    {
+        Instance = this;
+    }
 
     public override void _Ready()
     {
@@ -130,6 +140,7 @@ public partial class HUDUI : Control
 
     public override void _ExitTree()
     {
+        if (Instance == this) Instance = null;
         Zombie.OnAnyZombieKilled -= OnZombieKilled;
     }
 
@@ -277,10 +288,81 @@ public partial class HUDUI : Control
             InteractionPromptLabel.Text = "[V] QUICK KNIFE";
             InteractionPromptLabel.Modulate = new Color(1.0f, 0.85f, 0.3f, 0.95f);
         }
+        else if (_healthRatio <= 0.60f && HasHealingItemInInventory())
+        {
+            InteractionPromptLabel.Visible = true;
+            InteractionPromptLabel.Text = "[H] QUICK HEAL";
+            InteractionPromptLabel.Modulate = new Color(0.2f, 1.0f, 0.5f, 0.95f);
+        }
         else
         {
             InteractionPromptLabel.Visible = false;
         }
+    }
+
+    private bool HasHealingItemInInventory()
+    {
+        if (!IsInstanceValid(_player) || _player.InventoryComponent == null) return false;
+        foreach (var slot in _player.InventoryComponent.Slots)
+        {
+            if (slot.Item != null && (slot.Item.Type == ItemType.Health || slot.Item.Type == ItemType.Herb || slot.Item.Type == ItemType.Booster))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void ShowFloatingNotification(string text, Color color)
+    {
+        if (_floatingNotifyLabel == null)
+        {
+            _floatingNotifyLabel = new Label
+            {
+                Name = "FloatingHealNotify",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                Position = new Vector2(340, 580),
+                Size = new Vector2(600, 36),
+                ZIndex = 50
+            };
+            _floatingNotifyLabel.AddThemeFontSizeOverride("font_size", 16);
+            AddChild(_floatingNotifyLabel);
+        }
+
+        _floatingNotifyLabel.Text = text;
+        _floatingNotifyLabel.Modulate = color;
+        _floatingNotifyLabel.Visible = true;
+
+        _floatingNotifyTween?.Kill();
+        _floatingNotifyTween = CreateTween();
+        _floatingNotifyTween.TweenProperty(_floatingNotifyLabel, "position:y", 555.0f, 0.22f);
+        _floatingNotifyTween.TweenInterval(1.8f);
+        _floatingNotifyTween.TweenProperty(_floatingNotifyLabel, "modulate:a", 0.0f, 0.35f);
+        _floatingNotifyTween.TweenCallback(Callable.From(() =>
+        {
+            if (_floatingNotifyLabel != null)
+            {
+                _floatingNotifyLabel.Visible = false;
+                _floatingNotifyLabel.Position = new Vector2(340, 580);
+            }
+        }));
+    }
+
+    public void ShowHealNotification(string itemName, float hpRestored, string extraInfo = "")
+    {
+        string msg = hpRestored >= 100.0f
+            ? $"+++ {itemName.ToUpper()}: FULL HEALTH RESTORED! +++"
+            : (hpRestored > 0
+                ? $"+{hpRestored:0} HP RESTORED ({itemName})"
+                : $"+ {itemName} USED");
+
+        if (!string.IsNullOrEmpty(extraInfo))
+        {
+            msg += $" | {extraInfo}";
+        }
+
+        ShowFloatingNotification(msg, new Color(0.2f, 1.0f, 0.45f, 1.0f));
     }
 
     private void OnObjectiveUpdated(string title, string subtask)

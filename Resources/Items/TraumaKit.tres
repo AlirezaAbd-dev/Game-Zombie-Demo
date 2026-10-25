@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/first_aid_spray.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "trauma_kit"
+ItemName = "First Aid Spray"
+Description = "High-grade military aerosol medical spray. Instantly seals severe lacerations and regenerates vital tissue. Restores 100 HP (Full Health)."
+Type = 0
+Value = 100.0
+MaxStack = 2
+Icon = ExtResource("2_texture")

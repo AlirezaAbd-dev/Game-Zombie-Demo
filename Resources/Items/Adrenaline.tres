@@ -7,8 +7,8 @@
 script = ExtResource("1_itemdata")
 Id = "booster_adrenaline"
 ItemName = "Adrenaline Shot"
-Description = "Military combat stimulant. Temporarily increases movement speed and rapidly regenerates stamina."
+Description = "Military combat stimulant auto-injector. Restores 15 HP and grants 15 seconds of supercharged sprint speed and rapid stamina regeneration."
 Type = 5
-Value = 50.0
+Value = 15.0
 MaxStack = 3
 Icon = ExtResource("2_texture")

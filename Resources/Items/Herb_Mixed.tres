@@ -7,8 +7,8 @@
 script = ExtResource("1_itemdata")
 Id = "herb_mixed"
 ItemName = "Mixed Herb (G+B)"
-Description = "Potent botanical compound. Fully restores Health and Stamina to maximum capacity."
+Description = "Compound botanical mixture. Restores 60 HP and fully restores Stamina to maximum."
 Type = 4
-Value = 100.0
+Value = 60.0
 MaxStack = 3
 Icon = ExtResource("2_texture")

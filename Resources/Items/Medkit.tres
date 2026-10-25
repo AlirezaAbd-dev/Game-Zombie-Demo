@@ -6,9 +6,9 @@
 [resource]
 script = ExtResource("1_itemdata")
 Id = "medkit"
-ItemName = "First Aid Kit"
-Description = "Restores 35 HP."
+ItemName = "First Aid Medkit"
+Description = "Standard combat paramedic case with antiseptic coagulants. Restores 50 HP."
 Type = 0
-Value = 35.0
-MaxStack = 5
+Value = 50.0
+MaxStack = 4
 Icon = ExtResource("2_texture")

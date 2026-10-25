@@ -7,10 +7,10 @@
 script = ExtResource("1_itemdata")
 Id = "herb_green"
 ItemName = "Green Herb"
-Description = "Indigenous medicinal plant. Restores 40 Health. Can be combined with Blue Herb."
+Description = "Indigenous restorative medicinal herb. Restores 35 HP. Combine with Green Herb for Double potency (+70 HP) or Blue Herb for toxic cleansing."
 Type = 4
-Value = 40.0
+Value = 35.0
 MaxStack = 5
 Icon = ExtResource("2_texture")
-CombineWithId = "herb_blue"
-CombineResultId = "herb_mixed"
+CombineWithId = "herb_green"
+CombineResultId = "herb_green_double"

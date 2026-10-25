@@ -1,6 +1,7 @@
 using Godot;
 using TopDownDemo.Core;
 using TopDownDemo.Systems;
+using TopDownDemo.UI;
 
 namespace TopDownDemo.Entities;
 
@@ -49,10 +50,28 @@ public partial class Pickup : Area2D
                 GlowLight.TextureScale = 1.8f;
                 GlowLight.Energy = 1.8f;
             }
-            else if (Item.Type == ItemType.Health)
+            else if (Item.Type == ItemType.Health || Item.Type == ItemType.Herb)
             {
-                GlowLight.Color = new Color(0.2f, 1.0f, 0.4f, 1.0f);
-                GlowLight.TextureScale = 1.0f;
+                if (Item.Id == "trauma_kit")
+                {
+                    GlowLight.Color = new Color(0.3f, 1.0f, 0.85f, 1.0f);
+                    GlowLight.TextureScale = 1.4f;
+                }
+                else if (Item.Id == "herb_blue")
+                {
+                    GlowLight.Color = new Color(0.2f, 0.5f, 1.0f, 1.0f);
+                    GlowLight.TextureScale = 1.0f;
+                }
+                else if (Item.Id == "bandage")
+                {
+                    GlowLight.Color = new Color(0.85f, 1.0f, 0.4f, 1.0f);
+                    GlowLight.TextureScale = 0.85f;
+                }
+                else
+                {
+                    GlowLight.Color = new Color(0.2f, 1.0f, 0.4f, 1.0f);
+                    GlowLight.TextureScale = 1.1f;
+                }
             }
             else
             {
@@ -130,14 +149,20 @@ public partial class Pickup : Area2D
         if (player == null || player.IsDead || Item == null) return false;
 
         bool collected = false;
-        if (Item.Type == ItemType.Health && player.HealthComponent != null && player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
+        bool isHealingItem = Item.Type == ItemType.Health || Item.Type == ItemType.Herb;
+
+        // Priority 1: Store in inventory if there is free space or stack available
+        if (player.InventoryComponent != null && player.InventoryComponent.AddItem(Item))
+        {
+            collected = true;
+            HUDUI.Instance?.ShowFloatingNotification($"+ ACQUIRED: {Item.ItemName}", new Color(1.0f, 0.95f, 0.3f, 1.0f));
+        }
+        // Priority 2: If inventory is full, but player has lost health and this item heals, consume on the spot
+        else if (isHealingItem && player.HealthComponent != null && player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
         {
             player.Heal(Item.Value);
             collected = true;
-        }
-        else if (player.InventoryComponent != null)
-        {
-            collected = player.InventoryComponent.AddItem(Item);
+            HUDUI.Instance?.ShowHealNotification(Item.ItemName, Item.Value);
         }
 
         if (collected)
@@ -180,7 +205,9 @@ public partial class Pickup : Area2D
         var parent = GetParent();
         if (parent == null) return;
 
-        Color particleColor = Item?.Type == ItemType.Health ? new Color(0.2f, 1.0f, 0.4f, 0.9f) : new Color(1.0f, 0.9f, 0.3f, 0.9f);
+        Color particleColor = (Item?.Type == ItemType.Health || Item?.Type == ItemType.Herb)
+            ? (Item?.Id == "trauma_kit" ? new Color(0.3f, 1.0f, 0.85f, 0.95f) : (Item?.Id == "herb_blue" ? new Color(0.2f, 0.6f, 1.0f, 0.95f) : new Color(0.2f, 1.0f, 0.4f, 0.9f)))
+            : new Color(1.0f, 0.9f, 0.3f, 0.9f);
 
         var particles = new CpuParticles2D
         {

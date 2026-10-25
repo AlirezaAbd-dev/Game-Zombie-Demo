@@ -3,6 +3,7 @@ using TopDownDemo.Core;
 using TopDownDemo.Entities.Components;
 using TopDownDemo.Entities.States;
 using TopDownDemo.Systems;
+using TopDownDemo.UI;
 
 namespace TopDownDemo.Entities;
 
@@ -194,6 +195,11 @@ public partial class Player : CharacterBody2D, IDamageable
         if (Input.IsActionJustPressed("reload"))
         {
             StartReload();
+        }
+
+        if (Input.IsActionJustPressed("quick_heal"))
+        {
+            TryQuickHeal();
         }
 
         if (Input.IsActionPressed("shoot") && _shootTimer <= 0.0f)
@@ -475,12 +481,31 @@ public partial class Player : CharacterBody2D, IDamageable
         if (IsDead) return;
 
         HealthComponent?.Heal(amount);
+        AudioManager.Instance?.PlaySound(SoundType.MedicalHeal, GlobalPosition);
+
         if (BodySprite != null)
         {
             var tween = CreateTween();
             BodySprite.Modulate = new Color(0.4f, 2.5f, 0.6f, 1.0f);
-            tween.TweenProperty(BodySprite, "modulate", Colors.White, 0.2);
+            tween.TweenProperty(BodySprite, "modulate", Colors.White, 0.25);
         }
+    }
+
+    public bool TryQuickHeal()
+    {
+        if (IsDead) return false;
+        if (HealthComponent != null && HealthComponent.CurrentHealth >= HealthComponent.MaxHealth)
+        {
+            HUDUI.Instance?.ShowFloatingNotification("HEALTH ALREADY FULL", new Color(0.85f, 0.85f, 0.85f, 0.9f));
+            return false;
+        }
+
+        bool healed = InventoryComponent?.QuickHeal(this) ?? false;
+        if (!healed)
+        {
+            HUDUI.Instance?.ShowFloatingNotification("NO HEALING ITEMS IN INVENTORY", new Color(1.0f, 0.4f, 0.4f, 0.9f));
+        }
+        return healed;
     }
 
     private float _adrenalineTimer = 0.0f;

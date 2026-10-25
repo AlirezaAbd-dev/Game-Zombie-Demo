@@ -42,6 +42,9 @@
 [ext_resource type="Resource" path="res://Resources/Items/Adrenaline.tres" id="41_adrenaline"]
 [ext_resource type="Texture2D" uid="uid://hnf8wj3ymp3i" path="res://Assets/textures/blood_vignette.png" id="42_blood_vignette"]
 [ext_resource type="PackedScene" uid="uid://ventshaft88" path="res://Prefabs/VentShaft.tscn" id="43_vent_shaft"]
+[ext_resource type="Resource" path="res://Resources/Items/Bandage.tres" id="44_bandage"]
+[ext_resource type="Resource" path="res://Resources/Items/Medkit.tres" id="45_medkit"]
+[ext_resource type="Resource" path="res://Resources/Items/TraumaKit.tres" id="46_trauma_kit"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("2_floor_shader")
@@ -484,6 +487,10 @@ Item = ExtResource("14_ammo_item")
 position = Vector2(280, 540)
 Item = ExtResource("39_herb_green")
 
+[node name="BandagePickup1" parent="." unique_id=117 instance=ExtResource("6_pickup_scene")]
+position = Vector2(480, 540)
+Item = ExtResource("44_bandage")
+
 [node name="SubstationDoor" parent="." unique_id=112 instance=ExtResource("22_blast_door")]
 position = Vector2(1050, 350)
 DoorId = "door_substation"
@@ -631,6 +638,10 @@ Item = ExtResource("40_herb_blue")
 position = Vector2(1820, 240)
 Item = ExtResource("41_adrenaline")
 
+[node name="MedkitPickup1" parent="." unique_id=217 instance=ExtResource("6_pickup_scene")]
+position = Vector2(1620, 240)
+Item = ExtResource("45_medkit")
+
 [node name="WallS3_W1" parent="." unique_id=301 instance=ExtResource("29_wall_lab")]
 position = Vector2(150, 160)
 
@@ -775,6 +786,10 @@ Item = ExtResource("19_ammo_rifle")
 [node name="HerbPickupGreen2" parent="." unique_id=325 instance=ExtResource("6_pickup_scene")]
 position = Vector2(910, -320)
 Item = ExtResource("39_herb_green")
+
+[node name="TraumaKitPickup1" parent="." unique_id=326 instance=ExtResource("6_pickup_scene")]
+position = Vector2(980, -320)
+Item = ExtResource("46_trauma_kit")
 
 [node name="LabZombieRunner" parent="." unique_id=317 instance=ExtResource("5_zombie_scene")]
 position = Vector2(600, -420)

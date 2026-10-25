@@ -319,10 +319,55 @@ public partial class Zombie : CharacterBody2D, IDamageable
         }
         else if (roll < Stats.AmmoDropChance + Stats.MedkitDropChance)
         {
+            string healPath = PickHealingDropForEnemy();
             var pickup = PickupScene.Instantiate<Pickup>();
             pickup.GlobalPosition = GlobalPosition;
-            pickup.Item = GD.Load<ItemData>("res://Resources/Items/Medkit.tres");
+            pickup.Item = GD.Load<ItemData>(healPath);
             parent.CallDeferred("add_child", pickup);
+        }
+    }
+
+    private string PickHealingDropForEnemy()
+    {
+        float healRoll = (float)GD.RandRange(0.0, 1.0);
+        string typeName = Stats?.TypeName ?? "";
+
+        if (typeName == "Specimen Zero")
+        {
+            // Boss drops high-tier survival medical supplies
+            return healRoll < 0.70f
+                ? "res://Resources/Items/TraumaKit.tres"
+                : "res://Resources/Items/Adrenaline.tres";
+        }
+        else if (typeName == "Brute")
+        {
+            // Brute drops substantial medical gear
+            return healRoll switch
+            {
+                < 0.45f => "res://Resources/Items/Medkit.tres",         // +50 HP
+                < 0.75f => "res://Resources/Items/Herb_Mixed.tres",     // +60 HP & Stamina
+                _ => "res://Resources/Items/TraumaKit.tres"             // +100 HP Full Heal
+            };
+        }
+        else if (typeName == "Runner")
+        {
+            // Fast Runner drops field dressings or herbs
+            return healRoll switch
+            {
+                < 0.45f => "res://Resources/Items/Bandage.tres",        // +20 HP
+                < 0.75f => "res://Resources/Items/Herb_Green.tres",     // +35 HP
+                _ => "res://Resources/Items/Herb_Blue.tres"             // +50 Stamina Cleanse
+            };
+        }
+        else
+        {
+            // Standard Walker drops bandages, herbs, or medkits
+            return healRoll switch
+            {
+                < 0.55f => "res://Resources/Items/Bandage.tres",        // +20 HP
+                < 0.88f => "res://Resources/Items/Herb_Green.tres",     // +35 HP
+                _ => "res://Resources/Items/Medkit.tres"                // +50 HP
+            };
         }
     }
 }
