@@ -14,6 +14,13 @@ public class PlayerIdleState : PlayerState
 
     public override void PhysicsUpdate(float delta)
     {
+        if (Player.IsInputLocked)
+        {
+            Player.MovementComponent.Stop();
+            Player.AnimateIdle(delta);
+            return;
+        }
+
         Vector2 input = Player.GetMovementInput();
         if (input != Vector2.Zero)
         {

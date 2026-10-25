@@ -36,7 +36,9 @@ public enum SoundType
     EnemyStunned,
     FinisherPrompt,
     VentBreak,
-    MedicalHeal
+    MedicalHeal,
+    PadlockClick,
+    PadlockUnlock
 }
 
 public partial class AudioManager : Node
@@ -267,6 +269,8 @@ public partial class AudioManager : Node
         _soundCache[SoundType.FinisherPrompt] = SynthesizeFinisherPrompt();
         _soundCache[SoundType.VentBreak] = SynthesizeVentBreak();
         _soundCache[SoundType.MedicalHeal] = SynthesizeMedicalHeal();
+        _soundCache[SoundType.PadlockClick] = SynthesizePadlockClick();
+        _soundCache[SoundType.PadlockUnlock] = SynthesizePadlockUnlock();
     }
 
     public void PlaySound(SoundType type, Vector2? worldPos = null, float pitchScale = 1.0f)
@@ -651,6 +655,57 @@ public partial class AudioManager : Node
 
             float val = spray + chime;
             samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 26000);
+        }
+        return BuildWav(samples);
+    }
+
+    private static AudioStreamWav SynthesizePadlockClick()
+    {
+        // Crisp antique brass tumbler rotation detent click
+        int totalSamples = (int)(SampleRate * 0.07f);
+        short[] samples = new short[totalSamples];
+        var rng = new Random(3419);
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            float t = (float)i / SampleRate;
+            float env = Mathf.Exp(-t * 90.0f);
+            float transient = ((float)rng.NextDouble() * 2.0f - 1.0f) * Mathf.Exp(-t * 220.0f);
+            float tone1 = Mathf.Sin(Mathf.Tau * 2400.0f * t);
+            float tone2 = Mathf.Sin(Mathf.Tau * 850.0f * t);
+            float val = (tone1 * 0.45f + tone2 * 0.35f + transient * 0.4f) * env;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 26000);
+        }
+        return BuildWav(samples);
+    }
+
+    private static AudioStreamWav SynthesizePadlockUnlock()
+    {
+        // Heavy antique iron shackle pop release and satisfying latch clack
+        int totalSamples = (int)(SampleRate * 0.42f);
+        short[] samples = new short[totalSamples];
+        var rng = new Random(8821);
+
+        for (int i = 0; i < totalSamples; i++)
+        {
+            float t = (float)i / SampleRate;
+            // Stage 1: Sharp spring trigger pop
+            float snapEnv = Mathf.Exp(-t * 70.0f);
+            float snap = (Mathf.Sin(Mathf.Tau * 1650.0f * t) * 0.6f + ((float)rng.NextDouble() * 2.0f - 1.0f) * 0.5f) * snapEnv;
+
+            // Stage 2: Heavy iron shackle pop release
+            float shackleVal = 0.0f;
+            if (t >= 0.035f)
+            {
+                float t2 = t - 0.035f;
+                float shackleEnv = Mathf.Exp(-t2 * 14.0f);
+                float lowClunk = Mathf.Sin(Mathf.Tau * 190.0f * t2) * 0.7f;
+                float ironRing = Mathf.Sin(Mathf.Tau * 620.0f * t2) * 0.35f;
+                shackleVal = (lowClunk + ironRing) * shackleEnv;
+            }
+
+            float val = snap * 0.55f + shackleVal * 0.65f;
+            samples[i] = (short)(Mathf.Clamp(val, -1f, 1f) * 29000);
         }
         return BuildWav(samples);
     }

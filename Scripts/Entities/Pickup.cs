@@ -80,7 +80,7 @@ public partial class Pickup : Area2D
             }
         }
 
-        if (Item.Type == ItemType.Key)
+        if (Item.Type == ItemType.Key || Item.Type == ItemType.Document)
         {
             var col = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
             if (col != null && col.Shape is CircleShape2D circle)
@@ -88,18 +88,20 @@ public partial class Pickup : Area2D
                 circle.Radius = 80.0f;
             }
 
-            if (GetNodeOrNull<Label>("KeycardLabel") == null)
+            if (GetNodeOrNull<Label>("ItemLabel") == null)
             {
                 var label = new Label
                 {
-                    Name = "KeycardLabel",
-                    Text = "SUBSTATION KEYCARD",
+                    Name = "ItemLabel",
+                    Text = Item.ItemName.ToUpper(),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
-                    Position = new Vector2(-100, -38),
-                    Size = new Vector2(200, 20)
+                    Position = new Vector2(-120, -38),
+                    Size = new Vector2(240, 20)
                 };
-                label.Modulate = new Color(0.3f, 1.0f, 1.0f, 0.95f);
+                label.Modulate = Item.Type == ItemType.Key 
+                    ? new Color(0.3f, 1.0f, 1.0f, 0.95f) 
+                    : new Color(1.0f, 0.88f, 0.45f, 0.95f);
                 AddChild(label);
             }
         }
@@ -174,15 +176,34 @@ public partial class Pickup : Area2D
 
                 if (Item.Type == ItemType.Key)
                 {
-                    StoryDirector.Instance?.EmitSignal(
-                        StoryDirector.SignalName.ObjectiveUpdated,
-                        "MISSION 1: RESTORE SECTOR POWER",
-                        "Keycard acquired! Go East to the Substation Door and press [E] to unlock."
-                    );
+                    if (Item.Id == "keycard_substation")
+                    {
+                        StoryDirector.Instance?.EmitSignal(
+                            StoryDirector.SignalName.ObjectiveUpdated,
+                            "MISSION 1: RESTORE SECTOR POWER",
+                            "Keycard acquired! Go East to the Substation Door and press [E] to unlock."
+                        );
+                        StoryDirector.Instance?.TriggerRadioComms(
+                            "CMDR. REYES (HQ)",
+                            "Keycard acquired. Head to the East blast door, unlock it, and get that generator running!",
+                            5.0f
+                        );
+                    }
+                    else if (Item.Id == "key_sanctuary")
+                    {
+                        StoryDirector.Instance?.TriggerRadioComms(
+                            "CMDR. REYES (HQ)",
+                            "Sanctuary Key retrieved! High-grade military armory munitions and supplies are secured.",
+                            5.0f
+                        );
+                    }
+                }
+                else if (Item.Id == "riddle_parchment")
+                {
                     StoryDirector.Instance?.TriggerRadioComms(
                         "CMDR. REYES (HQ)",
-                        "Keycard acquired. Head to the East blast door, unlock it, and get that generator running!",
-                        5.0f
+                        "Cipher parchment acquired: 'The harvest feeds the beast, and the beast protects the child.' Use that combination on the ancient vault lock!",
+                        6.0f
                     );
                 }
             }

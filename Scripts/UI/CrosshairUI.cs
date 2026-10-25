@@ -34,7 +34,8 @@ public partial class CrosshairUI : Sprite2D
             || (_inventoryMenu != null && _inventoryMenu.Visible)
             || (_mapMenu != null && _mapMenu.IsFullscreen)
             || (_gameOverPanel != null && _gameOverPanel.Visible)
-            || (_victoryPanel != null && _victoryPanel.Visible);
+            || (_victoryPanel != null && _victoryPanel.Visible)
+            || (PadlockPuzzleUI.Instance != null && PadlockPuzzleUI.Instance.Visible);
 
         if (isAnyMenuOpen)
         {

@@ -45,6 +45,11 @@
 [ext_resource type="Resource" path="res://Resources/Items/Bandage.tres" id="44_bandage"]
 [ext_resource type="Resource" path="res://Resources/Items/Medkit.tres" id="45_medkit"]
 [ext_resource type="Resource" path="res://Resources/Items/TraumaKit.tres" id="46_trauma_kit"]
+[ext_resource type="Script" path="res://Scripts/UI/PadlockPuzzleUI.cs" id="47_padlock_ui"]
+[ext_resource type="PackedScene" path="res://Prefabs/RiddleDoor.tscn" id="48_riddle_door"]
+[ext_resource type="Resource" path="res://Resources/Items/Riddle_Parchment.tres" id="49_riddle_parchment"]
+[ext_resource type="Resource" path="res://Resources/Items/Key_Sanctuary.tres" id="50_key_sanctuary"]
+[ext_resource type="Resource" path="res://Resources/Items/First_Aid_Spray.tres" id="51_spray"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_floor"]
 shader = ExtResource("2_floor_shader")
@@ -377,8 +382,41 @@ position = Vector2(745, 600)
 [node name="WallS1_S8" parent="." unique_id=141 instance=ExtResource("28_wall_steel")]
 position = Vector2(830, 600)
 
-[node name="WallS1_S9" parent="." unique_id=142 instance=ExtResource("28_wall_steel")]
+[node name="AncientVaultDoor" parent="." unique_id=142 instance=ExtResource("48_riddle_door")]
 position = Vector2(915, 600)
+DoorId = "door_ancient_vault"
+SlideOffset = Vector2(0, -96)
+
+[node name="VaultWall_W" parent="." unique_id=162 instance=ExtResource("28_wall_steel")]
+position = Vector2(830, 680)
+
+[node name="VaultWall_E" parent="." unique_id=163 instance=ExtResource("28_wall_steel")]
+position = Vector2(1000, 680)
+
+[node name="VaultWall_S" parent="." unique_id=164 instance=ExtResource("28_wall_steel")]
+position = Vector2(915, 720)
+
+[node name="VaultLanternLight" type="PointLight2D" parent="." unique_id=165]
+position = Vector2(915, 660)
+color = Color(1, 0.75, 0.35, 1)
+energy = 1.3
+texture = ExtResource("7_light")
+texture_scale = 1.8
+
+[node name="VaultLocker" parent="." unique_id=166 instance=ExtResource("32_prop_locker")]
+position = Vector2(860, 670)
+
+[node name="SanctuaryKeyPickup" parent="." unique_id=167 instance=ExtResource("6_pickup_scene")]
+position = Vector2(915, 670)
+Item = ExtResource("50_key_sanctuary")
+
+[node name="SprayPickup" parent="." unique_id=168 instance=ExtResource("6_pickup_scene")]
+position = Vector2(965, 670)
+Item = ExtResource("51_spray")
+
+[node name="VaultAmmoRifle" parent="." unique_id=169 instance=ExtResource("6_pickup_scene")]
+position = Vector2(915, 630)
+Item = ExtResource("19_ammo_rifle")
 
 [node name="WallS1_S10" parent="." unique_id=143 instance=ExtResource("28_wall_steel")]
 position = Vector2(1000, 600)
@@ -490,6 +528,13 @@ Item = ExtResource("39_herb_green")
 [node name="BandagePickup1" parent="." unique_id=117 instance=ExtResource("6_pickup_scene")]
 position = Vector2(480, 540)
 Item = ExtResource("44_bandage")
+
+[node name="ArchiveDesk" parent="." unique_id=170 instance=ExtResource("30_prop_desk")]
+position = Vector2(780, 500)
+
+[node name="RiddleParchmentPickup" parent="." unique_id=171 instance=ExtResource("6_pickup_scene")]
+position = Vector2(780, 500)
+Item = ExtResource("49_riddle_parchment")
 
 [node name="SubstationDoor" parent="." unique_id=112 instance=ExtResource("22_blast_door")]
 position = Vector2(1050, 350)
@@ -1630,6 +1675,17 @@ STATUS: EXTRACTION SUCCESSFUL
 PRESS 'R' TO REPLAY MISSION"
 label_settings = SubResource("LabelSettings_victory_stats")
 horizontal_alignment = 1
+
+[node name="PadlockPuzzleUI" type="Control" parent="UIOverlay" unique_id=99887711]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("47_padlock_ui")
 
 [node name="Crosshair" type="Sprite2D" parent="UIOverlay" unique_id=22110099]
 texture = ExtResource("9_crosshair")

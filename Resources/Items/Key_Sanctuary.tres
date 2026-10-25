@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/key_sanctuary.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "key_sanctuary"
+ItemName = "Sanctuary Armory Key"
+Description = "An ornate antique brass key retrieved from the sealed vault. Unlocks high-grade military weapon caches and emergency supply lockers."
+Type = 2
+Value = 1.0
+MaxStack = 1
+Icon = ExtResource("2_texture")

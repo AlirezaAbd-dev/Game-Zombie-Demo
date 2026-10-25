@@ -193,6 +193,7 @@ public partial class WorldManager : Node2D
     public static readonly Rect2 Sector2Bounds = new Rect2(1080, 190, 840, 320);
     public static readonly Rect2 Sector3Bounds = new Rect2(180, -530, 840, 660);
     public static readonly Rect2 Sector4Bounds = new Rect2(180, -1570, 840, 980);
+    public static readonly Rect2 SecretVaultBounds = new Rect2(820, 560, 200, 150);
 
     public static bool IsInsidePlayableArea(Vector2 pos, float margin = 0.0f)
     {
@@ -200,6 +201,7 @@ public partial class WorldManager : Node2D
         if (Sector2Bounds.Grow(-margin).HasPoint(pos)) return true;
         if (Sector3Bounds.Grow(-margin).HasPoint(pos)) return true;
         if (Sector4Bounds.Grow(-margin).HasPoint(pos)) return true;
+        if (SecretVaultBounds.Grow(-margin).HasPoint(pos)) return true;
 
         // Corridor between Sector 1 and Sector 3 (around blast door at 600, 160) - 180px gateway
         Rect2 corridorS1S3 = new Rect2(490, 115, 220, 90);
@@ -249,6 +251,15 @@ public partial class WorldManager : Node2D
             }
             else
             {
+                if (pos.Y > 570.0f && pos.X >= 810.0f && pos.X <= 1030.0f)
+                {
+                    // Sector 1 Secret Vault
+                    return new Vector2(
+                        Mathf.Clamp(pos.X, SecretVaultBounds.Position.X + 25.0f, SecretVaultBounds.End.X - 25.0f),
+                        Mathf.Clamp(pos.Y, SecretVaultBounds.Position.Y + 25.0f, SecretVaultBounds.End.Y - 25.0f)
+                    );
+                }
+
                 // Sector 1: Checkpoint
                 return new Vector2(
                     Mathf.Clamp(pos.X, Sector1Bounds.Position.X + 25.0f, Sector1Bounds.End.X - 25.0f),

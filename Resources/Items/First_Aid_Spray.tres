@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/first_aid_spray.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "first_aid_spray"
+ItemName = "First Aid Spray"
+Description = "Military-grade pressurized antiseptic spray. Restores 100 Health (full recovery)."
+Type = 0
+Value = 100.0
+MaxStack = 3
+Icon = ExtResource("2_texture")

@@ -41,6 +41,21 @@ public partial class Player : CharacterBody2D, IDamageable
     public bool IsInvulnerable { get; set; } = false;
     public bool IsAiming { get; private set; } = false;
     public bool IsDead => HealthComponent?.IsDead ?? false;
+    public bool IsInputLocked { get; set; } = false;
+
+    private Vector2? _cameraFocusWorldPos = null;
+    private float _cameraFocusZoom = 2.4f;
+
+    public void FocusCameraOn(Vector2 worldPos, float zoom = 2.4f)
+    {
+        _cameraFocusWorldPos = worldPos;
+        _cameraFocusZoom = zoom;
+    }
+
+    public void ResetCameraFocus()
+    {
+        _cameraFocusWorldPos = null;
+    }
 
     private float _shootTimer = 0.0f;
     private float _cameraTrauma = 0.0f;
@@ -141,6 +156,7 @@ public partial class Player : CharacterBody2D, IDamageable
 
     public Vector2 GetMovementInput()
     {
+        if (IsInputLocked || IsDead) return Vector2.Zero;
         return new Vector2(
             Input.GetAxis("move_left", "move_right"),
             Input.GetAxis("move_up", "move_down")
@@ -149,6 +165,7 @@ public partial class Player : CharacterBody2D, IDamageable
 
     public void HandleAiming()
     {
+        if (IsInputLocked || IsDead) return;
         LookAt(GetGlobalMousePosition());
     }
 
@@ -157,6 +174,12 @@ public partial class Player : CharacterBody2D, IDamageable
         _shootTimer -= delta;
         InventoryComponent?.UpdateReload(delta);
         StaminaComponent?.Regenerate(delta);
+
+        if (IsInputLocked || IsDead)
+        {
+            IsAiming = false;
+            return;
+        }
 
         // Aiming State
         IsAiming = Input.IsActionPressed("aim");
@@ -540,7 +563,12 @@ public partial class Player : CharacterBody2D, IDamageable
         Vector2 targetOffset = Vector2.Zero;
         Vector2 targetZoom = IsAiming ? new Vector2(1.22f, 1.22f) : Vector2.One;
 
-        if (!IsDead)
+        if (_cameraFocusWorldPos.HasValue)
+        {
+            targetOffset = _cameraFocusWorldPos.Value - GlobalPosition;
+            targetZoom = new Vector2(_cameraFocusZoom, _cameraFocusZoom);
+        }
+        else if (!IsDead)
         {
             Vector2 mouseLocal = GetLocalMousePosition();
             float shiftRatio = IsAiming ? 0.32f : 0.16f;
