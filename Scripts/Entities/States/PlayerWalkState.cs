@@ -27,8 +27,8 @@ public class PlayerWalkState : PlayerState
             return;
         }
 
-        float speedMult = Player.IsAiming ? 0.45f : 1.0f;
+        float speedMult = Player.IsAiming ? 0.45f : (Player.IsCrouching ? 0.55f : 1.0f);
         Player.MovementComponent.Move(input, speedMult);
-        Player.AnimateWalk(delta);
+        Player.AnimateWalk(Player.IsCrouching ? delta * 0.6f : delta);
     }
 }

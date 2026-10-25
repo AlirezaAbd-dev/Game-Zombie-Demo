@@ -40,6 +40,8 @@ public partial class Player : CharacterBody2D, IDamageable
 
     public bool IsInvulnerable { get; set; } = false;
     public bool IsAiming { get; private set; } = false;
+    public bool IsCrouching { get; set; } = false;
+    public bool IsHiddenInLocker { get; set; } = false;
     public bool IsDead => HealthComponent?.IsDead ?? false;
     public bool IsInputLocked { get; set; } = false;
 
@@ -225,6 +227,11 @@ public partial class Player : CharacterBody2D, IDamageable
             TryQuickHeal();
         }
 
+        if (Input.IsActionJustPressed("crouch"))
+        {
+            IsCrouching = !IsCrouching;
+        }
+
         if (Input.IsActionPressed("shoot") && _shootTimer <= 0.0f)
         {
             if (InventoryComponent != null && InventoryComponent.CurrentAmmo > 0 && !InventoryComponent.IsReloading)
@@ -343,6 +350,7 @@ public partial class Player : CharacterBody2D, IDamageable
             _ => 450.0f
         };
         AlertNearbyZombies(noiseRadius);
+        StealthSystem.Instance?.ReportGunshot(GlobalPosition, noiseRadius);
 
         if (InventoryComponent.CurrentAmmo == 0)
         {

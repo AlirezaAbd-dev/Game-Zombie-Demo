@@ -1,0 +1,152 @@
+[gd_scene format=3 uid="uid://act3lab003"]
+
+[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="1_floor_sh"]
+[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="2_ui"]
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="4_zombie"]
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="5_pickup"]
+[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="6_blast_door"]
+[ext_resource type="PackedScene" path="res://Prefabs/WallLab.tscn" id="7_wall_lab"]
+[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="8_map_bound"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropCryoTube.tscn" id="9_cryo"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropGurney.tscn" id="10_gurney"]
+[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="11_act_director"]
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="12_audio_mgr"]
+[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="13_story_dir"]
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="14_proj_pool"]
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="15_bullet"]
+[ext_resource type="Resource" path="res://Resources/Items/Biolab_Keycard.tres" id="16_keycard"]
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="17_green_herb"]
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Blue.tres" id="18_blue_herb"]
+[ext_resource type="Script" path="res://Scripts/Entities/The_Archivist.cs" id="19_archivist_script"]
+[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="20_trans_trigger"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="21_light"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_lab_floor"]
+shader = ExtResource("1_floor_sh")
+shader_parameter/base_color = Color(0.04, 0.08, 0.06, 1)
+shader_parameter/line_color = Color(0.08, 0.18, 0.12, 1)
+shader_parameter/dot_color = Color(0.15, 0.35, 0.22, 1)
+shader_parameter/tile_size = 96.0
+shader_parameter/line_thickness = 2.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_transition"]
+size = Vector2(180, 60)
+
+[node name="Act3_Lab" type="Node2D"]
+
+[node name="CampaignActDirector" type="Node" parent="."]
+script = ExtResource("11_act_director")
+CurrentAct = 3
+SceneId = "act3_lab"
+ObjectiveTitle = "BIOCONTAINMENT WING"
+ObjectiveSubtask = "Locate Leila at Blast Door C & uncover archive secrets"
+StartDialogueId = "act3_leila"
+StartDialogueDelay = 0.8
+
+[node name="StoryDirector" type="Node" parent="."]
+script = ExtResource("13_story_dir")
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("12_audio_mgr")
+
+[node name="ProjectilePool" type="Node" parent="."]
+script = ExtResource("14_proj_pool")
+BulletScene = ExtResource("15_bullet")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.03, 0.06, 0.05, 1)
+
+[node name="SterileGreenLight" type="PointLight2D" parent="."]
+position = Vector2(600, 480)
+color = Color(0.2, 0.95, 0.5, 1)
+energy = 1.4
+texture = ExtResource("21_light")
+texture_scale = 3.2
+
+[node name="Floor" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_lab_floor")
+offset_left = -300.0
+offset_top = -600.0
+offset_right = 1500.0
+offset_bottom = 1200.0
+
+[node name="MapBoundary" parent="." instance=ExtResource("8_map_bound")]
+
+[node name="GameUI" parent="." instance=ExtResource("2_ui")]
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(600, 950)
+
+[node name="Cryo1" parent="." instance=ExtResource("9_cryo")]
+position = Vector2(300, 700)
+
+[node name="Cryo2" parent="." instance=ExtResource("9_cryo")]
+position = Vector2(900, 700)
+
+[node name="Gurney1" parent="." instance=ExtResource("10_gurney")]
+position = Vector2(400, 500)
+
+[node name="Gurney2" parent="." instance=ExtResource("10_gurney")]
+position = Vector2(800, 500)
+
+[node name="TheArchivistNPC" type="CharacterBody2D" parent="."]
+position = Vector2(850, 320)
+script = ExtResource("19_archivist_script")
+
+[node name="BiolabKeycardPickup" parent="." instance=ExtResource("5_pickup")]
+position = Vector2(350, 420)
+Item = ExtResource("16_keycard")
+
+[node name="GreenHerbPickup" parent="." instance=ExtResource("5_pickup")]
+position = Vector2(750, 800)
+Item = ExtResource("17_green_herb")
+
+[node name="BlueHerbPickup" parent="." instance=ExtResource("5_pickup")]
+position = Vector2(450, 800)
+Item = ExtResource("18_blue_herb")
+
+[node name="LeilaBlastDoor" parent="." instance=ExtResource("6_blast_door")]
+position = Vector2(600, 200)
+DoorId = "blast_door_c"
+RequiredItemId = "biolab_keycard"
+LockedPromptText = "LOCKED - LEVEL 3 BIOLAB KEYCARD REQUIRED"
+SlideOffset = Vector2(180, 0)
+
+[node name="ZombieLab1" parent="." instance=ExtResource("4_zombie")]
+position = Vector2(520, 680)
+
+[node name="ZombieLab2" parent="." instance=ExtResource("4_zombie")]
+position = Vector2(680, 620)
+
+[node name="ZombieLab3" parent="." instance=ExtResource("4_zombie")]
+position = Vector2(600, 380)
+
+[node name="Act4Trigger" type="Area2D" parent="."]
+position = Vector2(600, 50)
+script = ExtResource("20_trans_trigger")
+TargetScenePath = "res://Scenes/Act4_SubBasement.tscn"
+ActTitle = "ACT 4: THE DESCENT"
+Subtitle = "Sub-Basement & Sadeghi's Private Research Vault"
+TargetAct = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Act4Trigger"]
+shape = SubResource("RectangleShape2D_transition")
+
+[node name="WallLabL1" parent="." instance=ExtResource("7_wall_lab")]
+position = Vector2(200, 350)
+
+[node name="WallLabL2" parent="." instance=ExtResource("7_wall_lab")]
+position = Vector2(200, 650)
+
+[node name="WallLabL3" parent="." instance=ExtResource("7_wall_lab")]
+position = Vector2(200, 950)
+
+[node name="WallLabR1" parent="." instance=ExtResource("7_wall_lab")]
+position = Vector2(1000, 350)
+
+[node name="WallLabR2" parent="." instance=ExtResource("7_wall_lab")]
+position = Vector2(1000, 650)
+
+[node name="WallLabR3" parent="." instance=ExtResource("7_wall_lab")]
+position = Vector2(1000, 950)

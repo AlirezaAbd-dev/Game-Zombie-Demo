@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1_itemdata"]
+[ext_resource type="Texture2D" path="res://Assets/textures/adrenaline.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_itemdata")
+Id = "noise_canister"
+ItemName = "Acoustic Decoy Canister"
+Description = "Emits a high-frequency distraction pulse when used, diverting nearby infected away from your position."
+Type = 5
+Value = 1.0
+MaxStack = 3
+Icon = ExtResource("2_texture")

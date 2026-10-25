@@ -72,27 +72,44 @@ public class PlayerKnifeState : PlayerState
 
         foreach (var node in zombies)
         {
-            if (node is Zombie z && GodotObject.IsInstanceValid(z) && !z.IsDead)
+            if (node is Node2D targetNode && GodotObject.IsInstanceValid(targetNode))
             {
-                Vector2 toZombie = z.GlobalPosition - playerPos;
-                float dist = toZombie.Length();
+                bool isDead = false;
+                if (targetNode is Zombie z) isDead = z.IsDead;
+                else if (targetNode is Boss_Unit9 boss) isDead = boss.IsDead;
 
-                if (dist <= KnifeRange)
+                if (isDead) continue;
+
+                Vector2 toTarget = targetNode.GlobalPosition - playerPos;
+                float dist = toTarget.Length();
+                float effectiveRange = KnifeRange + (targetNode is Boss_Unit9 ? 35.0f : 0.0f);
+
+                if (dist <= effectiveRange)
                 {
                     // Check angle in front of player
-                    float angle = forward.AngleTo(toZombie);
+                    float angle = forward.AngleTo(toTarget);
                     if (Mathf.Abs(angle) <= KnifeConeAngle * 0.5f)
                     {
                         hitAny = true;
-                        Vector2 hitDir = toZombie.Normalized();
+                        Vector2 hitDir = toTarget.Normalized();
                         if (hitDir == Vector2.Zero) hitDir = forward;
 
-                        // Deal knife damage & knockback (TakeDamage also triggers FinisherTarget stun accumulation)
-                        z.TakeDamage(KnifeDamage, hitDir);
-                        z.MovementComponent?.ApplyKnockback(hitDir, KnifeKnockback);
+                        if (targetNode is IDamageable damageable)
+                        {
+                            damageable.TakeDamage(KnifeDamage, hitDir);
+                        }
+
+                        if (targetNode is Zombie zmb)
+                        {
+                            zmb.MovementComponent?.ApplyKnockback(hitDir, KnifeKnockback);
+                        }
+                        else if (targetNode is Boss_Unit9 bUnit)
+                        {
+                            bUnit.MovementComponent?.ApplyKnockback(hitDir, KnifeKnockback * 0.25f);
+                        }
 
                         // Blood splash impact
-                        SpawnBloodSplash(z.GlobalPosition);
+                        SpawnBloodSplash(targetNode.GlobalPosition);
                     }
                 }
             }

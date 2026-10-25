@@ -1,0 +1,139 @@
+[gd_scene format=3 uid="uid://act4sub004"]
+
+[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="1_floor_sh"]
+[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="2_ui"]
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="4_zombie"]
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="5_pickup"]
+[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="6_blast_door"]
+[ext_resource type="PackedScene" path="res://Prefabs/WallSteel.tscn" id="7_wall_steel"]
+[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="8_map_bound"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="9_desk"]
+[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="10_act_director"]
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="11_audio_mgr"]
+[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="12_story_dir"]
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="13_proj_pool"]
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="14_bullet"]
+[ext_resource type="Resource" path="res://Resources/Items/Ghorbani_Files.tres" id="15_ghorbani_files"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoRifle.tres" id="16_rifle_ammo"]
+[ext_resource type="Resource" path="res://Resources/Items/TraumaKit.tres" id="17_trauma_kit"]
+[ext_resource type="Script" path="res://Scripts/Entities/NPC.cs" id="18_npc_script"]
+[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="19_trans_trigger"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="20_light"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sub_floor"]
+shader = ExtResource("1_floor_sh")
+shader_parameter/base_color = Color(0.06, 0.04, 0.08, 1)
+shader_parameter/line_color = Color(0.12, 0.08, 0.16, 1)
+shader_parameter/dot_color = Color(0.25, 0.15, 0.35, 1)
+shader_parameter/tile_size = 96.0
+shader_parameter/line_thickness = 2.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_transition"]
+size = Vector2(180, 60)
+
+[node name="Act4_SubBasement" type="Node2D"]
+
+[node name="CampaignActDirector" type="Node" parent="."]
+script = ExtResource("10_act_director")
+CurrentAct = 4
+SceneId = "act4_subbasement"
+ObjectiveTitle = "THE REVELATION"
+ObjectiveSubtask = "Confront Dr. Sadeghi & acquire Ghorbani's secret files"
+StartDialogueId = "act4_betrayal"
+StartDialogueDelay = 1.0
+
+[node name="StoryDirector" type="Node" parent="."]
+script = ExtResource("12_story_dir")
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("11_audio_mgr")
+
+[node name="ProjectilePool" type="Node" parent="."]
+script = ExtResource("13_proj_pool")
+BulletScene = ExtResource("14_bullet")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.03, 0.02, 0.04, 1)
+
+[node name="DimAmberLight" type="PointLight2D" parent="."]
+position = Vector2(600, 480)
+color = Color(0.95, 0.65, 0.25, 1)
+energy = 1.2
+texture = ExtResource("20_light")
+texture_scale = 2.8
+
+[node name="Floor" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_sub_floor")
+offset_left = -300.0
+offset_top = -600.0
+offset_right = 1500.0
+offset_bottom = 1200.0
+
+[node name="MapBoundary" parent="." instance=ExtResource("8_map_bound")]
+
+[node name="GameUI" parent="." instance=ExtResource("2_ui")]
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(600, 950)
+
+[node name="SadeghiDesk" parent="." instance=ExtResource("9_desk")]
+position = Vector2(600, 480)
+
+[node name="DrSadeghiNPC" type="CharacterBody2D" parent="."]
+position = Vector2(600, 400)
+script = ExtResource("18_npc_script")
+CharacterName = "Dr. Karim Sadeghi"
+PromptText = "CONFRONT"
+
+[node name="GhorbaniFilesPickup" parent="." instance=ExtResource("5_pickup")]
+position = Vector2(680, 480)
+Item = ExtResource("15_ghorbani_files")
+
+[node name="RifleAmmoPickup" parent="." instance=ExtResource("5_pickup")]
+position = Vector2(350, 650)
+Item = ExtResource("16_rifle_ammo")
+
+[node name="TraumaKitPickup" parent="." instance=ExtResource("5_pickup")]
+position = Vector2(850, 650)
+Item = ExtResource("17_trauma_kit")
+
+[node name="SubZombie1" parent="." instance=ExtResource("4_zombie")]
+position = Vector2(400, 750)
+
+[node name="SubZombie2" parent="." instance=ExtResource("4_zombie")]
+position = Vector2(800, 750)
+
+[node name="SiloBlastDoor" parent="." instance=ExtResource("6_blast_door")]
+position = Vector2(600, 200)
+DoorId = "door_missile_silo"
+SlideOffset = Vector2(180, 0)
+
+[node name="Act5Trigger" type="Area2D" parent="."]
+position = Vector2(600, 50)
+script = ExtResource("19_trans_trigger")
+TargetScenePath = "res://Scenes/Act5_Arena.tscn"
+ActTitle = "ACT 5: EXTRACTION"
+Subtitle = "Containment Silo — Final Encounter"
+TargetAct = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Act5Trigger"]
+shape = SubResource("RectangleShape2D_transition")
+
+[node name="WallS1" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(200, 350)
+
+[node name="WallS2" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(200, 650)
+
+[node name="WallS3" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(200, 950)
+
+[node name="WallS4" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(1000, 350)
+
+[node name="WallS5" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(1000, 650)
+
+[node name="WallS6" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(1000, 950)

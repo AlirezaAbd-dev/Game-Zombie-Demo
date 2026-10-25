@@ -483,4 +483,47 @@ public partial class InventoryComponent : Node
 
         return false;
     }
+
+    public IReadOnlyList<InventorySlot> GetSlots() => Slots;
+    public IReadOnlyDictionary<string, int> GetMagAmmo() => _magAmmo;
+    public IReadOnlyDictionary<string, int> GetReserveAmmo() => _reserveAmmo;
+
+    public void SetAmmoState(Dictionary<string, int> magAmmo, Dictionary<string, int> reserveAmmo, int weaponIndex = 0)
+    {
+        if (magAmmo != null)
+        {
+            foreach (var kvp in magAmmo)
+            {
+                _magAmmo[kvp.Key] = kvp.Value;
+            }
+        }
+        if (reserveAmmo != null)
+        {
+            foreach (var kvp in reserveAmmo)
+            {
+                _reserveAmmo[kvp.Key] = kvp.Value;
+            }
+        }
+        if (weaponIndex >= 0 && weaponIndex < Weapons.Count)
+        {
+            CurrentWeaponIndex = weaponIndex;
+        }
+
+        if (CurrentWeapon != null)
+        {
+            EmitSignal(SignalName.WeaponChanged, CurrentWeapon);
+            EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, IsReloading);
+        }
+    }
+
+    public void ClearInventory()
+    {
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            Slots[i].Item = null;
+            Slots[i].Count = 0;
+        }
+        _items.Clear();
+        EmitSignal(SignalName.InventoryUpdated);
+    }
 }

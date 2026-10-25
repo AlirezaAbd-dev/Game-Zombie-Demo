@@ -1,0 +1,125 @@
+[gd_scene format=3 uid="uid://act1gate001"]
+
+[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="1_floor_sh"]
+[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="2_ui"]
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="4_zombie"]
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="5_pickup"]
+[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="6_blast_door"]
+[ext_resource type="PackedScene" path="res://Prefabs/WallSteel.tscn" id="7_wall_steel"]
+[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="8_map_bound"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropLocker.tscn" id="9_locker"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="10_barrel"]
+[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="11_act_director"]
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="12_audio_mgr"]
+[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="13_story_dir"]
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="14_proj_pool"]
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="15_bullet"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="16_ammo_item"]
+[ext_resource type="Resource" path="res://Resources/Items/Bandage.tres" id="17_bandage_item"]
+[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="18_trans_trigger"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gate_floor"]
+shader = ExtResource("1_floor_sh")
+shader_parameter/base_color = Color(0.04, 0.05, 0.08, 1)
+shader_parameter/line_color = Color(0.08, 0.12, 0.18, 1)
+shader_parameter/dot_color = Color(0.15, 0.22, 0.32, 1)
+shader_parameter/tile_size = 96.0
+shader_parameter/line_thickness = 2.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_transition"]
+size = Vector2(160, 60)
+
+[node name="Act1_Gate" type="Node2D"]
+
+[node name="CampaignActDirector" type="Node" parent="."]
+script = ExtResource("11_act_director")
+CurrentAct = 1
+SceneId = "act1_gate"
+ObjectiveTitle = "PERIMETER INFILTRATION"
+ObjectiveSubtask = "Navigate mountain gate & enter the bunker"
+StartDialogueId = "act1_intro"
+
+[node name="StoryDirector" type="Node" parent="."]
+script = ExtResource("13_story_dir")
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("12_audio_mgr")
+
+[node name="ProjectilePool" type="Node" parent="."]
+script = ExtResource("14_proj_pool")
+BulletScene = ExtResource("15_bullet")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.04, 0.05, 0.07, 1)
+
+[node name="Floor" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_gate_floor")
+offset_left = -300.0
+offset_top = -600.0
+offset_right = 1500.0
+offset_bottom = 1200.0
+
+[node name="MapBoundary" parent="." instance=ExtResource("8_map_bound")]
+
+[node name="GameUI" parent="." instance=ExtResource("2_ui")]
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(600, 950)
+
+[node name="GateBlastDoor" parent="." instance=ExtResource("6_blast_door")]
+position = Vector2(600, 200)
+DoorId = "gate_bunker_door"
+SlideOffset = Vector2(180, 0)
+
+[node name="Act2Trigger" type="Area2D" parent="."]
+position = Vector2(600, 50)
+script = ExtResource("18_trans_trigger")
+TargetScenePath = "res://Scenes/Act2_Checkpoint.tscn"
+ActTitle = "ACT 2: THE BUNKER"
+Subtitle = "Security Checkpoint — Sub-level 1"
+TargetAct = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Act2Trigger"]
+shape = SubResource("RectangleShape2D_transition")
+
+[node name="PropLocker1" parent="." instance=ExtResource("9_locker")]
+position = Vector2(400, 650)
+
+[node name="Barrel1" parent="." instance=ExtResource("10_barrel")]
+position = Vector2(800, 600)
+
+[node name="AmmoPickup1" parent="." instance=ExtResource("5_pickup")]
+position = Vector2(420, 600)
+Item = ExtResource("16_ammo_item")
+
+[node name="BandagePickup1" parent="." instance=ExtResource("5_pickup")]
+position = Vector2(780, 750)
+Item = ExtResource("17_bandage_item")
+
+[node name="ZombiePatrol1" parent="." instance=ExtResource("4_zombie")]
+position = Vector2(500, 550)
+
+[node name="ZombiePatrol2" parent="." instance=ExtResource("4_zombie")]
+position = Vector2(720, 480)
+
+[node name="ZombiePatrol3" parent="." instance=ExtResource("4_zombie")]
+position = Vector2(600, 320)
+
+[node name="WallLeft1" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(200, 400)
+
+[node name="WallLeft2" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(200, 600)
+
+[node name="WallLeft3" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(200, 800)
+
+[node name="WallRight1" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(1000, 400)
+
+[node name="WallRight2" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(1000, 600)
+
+[node name="WallRight3" parent="." instance=ExtResource("7_wall_steel")]
+position = Vector2(1000, 800)

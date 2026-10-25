@@ -94,6 +94,22 @@ public partial class AudioManager : Node
     public override void _Ready()
     {
         Instance = this;
+        EnsurePlayers();
+        GenerateSoundCache();
+
+        // Autoplay atmospheric survival horror background music if no track was already started
+        if (string.IsNullOrEmpty(_currentTrackId))
+        {
+            PlayMusic("ambient", fadeDuration: 1.5f);
+        }
+
+        // Hook story events once all tree siblings are initialized
+        Callable.From(HookStoryEvents).CallDeferred();
+    }
+
+    private void EnsurePlayers()
+    {
+        if (_musicPlayerA != null) return;
 
         _uiPlayer = new AudioStreamPlayer { Name = "UIPlayer" };
         AddChild(_uiPlayer);
@@ -113,14 +129,6 @@ public partial class AudioManager : Node
             _spatialPlayers.Add(p);
             AddChild(p);
         }
-
-        GenerateSoundCache();
-
-        // Autoplay atmospheric survival horror background music
-        PlayMusic("ambient", fadeDuration: 1.5f);
-
-        // Hook story events once all tree siblings are initialized
-        Callable.From(HookStoryEvents).CallDeferred();
     }
 
     private void HookStoryEvents()
@@ -142,14 +150,42 @@ public partial class AudioManager : Node
         PlayMusic("ambient", fadeDuration: 3.5f);
     }
 
+    public void PlaySceneMusic(string sceneId, float fadeDuration = 1.8f)
+    {
+        string track = sceneId.ToLowerInvariant() switch
+        {
+            "act1_gate" or "scene_gate" => "gate_dread",
+            "act2_checkpoint" or "scene_checkpoint" => "checkpoint_tense",
+            "act3_lab" or "scene_lab" => "lab_pulse",
+            "act4_subbasement" or "scene_subbasement" => "sub_revelation",
+            "act5_arena" or "scene_arena" => "boss_unit9",
+            "ending_escape" => "ending_escape",
+            "ending_truth" => "ending_truth",
+            "main_menu" => "intro_military",
+            _ => "ambient"
+        };
+        PlayMusic(track, fadeDuration);
+    }
+
     public void PlayMusic(string trackId, float fadeDuration = 2.0f)
     {
+        EnsurePlayers();
         if (_currentTrackId == trackId && _activeMusicPlayer != null && _activeMusicPlayer.Playing)
             return;
 
-        string path = trackId switch
+        string path = trackId.ToLowerInvariant() switch
         {
             "boss" => BossMusicPath,
+            "boss_unit9" => "res://Assets/audio/music_boss_unit9.ogg",
+            "intro" or "intro_military" => "res://Assets/audio/music_intro_military.ogg",
+            "gate" or "gate_dread" => "res://Assets/audio/music_gate_dread.ogg",
+            "checkpoint" or "checkpoint_tense" => "res://Assets/audio/music_checkpoint_tense.ogg",
+            "lab" or "lab_pulse" => "res://Assets/audio/music_lab_pulse.ogg",
+            "archive" or "archive_ghost" => "res://Assets/audio/music_archive_ghost.ogg",
+            "subbasement" or "sub_revelation" => "res://Assets/audio/music_sub_revelation.ogg",
+            "ending_escape" => "res://Assets/audio/music_ending_escape.ogg",
+            "ending_truth" => "res://Assets/audio/music_ending_truth.ogg",
+            _ when trackId.StartsWith("res://") => trackId,
             _ => AmbientMusicPath
         };
 
@@ -207,22 +243,23 @@ public partial class AudioManager : Node
     private static AudioStream LoadMusicStream(string resPath)
     {
         AudioStream stream = null;
-        try
-        {
-            stream = GD.Load<AudioStream>(resPath);
-        }
-        catch { }
 
-        if (stream == null)
+        if (resPath.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
         {
             try
             {
                 stream = AudioStreamOggVorbis.LoadFromFile(resPath);
             }
-            catch (Exception ex)
+            catch { }
+        }
+
+        if (stream == null)
+        {
+            try
             {
-                GD.PrintErr($"[AudioManager] LoadFromFile exception for '{resPath}': {ex.Message}");
+                stream = GD.Load<AudioStream>(resPath);
             }
+            catch { }
         }
 
         if (stream is AudioStreamOggVorbis ogg)

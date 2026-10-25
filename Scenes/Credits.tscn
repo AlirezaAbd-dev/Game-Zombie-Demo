@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://credits888777"]
+
+[ext_resource type="Script" path="res://Scripts/UI/CreditsUI.cs" id="1_credits"]
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="2_audio_mgr"]
+[ext_resource type="Script" path="res://Scripts/Systems/SceneTransitionManager.cs" id="3_transition_mgr"]
+
+[node name="Credits" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_credits")
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("2_audio_mgr")
+
+[node name="SceneTransitionManager" type="CanvasLayer" parent="."]
+layer = 120
+script = ExtResource("3_transition_mgr")

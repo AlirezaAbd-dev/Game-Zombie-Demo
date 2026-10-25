@@ -50,4 +50,14 @@ public partial class HealthComponent : Node, IDamageable
         CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + amount);
         EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
     }
+
+    public void SetCurrentHealth(float health)
+    {
+        CurrentHealth = Mathf.Clamp(health, 0.0f, MaxHealth);
+        EmitSignal(SignalName.HealthChanged, CurrentHealth, MaxHealth);
+        if (IsDead)
+        {
+            EmitSignal(SignalName.Died);
+        }
+    }
 }

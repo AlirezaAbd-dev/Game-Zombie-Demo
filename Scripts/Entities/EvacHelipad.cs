@@ -40,7 +40,8 @@ public partial class EvacHelipad : Area2D
     private void UpdateBeaconState()
     {
         var phase = StoryDirector.Instance?.CurrentPhase ?? StoryPhase.Act1_Blackout;
-        bool readyForEvac = phase == StoryPhase.Act3_HelipadEvacuation || phase == StoryPhase.Act3_BossBattle;
+        bool readyForEvac = phase == StoryPhase.Act3_HelipadEvacuation || phase == StoryPhase.Act3_BossBattle ||
+                            (StoryDirector.Instance != null && (StoryDirector.Instance.CurrentAct == StoryAct.Act5_Extraction || StoryDirector.Instance.HasFlag(StoryFlags.UNIT9_DEFEATED)));
 
         if (Interactable != null)
         {
@@ -65,6 +66,17 @@ public partial class EvacHelipad : Area2D
     private void OnInteracted(Player player)
     {
         AudioManager.Instance?.PlaySound(SoundType.RadioChime);
-        StoryDirector.Instance?.TriggerMissionCompleted();
+        if (StoryDirector.Instance != null && StoryDirector.Instance.CurrentAct == StoryAct.Act5_Extraction)
+        {
+            SceneTransitionManager.Instance?.TransitionToScene(
+                "res://Scenes/Credits.tscn",
+                "EXTRACTION CONFIRMED",
+                "Blacksite Foxtrot-7 Neutralized"
+            );
+        }
+        else
+        {
+            StoryDirector.Instance?.TriggerMissionCompleted();
+        }
     }
 }

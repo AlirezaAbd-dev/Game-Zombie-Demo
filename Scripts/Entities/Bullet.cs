@@ -13,20 +13,25 @@ public partial class Bullet : Area2D
     private float _lifetime = 0.0f;
     private bool _isActive = false;
 
+    public bool IsEnemyBullet { get; set; } = false;
+
     public override void _Ready()
     {
         BodyEntered += OnBodyEntered;
     }
 
-    public void Activate(float damage = 25.0f, float speed = 1400.0f)
+    public void Activate(float damage = 25.0f, float speed = 1400.0f, bool isEnemy = false)
     {
         Damage = damage;
         Speed = speed;
+        IsEnemyBullet = isEnemy;
         _lifetime = 0.0f;
         _isActive = true;
         Visible = true;
         SetPhysicsProcess(true);
         Monitoring = true;
+
+        Modulate = isEnemy ? new Color(0.3f, 1.8f, 0.4f, 1.0f) : Colors.White;
     }
 
     public void Deactivate()
@@ -35,6 +40,7 @@ public partial class Bullet : Area2D
         Visible = false;
         SetPhysicsProcess(false);
         Monitoring = false;
+        Modulate = Colors.White;
     }
 
     public override void _PhysicsProcess(double delta)
@@ -52,11 +58,18 @@ public partial class Bullet : Area2D
             if (hit != null && hit.Count > 0)
             {
                 var hitNode = hit["collider"].AsGodotObject() as Node2D;
-                if (hitNode != null && !hitNode.IsInGroup("player"))
+                if (hitNode != null)
                 {
-                    GlobalPosition = hit["position"].AsVector2();
-                    OnBodyEntered(hitNode);
-                    return;
+                    bool shouldHit = IsEnemyBullet
+                        ? (!hitNode.IsInGroup("zombies") && !hitNode.IsInGroup("boss"))
+                        : !hitNode.IsInGroup("player");
+
+                    if (shouldHit)
+                    {
+                        GlobalPosition = hit["position"].AsVector2();
+                        OnBodyEntered(hitNode);
+                        return;
+                    }
                 }
             }
         }
@@ -71,21 +84,53 @@ public partial class Bullet : Area2D
 
     private void OnBodyEntered(Node2D body)
     {
-        if (!_isActive || body.IsInGroup("player"))
-            return;
+        if (!_isActive) return;
 
-        if (body is IDamageable damageable)
+        if (IsEnemyBullet)
         {
-            damageable.TakeDamage(Damage, Transform.X);
-            StoryDirector.Instance?.RecordShotHit();
-            SpawnBloodImpact(GlobalPosition);
+            if (body.IsInGroup("zombies") || body.IsInGroup("boss"))
+                return;
+
+            if (body is Player player && GodotObject.IsInstanceValid(player))
+            {
+                player.HealthComponent?.TakeDamage(Damage, Transform.X);
+                player.AddTrauma(0.25f);
+                SpawnAcidImpact(GlobalPosition);
+                Despawn();
+                return;
+            }
+            else if (body is IDamageable damageable)
+            {
+                damageable.TakeDamage(Damage, Transform.X);
+                SpawnAcidImpact(GlobalPosition);
+                Despawn();
+                return;
+            }
+            else
+            {
+                SpawnSparkImpact(GlobalPosition);
+                Despawn();
+                return;
+            }
         }
         else
         {
-            SpawnSparkImpact(GlobalPosition);
-        }
+            if (body.IsInGroup("player"))
+                return;
 
-        Despawn();
+            if (body is IDamageable damageable)
+            {
+                damageable.TakeDamage(Damage, Transform.X);
+                StoryDirector.Instance?.RecordShotHit();
+                SpawnBloodImpact(GlobalPosition);
+            }
+            else
+            {
+                SpawnSparkImpact(GlobalPosition);
+            }
+
+            Despawn();
+        }
     }
 
     private void Despawn()
@@ -147,6 +192,32 @@ public partial class Bullet : Area2D
             ScaleAmountMin = 2.0f,
             ScaleAmountMax = 4.0f,
             Color = new Color(1.0f, 0.9f, 0.4f, 1.0f)
+        };
+        particles.Finished += particles.QueueFree;
+        parent.AddChild(particles);
+    }
+
+    private void SpawnAcidImpact(Vector2 pos)
+    {
+        var parent = GetParent();
+        if (parent == null) return;
+
+        var particles = new CpuParticles2D
+        {
+            GlobalPosition = pos,
+            Emitting = true,
+            OneShot = true,
+            Explosiveness = 0.95f,
+            Amount = 14,
+            Lifetime = 0.35f,
+            Spread = 80.0f,
+            Direction = -Transform.X,
+            InitialVelocityMin = 50.0f,
+            InitialVelocityMax = 160.0f,
+            Gravity = Vector2.Zero,
+            ScaleAmountMin = 2.5f,
+            ScaleAmountMax = 5.0f,
+            Color = new Color(0.2f, 0.95f, 0.3f, 0.95f)
         };
         particles.Finished += particles.QueueFree;
         parent.AddChild(particles);

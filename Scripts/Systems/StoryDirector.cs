@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using TopDownDemo.Core;
 using TopDownDemo.Entities;
@@ -47,6 +48,14 @@ public partial class StoryDirector : Node
     public StoryPhase CurrentPhase { get; private set; } = StoryPhase.Act1_Blackout;
     public MissionStats Stats { get; private set; } = new();
 
+    public HashSet<string> Flags { get; private set; } = new();
+    public DifficultyLevel Difficulty { get; set; } = DifficultyLevel.Survivor;
+    public StoryAct CurrentAct { get; set; } = StoryAct.None;
+
+    public bool HasFlag(string flag) => Flags.Contains(flag);
+    public void SetFlag(string flag) => Flags.Add(flag);
+    public void RemoveFlag(string flag) => Flags.Remove(flag);
+
     private float _phaseTimer = 0.0f;
     private float _purgeCountdown = 480.0f; // 8 minutes countdown once purge initiates
     private bool _purgeTimerActive = false;
@@ -74,6 +83,15 @@ public partial class StoryDirector : Node
     public override void _Ready()
     {
         Instance = this;
+
+        if (SaveSystem.Instance?.ActiveSaveData != null)
+        {
+            Difficulty = SaveSystem.Instance.ActiveSaveData.Difficulty;
+            if (SaveSystem.Instance.ActiveSaveData.CurrentAct != StoryAct.None)
+            {
+                CurrentAct = SaveSystem.Instance.ActiveSaveData.CurrentAct;
+            }
+        }
 
         BossStats ??= GD.Load<EnemyStats>("res://Resources/Enemies/Zombie_Boss.tres");
         ZombieScene ??= GD.Load<PackedScene>("res://Prefabs/Zombie.tscn");

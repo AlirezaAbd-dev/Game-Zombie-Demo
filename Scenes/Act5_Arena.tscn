@@ -1,0 +1,116 @@
+[gd_scene format=3 uid="uid://act5arena005"]
+
+[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="1_floor_sh"]
+[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="2_ui"]
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="4_pickup"]
+[ext_resource type="PackedScene" path="res://Prefabs/WallSteel.tscn" id="5_wall_steel"]
+[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="6_map_bound"]
+[ext_resource type="PackedScene" path="res://Prefabs/EvacHelipad.tscn" id="7_helipad"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="8_barrel"]
+[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="9_act_director"]
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="10_audio_mgr"]
+[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="11_story_dir"]
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="12_proj_pool"]
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="13_bullet"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoRifle.tres" id="14_rifle_ammo"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoShotgun.tres" id="15_shotgun_ammo"]
+[ext_resource type="Resource" path="res://Resources/Items/First_Aid_Spray.tres" id="16_spray"]
+[ext_resource type="Script" path="res://Scripts/Entities/Boss_Unit9.cs" id="17_boss_script"]
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="18_light"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_arena_floor"]
+shader = ExtResource("1_floor_sh")
+shader_parameter/base_color = Color(0.08, 0.03, 0.03, 1)
+shader_parameter/line_color = Color(0.18, 0.06, 0.06, 1)
+shader_parameter/dot_color = Color(0.35, 0.12, 0.12, 1)
+shader_parameter/tile_size = 96.0
+shader_parameter/line_thickness = 2.0
+
+[node name="Act5_Arena" type="Node2D"]
+
+[node name="CampaignActDirector" type="Node" parent="."]
+script = ExtResource("9_act_director")
+CurrentAct = 5
+SceneId = "act5_arena"
+ObjectiveTitle = "FINAL EXTRACTION"
+ObjectiveSubtask = "Neutralize Unit-9 & reach Evacuation Helipad"
+StartDialogueId = "act5_boss"
+StartDialogueDelay = 0.5
+
+[node name="StoryDirector" type="Node" parent="."]
+script = ExtResource("11_story_dir")
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("10_audio_mgr")
+
+[node name="ProjectilePool" type="Node" parent="."]
+script = ExtResource("12_proj_pool")
+BulletScene = ExtResource("13_bullet")
+
+[node name="CanvasModulate" type="CanvasModulate" parent="."]
+color = Color(0.05, 0.03, 0.03, 1)
+
+[node name="ArenaAlarmLight" type="PointLight2D" parent="."]
+position = Vector2(600, 450)
+color = Color(1, 0.2, 0.15, 1)
+energy = 1.6
+texture = ExtResource("18_light")
+texture_scale = 4.0
+
+[node name="Floor" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_arena_floor")
+offset_left = -300.0
+offset_top = -600.0
+offset_right = 1500.0
+offset_bottom = 1200.0
+
+[node name="MapBoundary" parent="." instance=ExtResource("6_map_bound")]
+
+[node name="GameUI" parent="." instance=ExtResource("2_ui")]
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(600, 950)
+
+[node name="BossUnit9" type="CharacterBody2D" parent="."]
+position = Vector2(600, 450)
+script = ExtResource("17_boss_script")
+
+[node name="EvacHelipad" parent="." instance=ExtResource("7_helipad")]
+position = Vector2(600, 150)
+
+[node name="BarrelA1" parent="." instance=ExtResource("8_barrel")]
+position = Vector2(350, 450)
+
+[node name="BarrelA2" parent="." instance=ExtResource("8_barrel")]
+position = Vector2(850, 450)
+
+[node name="FirstAidSprayPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(350, 750)
+Item = ExtResource("16_spray")
+
+[node name="RifleAmmoPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(850, 750)
+Item = ExtResource("14_rifle_ammo")
+
+[node name="ShotgunAmmoPickup" parent="." instance=ExtResource("4_pickup")]
+position = Vector2(600, 800)
+Item = ExtResource("15_shotgun_ammo")
+
+[node name="WallArenaL1" parent="." instance=ExtResource("5_wall_steel")]
+position = Vector2(150, 250)
+
+[node name="WallArenaL2" parent="." instance=ExtResource("5_wall_steel")]
+position = Vector2(150, 550)
+
+[node name="WallArenaL3" parent="." instance=ExtResource("5_wall_steel")]
+position = Vector2(150, 850)
+
+[node name="WallArenaR1" parent="." instance=ExtResource("5_wall_steel")]
+position = Vector2(1050, 250)
+
+[node name="WallArenaR2" parent="." instance=ExtResource("5_wall_steel")]
+position = Vector2(1050, 550)
+
+[node name="WallArenaR3" parent="." instance=ExtResource("5_wall_steel")]
+position = Vector2(1050, 850)

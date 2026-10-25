@@ -45,4 +45,10 @@ public partial class StaminaComponent : Node
             EmitSignal(SignalName.StaminaChanged, CurrentStamina, MaxStamina);
         }
     }
+
+    public void SetCurrentStamina(float stamina)
+    {
+        CurrentStamina = Mathf.Clamp(stamina, 0.0f, MaxStamina);
+        EmitSignal(SignalName.StaminaChanged, CurrentStamina, MaxStamina);
+    }
 }

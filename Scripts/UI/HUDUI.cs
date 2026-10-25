@@ -41,6 +41,10 @@ public partial class HUDUI : Control
     [Export] public ProgressBar BossProgressBar { get; set; }
     [Export] public Label BossTitleLabel { get; set; }
 
+    [ExportGroup("Stealth Noise Meter")]
+    [Export] public ProgressBar NoiseMeterBar { get; set; }
+    [Export] public Label StealthStatusLabel { get; set; }
+
     [ExportGroup("Victory Screen")]
     [Export] public Control VictoryPanel { get; set; }
     [Export] public Label VictoryRankLabel { get; set; }
@@ -62,6 +66,7 @@ public partial class HUDUI : Control
 
     private Label _floatingNotifyLabel;
     private Tween _floatingNotifyTween;
+    private bool _stealthConnected = false;
 
     public override void _EnterTree()
     {
@@ -84,6 +89,12 @@ public partial class HUDUI : Control
         BindStoryDirector();
 
         Zombie.OnAnyZombieKilled += OnZombieKilled;
+
+        if (StealthSystem.Instance != null)
+        {
+            StealthSystem.Instance.NoiseLevelChanged += OnNoiseLevelChanged;
+            _stealthConnected = true;
+        }
     }
 
     private void BindNodes()
@@ -103,6 +114,9 @@ public partial class HUDUI : Control
         WeaponLabel ??= GetNodeOrNull<Label>("%WeaponLabel");
         KillLabel ??= GetNodeOrNull<Label>("%KillLabel");
         GameOverPanel ??= GetNodeOrNull<Control>("%GameOverPanel");
+
+        NoiseMeterBar ??= GetNodeOrNull<ProgressBar>("%NoiseMeterBar");
+        StealthStatusLabel ??= GetNodeOrNull<Label>("%StealthStatusLabel");
 
         ObjectiveTitleLabel ??= GetNodeOrNull<Label>("%ObjectiveTitleLabel");
         ObjectiveSubtaskLabel ??= GetNodeOrNull<Label>("%ObjectiveSubtaskLabel");
@@ -142,11 +156,23 @@ public partial class HUDUI : Control
     {
         if (Instance == this) Instance = null;
         Zombie.OnAnyZombieKilled -= OnZombieKilled;
+        if (_stealthConnected && StealthSystem.Instance != null)
+        {
+            StealthSystem.Instance.NoiseLevelChanged -= OnNoiseLevelChanged;
+            _stealthConnected = false;
+        }
     }
 
     public override void _Process(double delta)
     {
         float dt = (float)delta;
+
+        if (!_stealthConnected && StealthSystem.Instance != null)
+        {
+            _stealthConnected = true;
+            StealthSystem.Instance.NoiseLevelChanged += OnNoiseLevelChanged;
+        }
+
         UpdateBloodVignette(dt);
         UpdateCloseCombatPrompt();
 
@@ -441,6 +467,45 @@ public partial class HUDUI : Control
             {
                 BossProgressBar.MaxValue = max;
                 BossProgressBar.Value = current;
+            }
+        }
+    }
+
+    public void UpdateBossHealth(float current, float max)
+    {
+        OnBossHealthUpdated(current, max);
+    }
+
+    public void ShowWarningBanner(string text)
+    {
+        ShowHealNotification("CRITICAL ALERT", 0, text);
+    }
+
+    private void OnNoiseLevelChanged(float noiseLevel)
+    {
+        if (NoiseMeterBar != null)
+        {
+            NoiseMeterBar.Value = Mathf.Clamp(noiseLevel * 100.0f, 0.0f, 100.0f);
+        }
+
+        if (StealthStatusLabel != null)
+        {
+            Player player = _player ?? GetTree()?.GetFirstNodeInGroup("player") as Player;
+            if (player != null && player.IsHiddenInLocker)
+            {
+                StealthStatusLabel.Text = "STEALTH: CONCEALED (LOCKER)";
+            }
+            else if (player != null && player.IsCrouching)
+            {
+                StealthStatusLabel.Text = "STEALTH: CROUCHING (QUIET)";
+            }
+            else if (noiseLevel > 0.6f)
+            {
+                StealthStatusLabel.Text = "STEALTH: HIGH NOISE / ALERT";
+            }
+            else
+            {
+                StealthStatusLabel.Text = "STEALTH: NORMAL";
             }
         }
     }

@@ -388,27 +388,36 @@ public partial class Zombie : CharacterBody2D, IDamageable
             if (TargetPlayer == null || !GodotObject.IsInstanceValid(TargetPlayer)) return false;
         }
 
-        if (TargetPlayer is Player p && p.IsDead) return false;
-
-        float dist = GlobalPosition.DistanceTo(TargetPlayer.GlobalPosition);
-        if (dist > VisionRange) return false;
-
-        // Immediate close detection (breathing, footsteps in close melee range)
-        if (dist <= ProximityHearRange)
+        if (TargetPlayer is Player p)
         {
-            return HasLineOfSightTo(TargetPlayer.GlobalPosition);
+            if (p.IsDead || p.IsHiddenInLocker) return false;
+
+            float dist = GlobalPosition.DistanceTo(p.GlobalPosition);
+            float effectiveVisionRange = p.IsCrouching ? VisionRange * 0.6f : VisionRange;
+            float effectiveHearRange = p.IsCrouching ? ProximityHearRange * 0.4f : ProximityHearRange;
+
+            if (dist > effectiveVisionRange) return false;
+
+            // Immediate close detection (breathing, footsteps in close melee range)
+            if (dist <= effectiveHearRange)
+            {
+                return HasLineOfSightTo(p.GlobalPosition);
+            }
+
+            // Vision cone check (approx 150-degree forward field of view; narrower when crouching)
+            Vector2 forward = new Vector2(Mathf.Cos(Rotation), Mathf.Sin(Rotation));
+            Vector2 toPlayer = (p.GlobalPosition - GlobalPosition).Normalized();
+            float dotThreshold = p.IsCrouching ? 0.35f : 0.15f;
+            if (forward.Dot(toPlayer) < dotThreshold)
+            {
+                // Player is outside zombie's field of view
+                return false;
+            }
+
+            return HasLineOfSightTo(p.GlobalPosition);
         }
 
-        // Vision cone check (approx 150-degree forward field of view)
-        Vector2 forward = new Vector2(Mathf.Cos(Rotation), Mathf.Sin(Rotation));
-        Vector2 toPlayer = (TargetPlayer.GlobalPosition - GlobalPosition).Normalized();
-        if (forward.Dot(toPlayer) < 0.15f)
-        {
-            // Player is behind zombie's back
-            return false;
-        }
-
-        return HasLineOfSightTo(TargetPlayer.GlobalPosition);
+        return false;
     }
 
     public Vector2 CalculateSteeringDirection(Vector2 targetPos, float delta)

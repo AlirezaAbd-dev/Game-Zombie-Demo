@@ -197,6 +197,21 @@ public partial class Pickup : Area2D
                             5.0f
                         );
                     }
+                    else if (Item.Id == "biolab_keycard")
+                    {
+                        StoryDirector.Instance?.SetFlag(StoryFlags.BIOLAB_KEYCARD_FOUND);
+                        HUDUI.Instance?.ShowHealNotification("BIOLAB KEYCARD", 0, "SECTOR 3 BLAST DOOR ACCESS GRANTED");
+                    }
+                }
+                else if (Item.Id == "ghorbani_files")
+                {
+                    StoryDirector.Instance?.SetFlag(StoryFlags.GHORBANI_FILES_FOUND);
+                    HUDUI.Instance?.ShowHealNotification("COMMANDER'S DOSSIER", 0, "CONSPIRACY EVIDENCE UNLOCKED");
+                }
+                else if (Item.Id == "archivist_journal")
+                {
+                    StoryDirector.Instance?.SetFlag(StoryFlags.ARCHIVIST_JOURNAL_COLLECTED);
+                    HUDUI.Instance?.ShowHealNotification("ARCHIVIST'S CIPHER JOURNAL", 0, "SECRET LORE ACQUIRED");
                 }
                 else if (Item.Id == "riddle_parchment")
                 {
