@@ -40,12 +40,36 @@ public partial class Zombie : CharacterBody2D, IDamageable
     public float SpeedModifier { get; private set; } = 1.0f;
     public bool IsDead => HealthComponent?.IsDead ?? false;
 
+    public Vector2 LastKnownPlayerPos { get; set; } = Vector2.Zero;
+    public bool HasTargetAcquired { get; set; } = false;
+    public float VisionRange { get; set; } = 550.0f;
+    public float ProximityHearRange { get; set; } = 95.0f;
+    public float EyeGlowBaseEnergy { get; private set; } = 0.65f;
+
+    private readonly Godot.Collections.Array<Rid> _losExclude = new();
+    private readonly Godot.Collections.Array<Rid> _steeringExclude = new();
+    private static readonly Vector2[] CandidateDirs;
+    private readonly float[] _candidateInterests = new float[12];
+    private readonly float[] _candidateDangers = new float[12];
+    private Vector2 _smoothedMoveDir = Vector2.Zero;
+
+    static Zombie()
+    {
+        CandidateDirs = new Vector2[12];
+        for (int i = 0; i < 12; i++)
+        {
+            float angle = i * Mathf.Tau / 12.0f;
+            CandidateDirs[i] = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+        }
+    }
+
     private float _walkPhase = 0.0f;
     private Vector2 _baseScale = new(3.0f, 3.0f);
 
     public override void _Ready()
     {
         AddToGroup("zombies");
+        _steeringExclude.Add(GetRid());
         ValidateAndBindNodes();
 
         Stats ??= GD.Load<EnemyStats>("res://Resources/Enemies/Zombie_Walker.tres") ?? new EnemyStats();
@@ -69,7 +93,8 @@ public partial class Zombie : CharacterBody2D, IDamageable
         }
 
         FindPlayer();
-        StateMachine.ChangeState(HasValidTarget() ? ChaseState : IdleState);
+        bool isBoss = Stats?.TypeName == "Specimen Zero";
+        StateMachine.ChangeState(isBoss && HasValidTarget() ? ChaseState : IdleState);
     }
 
     public void ApplyStats(EnemyStats stats)
@@ -112,6 +137,20 @@ public partial class Zombie : CharacterBody2D, IDamageable
         {
             EyeGlow.Color = Stats.EyeLightColor;
             EyeGlow.Energy = Stats.EyeLightEnergy;
+            EyeGlowBaseEnergy = Stats.EyeLightEnergy;
+        }
+
+        if (Stats.TypeName == "Specimen Zero")
+        {
+            VisionRange = 1200.0f;
+        }
+        else if (Stats.TypeName == "Runner")
+        {
+            VisionRange = 650.0f;
+        }
+        else
+        {
+            VisionRange = 520.0f;
         }
     }
 
@@ -247,6 +286,12 @@ public partial class Zombie : CharacterBody2D, IDamageable
         }
 
         FinisherTarget?.OnDamageTaken(amount);
+
+        // When taking damage, immediately alert to the damage source and start chasing!
+        if (TargetPlayer != null && GodotObject.IsInstanceValid(TargetPlayer))
+        {
+            AlertToPosition(TargetPlayer.GlobalPosition);
+        }
     }
 
     public void OnStunned()
@@ -258,7 +303,219 @@ public partial class Zombie : CharacterBody2D, IDamageable
     public void OnStunRecovered()
     {
         if (IsDead) return;
-        StateMachine?.ChangeState(HasValidTarget() ? ChaseState : IdleState);
+        StateMachine?.ChangeState(CanSeePlayer() ? ChaseState : IdleState);
+    }
+
+    public void AlertToPosition(Vector2 pos)
+    {
+        if (IsDead) return;
+        LastKnownPlayerPos = pos;
+        HasTargetAcquired = true;
+        if (StateMachine?.CurrentState == IdleState)
+        {
+            StateMachine.ChangeState(ChaseState);
+        }
+    }
+
+    public void OnHearingNoise(Vector2 noisePos, float maxDistance = 450.0f)
+    {
+        if (IsDead) return;
+        float dist = GlobalPosition.DistanceTo(noisePos);
+        if (dist > maxDistance) return;
+
+        // If line of sight to noise is clear, or within close acoustic radius
+        if (HasLineOfSightTo(noisePos) || dist < 220.0f)
+        {
+            AlertToPosition(noisePos);
+        }
+    }
+
+    public bool HasLineOfSightTo(Vector2 targetPos)
+    {
+        var spaceState = GetWorld2D()?.DirectSpaceState;
+        if (spaceState == null) return false;
+
+        _losExclude.Clear();
+        _losExclude.Add(GetRid());
+        if (TargetPlayer is CollisionObject2D colPlayer && GodotObject.IsInstanceValid(colPlayer))
+        {
+            _losExclude.Add(colPlayer.GetRid());
+        }
+
+        Vector2 from = GlobalPosition;
+
+        for (int step = 0; step < 4; step++)
+        {
+            var query = PhysicsRayQueryParameters2D.Create(
+                from,
+                targetPos,
+                collisionMask: 1,
+                exclude: _losExclude
+            );
+
+            var hit = spaceState.IntersectRay(query);
+            if (hit.Count == 0)
+            {
+                // Unobstructed line of sight!
+                return true;
+            }
+
+            var collider = hit["collider"].AsGodotObject();
+            if (collider is StaticBody2D)
+            {
+                // Blocked by a static wall, closed blast door, or prop
+                return false;
+            }
+            else if (collider is CollisionObject2D colObj)
+            {
+                // Dynamic entity / other zombie; add to exclude and keep checking
+                _losExclude.Add(colObj.GetRid());
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    public bool CanSeePlayer()
+    {
+        if (TargetPlayer == null || !GodotObject.IsInstanceValid(TargetPlayer))
+        {
+            FindPlayer();
+            if (TargetPlayer == null || !GodotObject.IsInstanceValid(TargetPlayer)) return false;
+        }
+
+        if (TargetPlayer is Player p && p.IsDead) return false;
+
+        float dist = GlobalPosition.DistanceTo(TargetPlayer.GlobalPosition);
+        if (dist > VisionRange) return false;
+
+        // Immediate close detection (breathing, footsteps in close melee range)
+        if (dist <= ProximityHearRange)
+        {
+            return HasLineOfSightTo(TargetPlayer.GlobalPosition);
+        }
+
+        // Vision cone check (approx 150-degree forward field of view)
+        Vector2 forward = new Vector2(Mathf.Cos(Rotation), Mathf.Sin(Rotation));
+        Vector2 toPlayer = (TargetPlayer.GlobalPosition - GlobalPosition).Normalized();
+        if (forward.Dot(toPlayer) < 0.15f)
+        {
+            // Player is behind zombie's back
+            return false;
+        }
+
+        return HasLineOfSightTo(TargetPlayer.GlobalPosition);
+    }
+
+    public Vector2 CalculateSteeringDirection(Vector2 targetPos, float delta)
+    {
+        Vector2 toTarget = targetPos - GlobalPosition;
+        float dist = toTarget.Length();
+        if (dist < 1.0f) return Vector2.Zero;
+
+        Vector2 desiredDir = toTarget / dist;
+        var spaceState = GetWorld2D()?.DirectSpaceState;
+        if (spaceState == null) return desiredDir;
+
+        // Step 1: Forward ray probe to check if the path is clear
+        float forwardProbeDist = 65.0f;
+        var forwardQuery = PhysicsRayQueryParameters2D.Create(
+            GlobalPosition,
+            GlobalPosition + desiredDir * forwardProbeDist,
+            collisionMask: 1,
+            exclude: _steeringExclude
+        );
+
+        var forwardHit = spaceState.IntersectRay(forwardQuery);
+        bool forwardBlocked = false;
+        if (forwardHit.Count > 0 && forwardHit["collider"].AsGodotObject() is StaticBody2D)
+        {
+            forwardBlocked = true;
+        }
+
+        // If unobstructed ahead and not currently colliding with a wall, move straight
+        if (!forwardBlocked && GetSlideCollisionCount() == 0)
+        {
+            _smoothedMoveDir = _smoothedMoveDir.Lerp(desiredDir, delta * 14.0f).Normalized();
+            return _smoothedMoveDir;
+        }
+
+        // Step 2: Context Steering (Evaluate 12 candidate directions)
+        for (int i = 0; i < 12; i++)
+        {
+            Vector2 cand = CandidateDirs[i];
+            _candidateInterests[i] = Mathf.Max(0.0f, cand.Dot(desiredDir));
+
+            var query = PhysicsRayQueryParameters2D.Create(
+                GlobalPosition,
+                GlobalPosition + cand * 60.0f,
+                collisionMask: 1,
+                exclude: _steeringExclude
+            );
+            var hit = spaceState.IntersectRay(query);
+            if (hit.Count > 0 && hit["collider"].AsGodotObject() is StaticBody2D)
+            {
+                Vector2 hitPos = hit["position"].AsVector2();
+                float hitDist = GlobalPosition.DistanceTo(hitPos);
+                _candidateDangers[i] = Mathf.Clamp(1.0f - (hitDist / 60.0f), 0.3f, 1.0f);
+            }
+            else
+            {
+                _candidateDangers[i] = 0.0f;
+            }
+        }
+
+        // Bleed danger into adjacent directions to keep safety distance from walls
+        for (int i = 0; i < 12; i++)
+        {
+            if (_candidateDangers[i] > 0.5f)
+            {
+                int prev = (i - 1 + 12) % 12;
+                int next = (i + 1) % 12;
+                _candidateDangers[prev] = Mathf.Max(_candidateDangers[prev], _candidateDangers[i] * 0.45f);
+                _candidateDangers[next] = Mathf.Max(_candidateDangers[next], _candidateDangers[i] * 0.45f);
+            }
+        }
+
+        // Find best direction with highest net score
+        int bestIndex = 0;
+        float bestScore = float.NegativeInfinity;
+        for (int i = 0; i < 12; i++)
+        {
+            float score = _candidateInterests[i] - _candidateDangers[i] * 2.2f;
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestIndex = i;
+            }
+        }
+
+        Vector2 bestDir = CandidateDirs[bestIndex];
+
+        // Step 3: Handle active wall collisions to slide along wall tangent
+        int slideCount = GetSlideCollisionCount();
+        for (int i = 0; i < slideCount; i++)
+        {
+            var col = GetSlideCollision(i);
+            if (col.GetCollider() is StaticBody2D)
+            {
+                Vector2 normal = col.GetNormal();
+                Vector2 tangent = new Vector2(-normal.Y, normal.X);
+                if (tangent.Dot(desiredDir) < 0) tangent = -tangent;
+
+                if (bestDir.Dot(-normal) > 0)
+                {
+                    bestDir = (bestDir + tangent * 2.5f).Normalized();
+                }
+            }
+        }
+
+        _smoothedMoveDir = _smoothedMoveDir.Lerp(bestDir, delta * 10.0f).Normalized();
+        return _smoothedMoveDir;
     }
 
     public void PerformDeath()

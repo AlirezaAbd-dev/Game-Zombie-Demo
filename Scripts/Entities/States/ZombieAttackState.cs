@@ -15,7 +15,13 @@ public class ZombieAttackState : ZombieState
 
     public override void PhysicsUpdate(float delta)
     {
-        if (!Zombie.HasValidTarget())
+        if (Zombie.TargetPlayer == null || !GodotObject.IsInstanceValid(Zombie.TargetPlayer))
+        {
+            Zombie.StateMachine.ChangeState(Zombie.IdleState);
+            return;
+        }
+
+        if (Zombie.TargetPlayer is Player p && p.IsDead)
         {
             Zombie.StateMachine.ChangeState(Zombie.IdleState);
             return;
@@ -26,18 +32,20 @@ public class ZombieAttackState : ZombieState
         Vector2 dir = toTarget.Normalized();
 
         Zombie.RotateTowards(dir, delta);
-        Zombie.MovementComponent.Stop();
+        Zombie.MovementComponent?.Stop();
+
+        // If player moved behind a wall or out of range, transition back to ChaseState to navigate
+        if (!Zombie.HasLineOfSightTo(Zombie.TargetPlayer.GlobalPosition) || distance > Zombie.Stats.AttackRange * 1.35f)
+        {
+            Zombie.StateMachine.ChangeState(Zombie.ChaseState);
+            return;
+        }
 
         _attackCooldown += delta;
         if (_attackCooldown >= Zombie.Stats.AttackInterval)
         {
             _attackCooldown = 0.0f;
             Zombie.PerformAttack();
-        }
-
-        if (distance > Zombie.Stats.AttackRange * 1.35f)
-        {
-            Zombie.StateMachine.ChangeState(Zombie.ChaseState);
         }
     }
 }

@@ -336,6 +336,14 @@ public partial class Player : CharacterBody2D, IDamageable
 
         AudioManager.Instance?.PlayGunshot(weapon.WeaponId, GlobalPosition);
 
+        float noiseRadius = weapon.WeaponId switch
+        {
+            "weapon_shotgun" => 750.0f,
+            "weapon_rifle" => 650.0f,
+            _ => 450.0f
+        };
+        AlertNearbyZombies(noiseRadius);
+
         if (InventoryComponent.CurrentAmmo == 0)
         {
             StartReload();
@@ -355,6 +363,20 @@ public partial class Player : CharacterBody2D, IDamageable
             var tween = CreateTween();
             tween.TweenProperty(GunSprite, "position", new Vector2(_gunRestPos.X - 5.0f, _gunRestPos.Y - 4.0f), duration * 0.5f);
             tween.TweenProperty(GunSprite, "position", _gunRestPos, duration * 0.5f);
+        }
+    }
+
+    public void AlertNearbyZombies(float radius)
+    {
+        var zombies = GetTree()?.GetNodesInGroup("zombies");
+        if (zombies == null) return;
+        Vector2 pos = GlobalPosition;
+        foreach (var node in zombies)
+        {
+            if (node is Zombie z && GodotObject.IsInstanceValid(z) && !z.IsDead)
+            {
+                z.OnHearingNoise(pos, radius);
+            }
         }
     }
 

@@ -157,6 +157,11 @@ public partial class WorldManager : Node2D
 
         zombie.Stats = chosenStats;
         AddChild(zombie);
+
+        if (GodotObject.IsInstanceValid(_player))
+        {
+            zombie.AlertToPosition(_player.GlobalPosition);
+        }
     }
 
     private void TriggerSpawnEmergenceVfx(Vector2 pos)
