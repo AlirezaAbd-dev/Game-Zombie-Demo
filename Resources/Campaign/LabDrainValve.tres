@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "DRAIN THE SERVICE LOCK"
+RequiredFlag = "lab_pressure_released"
+LockedMessage = "RELEASE THE SERVICE PRESSURE FIRST"
+CompletionFlag = "lab_service_lock_drained"
+AdditionalFlags = PackedStringArray("lab_route_complete")
+Speaker = "SARA"
+Message = "The lock is clear. The research-core door is responding. Leila is still sealed on the other side of the wing."

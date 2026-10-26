@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "READ COOLANT SAFETY PLACARD"
+Repeatable = true
+Speaker = "COOLANT CONTROL"
+Message = "The blue ring marks the discharge zone. Lure Unit-9 inside before operating the east valve. A burst staggers it and damages the exposed core. Pressure recovers in 24 seconds. The system does not consume ammunition."

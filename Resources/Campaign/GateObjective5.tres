@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+CompletionFlag = "facility_power_restored"
+Title = "ROUTE EMERGENCY POWER"
+Instruction = "Use the relay panel west of the generator. Keep air and the gate motor online."
+Waypoint = Vector2(1400, 300)

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "evac_battery_found"
+Title = "EMERGENCY STARTER"
+Instruction = "Recover the starter battery in the east generator cage."
+Waypoint = Vector2(2700, 2500)

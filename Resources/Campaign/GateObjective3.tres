@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+CompletionFlag = "auxiliary_fuse_found"
+Title = "A LIGHT IN THE DARK"
+Instruction = "Find the spare fuse in the east maintenance cage."
+Waypoint = Vector2(2700, 1600)

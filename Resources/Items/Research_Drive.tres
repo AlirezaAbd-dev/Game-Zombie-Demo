@@ -7,7 +7,7 @@
 script = ExtResource("1_itemdata")
 Id = "research_drive"
 ItemName = "Bio-Telemetry Drive"
-Description = "Encrypted research drive containing Dr. Vance's pathogen telemetry and notes on Specimen Zero."
+Description = "Encrypted Foxtrot-7 telemetry. Exposure dates predate the reported containment failure; the original authorization records are in the lower archive."
 Type = 3
 Value = 1.0
 MaxStack = 1

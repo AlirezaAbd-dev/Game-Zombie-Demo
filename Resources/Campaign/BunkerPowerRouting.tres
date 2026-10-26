@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PowerRoutingData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/PowerRoutingData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Title = "CHECKPOINT POWER ISOLATION"
+Instructions = "Security report: keep SECURITY SCANNERS, LAB LIFT, and EXHAUST online. CELL RELEASE must remain isolated. The auxiliary supply can support three circuits."
+Circuits = PackedStringArray("SECURITY SCANNERS", "LAB LIFT", "CELL RELEASE", "EXHAUST")
+RequiredMask = 11
+CompletionFlag = "security_grid_routed"
+RestoresFacilityPower = false
+FailureMessage = "ROUTING REJECTED: scanners, lift and exhaust are required. Do not energize cell release."
+SuccessMessage = "Checkpoint power restored. The northern records office and lab approach can be opened. Ventilation is moving again... something is coming through the service duct."

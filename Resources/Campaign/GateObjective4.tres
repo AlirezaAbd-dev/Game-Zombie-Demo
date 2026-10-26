@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+CompletionFlag = "auxiliary_fuse_installed"
+Title = "REPAIR THE AUXILIARY GRID"
+Instruction = "Install the fuse at the north-east generator socket."
+Waypoint = Vector2(2600, 250)

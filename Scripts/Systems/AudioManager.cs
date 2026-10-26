@@ -70,14 +70,14 @@ public partial class AudioManager : Node
 
     public override void _EnterTree()
     {
+        PlayerSettings.EnsureLoaded();
+        ApplicationExit.Initialize(GetTree());
         Instance = this;
     }
 
     public override void _ExitTree()
     {
-        _musicFadeTween?.Kill();
-        _musicPlayerA?.Stop();
-        _musicPlayerB?.Stop();
+        StopAllPlayback();
 
         if (StoryDirector.Instance != null)
         {
@@ -111,21 +111,21 @@ public partial class AudioManager : Node
     {
         if (_musicPlayerA != null) return;
 
-        _uiPlayer = new AudioStreamPlayer { Name = "UIPlayer" };
+        _uiPlayer = new AudioStreamPlayer { Name = "UIPlayer", Bus = PlayerSettings.EffectsBus };
         AddChild(_uiPlayer);
 
-        _alarmPlayer = new AudioStreamPlayer { Name = "AlarmPlayer", VolumeDb = -6.0f };
+        _alarmPlayer = new AudioStreamPlayer { Name = "AlarmPlayer", VolumeDb = -6.0f, Bus = PlayerSettings.EffectsBus };
         AddChild(_alarmPlayer);
 
         // Dedicated crossfading background music players
-        _musicPlayerA = new AudioStreamPlayer { Name = "MusicPlayerA", Bus = "Master", ProcessMode = ProcessModeEnum.Always };
-        _musicPlayerB = new AudioStreamPlayer { Name = "MusicPlayerB", Bus = "Master", ProcessMode = ProcessModeEnum.Always };
+        _musicPlayerA = new AudioStreamPlayer { Name = "MusicPlayerA", Bus = PlayerSettings.MusicBus, ProcessMode = ProcessModeEnum.Always };
+        _musicPlayerB = new AudioStreamPlayer { Name = "MusicPlayerB", Bus = PlayerSettings.MusicBus, ProcessMode = ProcessModeEnum.Always };
         AddChild(_musicPlayerA);
         AddChild(_musicPlayerB);
 
         for (int i = 0; i < 8; i++)
         {
-            var p = new AudioStreamPlayer2D { MaxDistance = 1400.0f };
+            var p = new AudioStreamPlayer2D { MaxDistance = 1400.0f, Bus = PlayerSettings.EffectsBus };
             _spatialPlayers.Add(p);
             AddChild(p);
         }
@@ -220,24 +220,51 @@ public partial class AudioManager : Node
                 .SetEase(Tween.EaseType.In);
         }
 
+        _musicFadeTween.Chain().TweenCallback(Callable.From(() => ClearPlayback(outgoingPlayer)));
         _activeMusicPlayer = incomingPlayer;
     }
 
     public void StopMusic(float fadeDuration = 1.5f)
     {
         _currentTrackId = "";
-        if (_activeMusicPlayer == null || !_activeMusicPlayer.Playing) return;
-
         _musicFadeTween?.Kill();
-        _musicFadeTween = CreateTween();
-        _musicFadeTween.TweenProperty(_activeMusicPlayer, "volume_db", -80.0f, fadeDuration)
-            .SetTrans(Tween.TransitionType.Cubic)
-            .SetEase(Tween.EaseType.In);
-        _musicFadeTween.TweenCallback(Callable.From(() =>
+        if ((_musicPlayerA == null || !_musicPlayerA.Playing) && (_musicPlayerB == null || !_musicPlayerB.Playing))
         {
-            _musicPlayerA?.Stop();
-            _musicPlayerB?.Stop();
+            ClearPlayback(_musicPlayerA); ClearPlayback(_musicPlayerB);
+            _activeMusicPlayer = null;
+            return;
+        }
+        _musicFadeTween = CreateTween().SetParallel(true);
+        foreach (var player in new[] { _musicPlayerA, _musicPlayerB })
+            if (player != null && player.Playing)
+                _musicFadeTween.TweenProperty(player, "volume_db", -80.0f, Mathf.Max(0, fadeDuration));
+        _musicFadeTween.Chain().TweenCallback(Callable.From(() =>
+        {
+            ClearPlayback(_musicPlayerA); ClearPlayback(_musicPlayerB);
+            _activeMusicPlayer = null;
         }));
+    }
+
+    public void StopAllPlayback()
+    {
+        _musicFadeTween?.Kill();
+        _musicFadeTween = null;
+        ClearPlayback(_musicPlayerA); ClearPlayback(_musicPlayerB);
+        ClearPlayback(_uiPlayer); ClearPlayback(_alarmPlayer);
+        foreach (var player in _spatialPlayers)
+        {
+            if (!GodotObject.IsInstanceValid(player)) continue;
+            player.Stop(); player.Stream = null;
+        }
+        _activeMusicPlayer = null;
+        _currentTrackId = "";
+    }
+
+    private static void ClearPlayback(AudioStreamPlayer player)
+    {
+        if (!GodotObject.IsInstanceValid(player)) return;
+        player.Stop();
+        player.Stream = null;
     }
 
     private static AudioStream LoadMusicStream(string resPath)

@@ -1,0 +1,8 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+[ext_resource type="Shader" path="res://Assets/shaders/facility_surface.gdshader" id="1"]
+[resource]
+shader = ExtResource("1")
+shader_parameter/surface_type = 4
+shader_parameter/base_color = Color(0.36, 0.415, 0.39, 1)
+shader_parameter/joint_color = Color(0.2, 0.26, 0.24, 1)
+shader_parameter/wear_amount = 0.25

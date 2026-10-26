@@ -44,6 +44,7 @@ public partial class StoryDirector : Node
 
     [Export] public EnemyStats BossStats { get; set; }
     [Export] public PackedScene ZombieScene { get; set; }
+    [Export] public bool IsCampaign { get; set; } = false;
 
     public StoryPhase CurrentPhase { get; private set; } = StoryPhase.Act1_Blackout;
     public MissionStats Stats { get; private set; } = new();
@@ -53,8 +54,19 @@ public partial class StoryDirector : Node
     public StoryAct CurrentAct { get; set; } = StoryAct.None;
 
     public bool HasFlag(string flag) => Flags.Contains(flag);
-    public void SetFlag(string flag) => Flags.Add(flag);
-    public void RemoveFlag(string flag) => Flags.Remove(flag);
+    public event Action FlagsChanged;
+    public void SetFlag(string flag)
+    {
+        if (Flags.Add(flag)) FlagsChanged?.Invoke();
+    }
+    public void RemoveFlag(string flag)
+    {
+        if (Flags.Remove(flag)) FlagsChanged?.Invoke();
+    }
+    public void RestoreFlags(IEnumerable<string> flags)
+    {
+        Flags = new HashSet<string>(flags);
+    }
 
     private float _phaseTimer = 0.0f;
     private float _purgeCountdown = 480.0f; // 8 minutes countdown once purge initiates
@@ -66,10 +78,12 @@ public partial class StoryDirector : Node
 
     private Zombie _bossInstance = null;
     private Player _player;
+    private string _timingScenePath = string.Empty;
 
     public override void _EnterTree()
     {
         Instance = this;
+        SaveSystem.EnsureInstance(this);
     }
 
     public override void _ExitTree()
@@ -82,10 +96,13 @@ public partial class StoryDirector : Node
 
     public override void _Ready()
     {
+        _timingScenePath = GetTree().CurrentScene?.SceneFilePath ?? string.Empty;
         Instance = this;
 
         if (SaveSystem.Instance?.ActiveSaveData != null)
         {
+            RestoreFlags(SaveSystem.Instance.ActiveSaveData.Flags);
+            RestoreMissionStats(SaveSystem.Instance.ActiveSaveData);
             Difficulty = SaveSystem.Instance.ActiveSaveData.Difficulty;
             if (SaveSystem.Instance.ActiveSaveData.CurrentAct != StoryAct.None)
             {
@@ -102,12 +119,14 @@ public partial class StoryDirector : Node
     private void InitPlayerAndStory()
     {
         _player = GetTree().GetFirstNodeInGroup("player") as Player;
-        StartAct1();
+        if (!IsCampaign) StartAct1();
     }
 
     public override void _Process(double delta)
     {
+        if (IsCampaign && _player is { IsDead: true }) return;
         float dt = (float)delta;
+        if (IsCampaign) CampaignTiming.Record(_timingScenePath,dt);
         Stats.PlaytimeSeconds += dt;
         _phaseTimer += dt;
 
@@ -157,6 +176,12 @@ public partial class StoryDirector : Node
 
     public void OnGeneratorActivated()
     {
+        if (IsCampaign)
+        {
+            SetFlag(StoryFlags.FACILITY_POWER_RESTORED);
+            EmitSignal(SignalName.FacilityPowerRestored);
+            return;
+        }
         if (CurrentPhase != StoryPhase.Act1_Blackout) return;
 
         CurrentPhase = StoryPhase.Act1_PowerRestored;
@@ -262,10 +287,19 @@ public partial class StoryDirector : Node
     public void TriggerRadioComms(string speaker, string message, float duration = 5.0f)
     {
         AudioManager.Instance?.PlaySound(SoundType.RadioChime);
-        EmitSignal(SignalName.RadioTransmissionTriggered, speaker, message, duration);
+        EmitSignal(SignalName.RadioTransmissionTriggered, speaker, ControlBindings.Format(message), duration);
     }
 
     public void RecordShotFired() => Stats.ShotsFired++;
     public void RecordShotHit() => Stats.ShotsHit++;
     public void RecordKill() => Stats.TotalKills++;
+
+    public void RestoreMissionStats(GameSaveData data)
+    {
+        Stats = new MissionStats
+        {
+            PlaytimeSeconds = data.PlaytimeSeconds, TotalKills = data.TotalKills,
+            ShotsFired = data.ShotsFired, ShotsHit = data.ShotsHit, DocumentsFound = data.DocumentsFound
+        };
+    }
 }

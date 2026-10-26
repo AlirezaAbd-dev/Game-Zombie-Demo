@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1"]
+[ext_resource type="Texture2D" path="res://Assets/textures/keycard.png" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "lab_transfer_orders"
+ItemName = "Laboratory Transfer Orders"
+Description = "Signed isolation transfer: researcher Leila Mohammadi, Blast Door C. Present these orders at the lab lift console."
+Type = 3
+MaxStack = 1
+Icon = ExtResource("2")

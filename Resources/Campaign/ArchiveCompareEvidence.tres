@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "COMPARE DOSSIER WITH ARCHIVIST JOURNAL"
+RequiredFlag = "ghorbani_files_found"
+RequiredItemId = "archivist_journal"
+CompletionFlag = "archive_correlated_evidence"
+LockedMessage = "BOTH GHORBANI DOSSIER AND ARCHIVIST JOURNAL REQUIRED"
+Speaker = "SARA"
+Message = "The journal decodes the signatures. Ghorbani ordered the releases and held Sadeghi's family hostage. I can confront him with the complete record."

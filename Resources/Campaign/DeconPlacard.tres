@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "READ AIRLOCK SAFETY PROCEDURE"
+CompletionFlag = "decon_procedure_read"
+Speaker = "SAFETY PROCEDURE"
+Message = "1. Restore exhaust in the west utility room. 2. Isolate the east coolant leak. 3. Clear infected and all doorways. 4. Stand at the centre panel and seal the chamber. The same control aborts the cycle and opens the return doors."

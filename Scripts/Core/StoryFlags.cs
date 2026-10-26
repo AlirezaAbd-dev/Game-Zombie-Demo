@@ -4,9 +4,9 @@ namespace TopDownDemo.Core;
 
 public enum DifficultyLevel
 {
-    Survivor = 0,    // Normal: 1.0x HP, Normal ammo, 1.0x Enemy damage, Generous stealth
-    Nightmare = 1,   // Hard: 0.75x HP, -40% ammo, 1.5x Enemy damage, +30% enemies, Strict stealth
-    Researcher = 2   // Extreme: 0.5x HP, -60% ammo, 2.0x Enemy damage, +60% enemies, Unforgiving
+    Survivor = 0,    // 100 HP, standard starting ammunition, 1.0x infected melee damage.
+    Nightmare = 1,   // Reduced starting ammunition, 1.35x infected melee damage.
+    Researcher = 2   // Lowest starting ammunition, 1.8x infected melee damage.
 }
 
 public enum StoryAct
@@ -43,6 +43,7 @@ public static class StoryFlags
     // Act 3 Flags
     public const string LEILA_NOTE_FOUND = "leila_note_found";
     public const string BIOLAB_KEYCARD_FOUND = "biolab_keycard_found";
+    public const string LEILA_RESCUE_ACCEPTED = "leila_rescue_accepted";
     public const string LEILA_RESCUED = "leila_rescued";
     public const string LEILA_ABANDONED = "leila_abandoned";
     public const string FOUND_ARCHIVIST = "found_archivist";

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "CONTACT LEILA / CHOOSE A ROUTE"
+RequiredFlag = "leila_note_found"
+LockedMessage = "READ THE TRANSFER NOTES IN TRIAGE FIRST"
+CompletionFlag = "lab_route_decided"
+DialogueId = "act3_leila"

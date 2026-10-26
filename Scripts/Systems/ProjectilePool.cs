@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using TopDownDemo.Entities;
+using TopDownDemo.Core;
 
 namespace TopDownDemo.Systems;
 
@@ -52,11 +53,12 @@ public partial class ProjectilePool : Node
             bullet.SetPhysicsProcess(false);
             bullet.SetProcess(false);
             AddChild(bullet);
+            bullet.Deactivate();
             _pool.Enqueue(bullet);
         }
     }
 
-    public Bullet Spawn(Vector2 globalPos, float globalRot, Node parent, float damage = 25.0f, float speed = 1400.0f, bool isEnemy = false)
+    public Bullet Spawn(Vector2 globalPos, float globalRot, Node parent, float damage = 25.0f, float speed = 1400.0f, bool isEnemy = false, Vector2? launchOrigin = null, ShotReport shotReport = null)
     {
         Bullet bullet = null;
         while (_pool.Count > 0)
@@ -81,20 +83,22 @@ public partial class ProjectilePool : Node
         parent.AddChild(bullet);
         bullet.GlobalPosition = globalPos;
         bullet.GlobalRotation = globalRot;
-        bullet.Activate(damage, speed, isEnemy);
+        bullet.Activate(damage, speed, isEnemy, launchOrigin, shotReport);
         return bullet;
     }
 
     public void Despawn(Bullet bullet)
     {
-        if (!IsInstanceValid(bullet)) return;
+        if (!IsInstanceValid(bullet) || !bullet.IsActive) return;
 
         bullet.Deactivate();
-        if (bullet.GetParent() != null)
+        // BodyEntered can run during physics-query flushing; return after that signal finishes.
+        Callable.From(() =>
         {
-            bullet.GetParent().RemoveChild(bullet);
-        }
-        AddChild(bullet);
-        _pool.Enqueue(bullet);
+            if (!IsInstanceValid(bullet) || !IsInsideTree()) return;
+            if (bullet.GetParent() != null) bullet.Reparent(this);
+            else AddChild(bullet);
+            _pool.Enqueue(bullet);
+        }).CallDeferred();
     }
 }

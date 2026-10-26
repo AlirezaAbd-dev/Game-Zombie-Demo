@@ -38,6 +38,12 @@ public partial class MovementComponent : Node
         _knockbackVelocity += direction.Normalized() * force;
     }
 
+    public void ResetMotion()
+    {
+        _knockbackVelocity = Vector2.Zero;
+        if (Body != null) Body.Velocity = Vector2.Zero;
+    }
+
     public void DecayKnockback(float delta, float decayRate = 900.0f)
     {
         _knockbackVelocity = _knockbackVelocity.MoveToward(Vector2.Zero, delta * decayRate);

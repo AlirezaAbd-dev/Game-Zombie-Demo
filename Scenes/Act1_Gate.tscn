@@ -1,125 +1,1131 @@
-[gd_scene format=3 uid="uid://act1gate001"]
+[gd_scene format=3]
 
-[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="1_floor_sh"]
-[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="2_ui"]
-[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="3_player"]
-[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="4_zombie"]
-[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="5_pickup"]
-[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="6_blast_door"]
-[ext_resource type="PackedScene" path="res://Prefabs/WallSteel.tscn" id="7_wall_steel"]
-[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="8_map_bound"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropLocker.tscn" id="9_locker"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="10_barrel"]
-[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="11_act_director"]
-[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="12_audio_mgr"]
-[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="13_story_dir"]
-[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="14_proj_pool"]
-[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="15_bullet"]
-[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="16_ammo_item"]
-[ext_resource type="Resource" path="res://Resources/Items/Bandage.tres" id="17_bandage_item"]
-[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="18_trans_trigger"]
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="e1"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_gate_floor"]
-shader = ExtResource("1_floor_sh")
-shader_parameter/base_color = Color(0.04, 0.05, 0.08, 1)
-shader_parameter/line_color = Color(0.08, 0.12, 0.18, 1)
-shader_parameter/dot_color = Color(0.15, 0.22, 0.32, 1)
-shader_parameter/tile_size = 96.0
-shader_parameter/line_thickness = 2.0
+[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="e2"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_transition"]
-size = Vector2(160, 60)
+[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="e3"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="e4"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="e5"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="e6"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropLocker.tscn" id="e7"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="e8"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="e9"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="e10"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="e11"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="e12"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/WorldStateComponent.cs" id="e13"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/CampaignInteraction.cs" id="e14"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="e15"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="e16"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/PowerRoutingPanel.cs" id="e17"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="e18"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="e20"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_desk.png" id="e21"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/generator.png" id="e22"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_hazard_barrel.png" id="e23"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="e24"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Bandage.tres" id="e25"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Keycard_Substation.tres" id="e26"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AuxiliaryFuse.tres" id="e27"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="e28"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoShotgun.tres" id="e29"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GateLog.tres" id="e30"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/FuseSocket.tres" id="e31"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/BunkerOverride.tres" id="e32"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/FieldRecorder.tres" id="e33"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/MaintenanceNote.tres" id="e34"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArrivalNote.tres" id="e35"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GatePowerRouting.tres" id="e36"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GateObjective1.tres" id="e37"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GateObjective2.tres" id="e38"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GateObjective3.tres" id="e39"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GateObjective4.tres" id="e40"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GateObjective5.tres" id="e41"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GateObjective6.tres" id="e42"]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="e43"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GateRoom1.tres" id="room0"]
+[ext_resource type="Resource" path="res://Resources/Campaign/GateRoom2.tres" id="room1"]
+[ext_resource type="Resource" path="res://Resources/Campaign/GateRoom3.tres" id="room2"]
+[ext_resource type="Resource" path="res://Resources/Campaign/GateRoom4.tres" id="room3"]
+[ext_resource type="Resource" path="res://Resources/Campaign/GateRoom5.tres" id="room4"]
+[ext_resource type="Resource" path="res://Resources/Campaign/GateRoom6.tres" id="room5"]
+[ext_resource type="Resource" path="res://Resources/Campaign/GateRoom7.tres" id="room6"]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignRoomData.cs" id="roomscript"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="exit_interaction"]
+
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/AsphaltMaterial.tres" id="surface_Asphalt"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/CeramicMaterial.tres" id="surface_Ceramic"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/ConcreteMaterial.tres" id="surface_Concrete"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/SteelMaterial.tres" id="surface_Steel"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="dressing_Barrel"]
+[ext_resource type="PackedScene" path="res://Prefabs/ServiceBunk.tscn" id="dressing_Bunk"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="dressing_Desk"]
+[ext_resource type="PackedScene" path="res://Prefabs/ArchiveRack.tscn" id="dressing_Rack"]
+[ext_resource type="PackedScene" path="res://Prefabs/AbandonedResponseVehicle.tscn" id="response_vehicle_art"]
+
+[sub_resource type="CircleShape2D" id="interaction_range"]
+radius = 90.0
+
+[sub_resource type="RectangleShape2D" id="exit_shape"]
+size = Vector2(240, 100)
+
+[sub_resource type="RectangleShape2D" id="shape_WestBoundary"]
+size = Vector2(80, 3080)
+
+[sub_resource type="OccluderPolygon2D" id="occ_WestBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+
+[sub_resource type="RectangleShape2D" id="shape_EastBoundary"]
+size = Vector2(80, 3080)
+
+[sub_resource type="OccluderPolygon2D" id="occ_EastBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+
+[sub_resource type="RectangleShape2D" id="shape_SouthBoundary"]
+size = Vector2(3080, 80)
+
+[sub_resource type="OccluderPolygon2D" id="occ_SouthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+
+[sub_resource type="RectangleShape2D" id="shape_NorthBoundary"]
+size = Vector2(3080, 80)
+
+[sub_resource type="OccluderPolygon2D" id="occ_NorthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition1000_0"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition1000_0"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition1000_610"]
+size = Vector2(64, 780)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition1000_610"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition1000_1610"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition1000_1610"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition2000_0"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition2000_0"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition2000_610"]
+size = Vector2(64, 780)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition2000_610"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition2000_1610"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition2000_1610"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall1000_0"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall1000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall1000_1"]
+size = Vector2(780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall1000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall1000_2"]
+size = Vector2(780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall1000_2"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall1000_end"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall1000_end"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall2000_0"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall2000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall2000_1"]
+size = Vector2(1780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall2000_1"]
+polygon = PackedVector2Array(-890.0, -32.0, 890.0, -32.0, 890.0, 32.0, -890.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall2000_end"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall2000_end"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_MaintenanceCage"]
+size = Vector2(500, 48)
+
+[sub_resource type="OccluderPolygon2D" id="occ_MaintenanceCage"]
+polygon = PackedVector2Array(-250.0, -24.0, 250.0, -24.0, 250.0, 24.0, -250.0, 24.0)
+
+[sub_resource type="RectangleShape2D" id="shape_YardBarrierA"]
+size = Vector2(700, 80)
+
+[sub_resource type="OccluderPolygon2D" id="occ_YardBarrierA"]
+polygon = PackedVector2Array(-350.0, -40.0, 350.0, -40.0, 350.0, 40.0, -350.0, 40.0)
+
+[sub_resource type="RectangleShape2D" id="shape_YardBarrierB"]
+size = Vector2(650, 80)
+
+[sub_resource type="OccluderPolygon2D" id="occ_YardBarrierB"]
+polygon = PackedVector2Array(-325.0, -40.0, 325.0, -40.0, 325.0, 40.0, -325.0, 40.0)
+
+[sub_resource type="CircleShape2D" id="exit_interaction_shape"]
+radius = 90.0
 
 [node name="Act1_Gate" type="Node2D"]
 
-[node name="CampaignActDirector" type="Node" parent="."]
-script = ExtResource("11_act_director")
+
+[node name="CampaignActDirector" type="Node" parent="." node_paths=PackedStringArray("AmbientLight")]
+script = ExtResource("e9")
+Rooms = Array[ExtResource("roomscript")]([ExtResource("room0"), ExtResource("room1"), ExtResource("room2"), ExtResource("room3"), ExtResource("room4"), ExtResource("room5"), ExtResource("room6")])
 CurrentAct = 1
+LayoutVersion = 2
 SceneId = "act1_gate"
-ObjectiveTitle = "PERIMETER INFILTRATION"
-ObjectiveSubtask = "Navigate mountain gate & enter the bunker"
+ObjectiveTitle = "ENTER FOXTROT-7"
+ObjectiveSubtask = "Save at the field recorder, then take the north bunker entrance."
 StartDialogueId = "act1_intro"
+AmbientLight = NodePath("../AmbientLight")
+Objectives = Array[ExtResource("e43")]([ExtResource("e37"), ExtResource("e38"), ExtResource("e39"), ExtResource("e40"), ExtResource("e41"), ExtResource("e42")])
 
 [node name="StoryDirector" type="Node" parent="."]
-script = ExtResource("13_story_dir")
+script = ExtResource("e10")
+IsCampaign = true
 
 [node name="AudioManager" type="Node" parent="."]
-script = ExtResource("12_audio_mgr")
+script = ExtResource("e11")
 
 [node name="ProjectilePool" type="Node" parent="."]
-script = ExtResource("14_proj_pool")
-BulletScene = ExtResource("15_bullet")
+script = ExtResource("e12")
+BulletScene = ExtResource("e18")
 
-[node name="CanvasModulate" type="CanvasModulate" parent="."]
-color = Color(0.04, 0.05, 0.07, 1)
+[node name="AmbientLight" type="CanvasModulate" parent="."]
+color = Color(0.1, 0.13, 0.18, 1)
 
-[node name="Floor" type="ColorRect" parent="."]
-material = SubResource("ShaderMaterial_gate_floor")
-offset_left = -300.0
-offset_top = -600.0
-offset_right = 1500.0
-offset_bottom = 1200.0
+[node name="GateApproach" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Asphalt")
+offset_left = 0.0
+offset_top = 2000.0
+offset_right = 3000.0
+offset_bottom = 3000.0
+mouse_filter = 2
 
-[node name="MapBoundary" parent="." instance=ExtResource("8_map_bound")]
+[node name="GateApproachSign" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 2100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "GATEAPPROACH"
+mouse_filter = 2
 
-[node name="GameUI" parent="." instance=ExtResource("2_ui")]
+[node name="Gatehouse" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Ceramic")
+offset_left = 0.0
+offset_top = 1000.0
+offset_right = 1000.0
+offset_bottom = 2000.0
+mouse_filter = 2
 
-[node name="Player" parent="." instance=ExtResource("3_player")]
-position = Vector2(600, 950)
+[node name="GatehouseSign" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "GATEHOUSE"
+mouse_filter = 2
 
-[node name="GateBlastDoor" parent="." instance=ExtResource("6_blast_door")]
-position = Vector2(600, 200)
-DoorId = "gate_bunker_door"
-SlideOffset = Vector2(180, 0)
+[node name="Barracks" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Ceramic")
+offset_left = 1000.0
+offset_top = 1000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+mouse_filter = 2
 
-[node name="Act2Trigger" type="Area2D" parent="."]
-position = Vector2(600, 50)
-script = ExtResource("18_trans_trigger")
+[node name="BarracksSign" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 1100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "BARRACKS"
+mouse_filter = 2
+
+[node name="Maintenance" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Concrete")
+offset_left = 2000.0
+offset_top = 1000.0
+offset_right = 3000.0
+offset_bottom = 2000.0
+mouse_filter = 2
+
+[node name="MaintenanceSign" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 2100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "MAINTENANCE"
+mouse_filter = 2
+
+[node name="BunkerControl" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Ceramic")
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="BunkerControlSign" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "BUNKERCONTROL"
+mouse_filter = 2
+
+[node name="RelayRoom" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 1000.0
+offset_top = 0.0
+offset_right = 2000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="RelayRoomSign" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 1100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "RELAY"
+mouse_filter = 2
+
+[node name="GeneratorRoom" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Concrete")
+offset_left = 2000.0
+offset_top = 0.0
+offset_right = 3000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="GeneratorRoomSign" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 2100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "GENERATOR"
+mouse_filter = 2
+
+[node name="WestBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(-40, 1500)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="WestBoundary"]
+shape = SubResource("shape_WestBoundary")
+
+[node name="Surface" type="Polygon2D" parent="WestBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="WestBoundary"]
+occluder = SubResource("occ_WestBoundary")
+
+[node name="EastBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(3040, 1500)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="EastBoundary"]
+shape = SubResource("shape_EastBoundary")
+
+[node name="Surface" type="Polygon2D" parent="EastBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="EastBoundary"]
+occluder = SubResource("occ_EastBoundary")
+
+[node name="SouthBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1500, 3040)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="SouthBoundary"]
+shape = SubResource("shape_SouthBoundary")
+
+[node name="Surface" type="Polygon2D" parent="SouthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="SouthBoundary"]
+occluder = SubResource("occ_SouthBoundary")
+
+[node name="NorthBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1500, -40)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="NorthBoundary"]
+shape = SubResource("shape_NorthBoundary")
+
+[node name="Surface" type="Polygon2D" parent="NorthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="NorthBoundary"]
+occluder = SubResource("occ_NorthBoundary")
+
+[node name="Partition1000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 195.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition1000_0"]
+shape = SubResource("shape_Partition1000_0")
+
+[node name="Surface" type="Polygon2D" parent="Partition1000_0"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition1000_0"]
+occluder = SubResource("occ_Partition1000_0")
+
+[node name="Partition1000_610" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 1000.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition1000_610"]
+shape = SubResource("shape_Partition1000_610")
+
+[node name="Surface" type="Polygon2D" parent="Partition1000_610"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition1000_610"]
+occluder = SubResource("occ_Partition1000_610")
+
+[node name="Partition1000_1610" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 1805.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition1000_1610"]
+shape = SubResource("shape_Partition1000_1610")
+
+[node name="Surface" type="Polygon2D" parent="Partition1000_1610"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition1000_1610"]
+occluder = SubResource("occ_Partition1000_1610")
+
+[node name="Partition2000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 195.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition2000_0"]
+shape = SubResource("shape_Partition2000_0")
+
+[node name="Surface" type="Polygon2D" parent="Partition2000_0"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition2000_0"]
+occluder = SubResource("occ_Partition2000_0")
+
+[node name="Partition2000_610" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 1000.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition2000_610"]
+shape = SubResource("shape_Partition2000_610")
+
+[node name="Surface" type="Polygon2D" parent="Partition2000_610"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition2000_610"]
+occluder = SubResource("occ_Partition2000_610")
+
+[node name="Partition2000_1610" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 1805.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition2000_1610"]
+shape = SubResource("shape_Partition2000_1610")
+
+[node name="Surface" type="Polygon2D" parent="Partition2000_1610"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition2000_1610"]
+occluder = SubResource("occ_Partition2000_1610")
+
+[node name="Crosswall1000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(195.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall1000_0"]
+shape = SubResource("shape_Crosswall1000_0")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall1000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall1000_0"]
+occluder = SubResource("occ_Crosswall1000_0")
+
+[node name="Crosswall1000_1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall1000_1"]
+shape = SubResource("shape_Crosswall1000_1")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall1000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall1000_1"]
+occluder = SubResource("occ_Crosswall1000_1")
+
+[node name="Crosswall1000_2" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall1000_2"]
+shape = SubResource("shape_Crosswall1000_2")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall1000_2"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall1000_2"]
+occluder = SubResource("occ_Crosswall1000_2")
+
+[node name="Crosswall1000_end" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2805.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall1000_end"]
+shape = SubResource("shape_Crosswall1000_end")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall1000_end"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall1000_end"]
+occluder = SubResource("occ_Crosswall1000_end")
+
+[node name="Crosswall2000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(195.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall2000_0"]
+shape = SubResource("shape_Crosswall2000_0")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall2000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall2000_0"]
+occluder = SubResource("occ_Crosswall2000_0")
+
+[node name="Crosswall2000_1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1500.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall2000_1"]
+shape = SubResource("shape_Crosswall2000_1")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall2000_1"]
+polygon = PackedVector2Array(-890.0, -32.0, 890.0, -32.0, 890.0, 32.0, -890.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall2000_1"]
+occluder = SubResource("occ_Crosswall2000_1")
+
+[node name="Crosswall2000_end" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2805.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall2000_end"]
+shape = SubResource("shape_Crosswall2000_end")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall2000_end"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall2000_end"]
+occluder = SubResource("occ_Crosswall2000_end")
+
+[node name="NorthGateLock" parent="." instance=ExtResource("e5")]
+position = Vector2(500, 1000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "NorthGateLock"
+RequiredStoryFlag = "facility_power_restored"
+RequiredItemId = ""
+LockedPromptText = "LOCKED — AUXILIARY POWER REQUIRED"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="NorthGateLock"]
+script = ExtResource("e13")
+StableId = "NorthGateLock"
+
+[node name="RelayShortcut" parent="." instance=ExtResource("e5")]
+position = Vector2(1000, 500)
+rotation = 1.570796
+scale = Vector2(2.1, 1.0)
+DoorId = "RelayShortcut"
+RequiredStoryFlag = "facility_power_restored"
+RequiredItemId = ""
+LockedPromptText = "LOCKED — AUXILIARY POWER REQUIRED"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="RelayShortcut"]
+script = ExtResource("e13")
+StableId = "RelayShortcut"
+
+[node name="GeneratorAccess" parent="." instance=ExtResource("e5")]
+position = Vector2(2500, 1000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "GeneratorAccess"
+RequiredStoryFlag = ""
+RequiredItemId = "keycard_substation"
+LockedPromptText = "LOCKED — AUXILIARY POWER REQUIRED"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="GeneratorAccess"]
+script = ExtResource("e13")
+StableId = "GeneratorAccess"
+
+[node name="RelaySouthLock" parent="." instance=ExtResource("e5")]
+position = Vector2(1500, 1000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "RelaySouthLock"
+RequiredStoryFlag = "facility_power_restored"
+RequiredItemId = ""
+LockedPromptText = "LOCKED — AUXILIARY POWER REQUIRED"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="RelaySouthLock"]
+script = ExtResource("e13")
+StableId = "RelaySouthLock"
+
+[node name="GateDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(450, 1350)
+
+[node name="GateLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(150, 1800)
+
+[node name="BarracksLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(1750, 1800)
+
+[node name="BarracksDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(1450, 1300)
+
+[node name="MaintenanceLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(2800, 1800)
+
+[node name="YardBarrel" parent="." instance=ExtResource("e8")]
+position = Vector2(1450, 2450)
+
+[node name="RelayDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(1700, 250)
+
+[node name="BunkerLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(150, 650)
+
+[node name="MaintenanceCage" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2520, 1400)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="MaintenanceCage"]
+shape = SubResource("shape_MaintenanceCage")
+
+[node name="Surface" type="Polygon2D" parent="MaintenanceCage"]
+polygon = PackedVector2Array(-250.0, -24.0, 250.0, -24.0, 250.0, 24.0, -250.0, 24.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="MaintenanceCage"]
+occluder = SubResource("occ_MaintenanceCage")
+
+[node name="YardBarrierA" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1500, 2200)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="YardBarrierA"]
+shape = SubResource("shape_YardBarrierA")
+
+[node name="Surface" type="Polygon2D" parent="YardBarrierA"]
+polygon = PackedVector2Array(-350.0, -40.0, 350.0, -40.0, 350.0, 40.0, -350.0, 40.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="YardBarrierA"]
+occluder = SubResource("occ_YardBarrierA")
+
+[node name="YardBarrierB" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1900, 2800)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="YardBarrierB"]
+shape = SubResource("shape_YardBarrierB")
+
+[node name="Surface" type="Polygon2D" parent="YardBarrierB"]
+polygon = PackedVector2Array(-325.0, -40.0, 325.0, -40.0, 325.0, 40.0, -325.0, 40.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="YardBarrierB"]
+occluder = SubResource("occ_YardBarrierB")
+
+[node name="GateLog" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(300, 1600)
+script = ExtResource("e14")
+Data = ExtResource("e30")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="GateLog"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="GateLog/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="GateLog"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="GateLog"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="FuseSocket" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(2600, 250)
+script = ExtResource("e14")
+Data = ExtResource("e31")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="FuseSocket"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="FuseSocket/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="FuseSocket"]
+texture = ExtResource("e22")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="FuseSocket"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="OverrideConsole" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(400, 300)
+script = ExtResource("e14")
+Data = ExtResource("e32")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="OverrideConsole"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="OverrideConsole/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="OverrideConsole"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="OverrideConsole"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="FieldRecorder" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(200, 700)
+script = ExtResource("e14")
+Data = ExtResource("e33")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="FieldRecorder"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="FieldRecorder/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="FieldRecorder"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="FieldRecorder"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="MaintenanceNotice" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1400, 650)
+script = ExtResource("e14")
+Data = ExtResource("e34")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="MaintenanceNotice"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="MaintenanceNotice/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="MaintenanceNotice"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="MaintenanceNotice"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="ResponseVehicle" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(320, 2650)
+script = ExtResource("e14")
+Data = ExtResource("e35")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="ResponseVehicle"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="ResponseVehicle/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="ResponseVehicle"]
+visible = false
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="ResponseVehicle"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="PowerRoutingPanel" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1400, 300)
+script = ExtResource("e17")
+Data = ExtResource("e36")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="PowerRoutingPanel"]
+script = ExtResource("e15")
+PromptText = "ROUTE AUXILIARY POWER"
+RequiredStoryFlag = "auxiliary_fuse_installed"
+LockedPromptText = "INSTALL THE REPLACEMENT FUSE FIRST"
+
+[node name="Range" type="CollisionShape2D" parent="PowerRoutingPanel/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="PowerRoutingPanel"]
+texture = ExtResource("e21")
+modulate = Color(0.3, 0.9, 0.85, 1)
+
+[node name="MaintenanceCredential" parent="." instance=ExtResource("e4")]
+position = Vector2(650, 1300)
+Item = ExtResource("e26")
+StoryFlagOnCollect = "service_key_acquired"
+
+[node name="WorldState" type="Node" parent="MaintenanceCredential"]
+script = ExtResource("e13")
+StableId = "MaintenanceCredential"
+
+[node name="SpareFuse" parent="." instance=ExtResource("e4")]
+position = Vector2(2700, 1600)
+Item = ExtResource("e27")
+StoryFlagOnCollect = "auxiliary_fuse_found"
+
+[node name="WorldState" type="Node" parent="SpareFuse"]
+script = ExtResource("e13")
+StableId = "SpareFuse"
+
+[node name="ResponseAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(650, 2650)
+Item = ExtResource("e24")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="ResponseAmmo"]
+script = ExtResource("e13")
+StableId = "ResponseAmmo"
+
+[node name="GateBandage" parent="." instance=ExtResource("e4")]
+position = Vector2(250, 1750)
+Item = ExtResource("e25")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="GateBandage"]
+script = ExtResource("e13")
+StableId = "GateBandage"
+
+[node name="MaintenanceAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(2800, 1200)
+Item = ExtResource("e24")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="MaintenanceAmmo"]
+script = ExtResource("e13")
+StableId = "MaintenanceAmmo"
+
+[node name="BarracksHerb" parent="." instance=ExtResource("e4")]
+position = Vector2(1700, 1700)
+Item = ExtResource("e28")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="BarracksHerb"]
+script = ExtResource("e13")
+StableId = "BarracksHerb"
+
+[node name="BunkerAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(200, 500)
+Item = ExtResource("e24")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="BunkerAmmo"]
+script = ExtResource("e13")
+StableId = "BunkerAmmo"
+
+[node name="BunkerBandage" parent="." instance=ExtResource("e4")]
+position = Vector2(250, 500)
+Item = ExtResource("e25")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="BunkerBandage"]
+script = ExtResource("e13")
+StableId = "BunkerBandage"
+
+[node name="Infected1" parent="." instance=ExtResource("e3")]
+position = Vector2(1100, 2550)
+
+[node name="WorldState" type="Node" parent="Infected1"]
+script = ExtResource("e13")
+StableId = "infected_1"
+
+[node name="Infected2" parent="." instance=ExtResource("e3")]
+position = Vector2(1600, 1550)
+
+[node name="WorldState" type="Node" parent="Infected2"]
+script = ExtResource("e13")
+StableId = "infected_2"
+
+[node name="Infected3" parent="." instance=ExtResource("e3")]
+position = Vector2(2250, 1700)
+
+[node name="WorldState" type="Node" parent="Infected3"]
+script = ExtResource("e13")
+StableId = "infected_3"
+
+[node name="Infected4" parent="." instance=ExtResource("e3")]
+position = Vector2(2700, 650)
+
+[node name="WorldState" type="Node" parent="Infected4"]
+script = ExtResource("e13")
+StableId = "infected_4"
+
+[node name="Infected5" parent="." instance=ExtResource("e3")]
+position = Vector2(2200, 300)
+
+[node name="WorldState" type="Node" parent="Infected5"]
+script = ExtResource("e13")
+StableId = "infected_5"
+
+[node name="Infected6" parent="." instance=ExtResource("e3")]
+position = Vector2(1850, 2600)
+
+[node name="WorldState" type="Node" parent="Infected6"]
+script = ExtResource("e13")
+StableId = "infected_6"
+
+[node name="NorthExitSign" type="Label" parent="."]
+offset_left = 270.0
+offset_top = 160.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 18
+text = "BUNKER ACCESS - NORTH"
+mouse_filter = 2
+
+[node name="RecorderSign" type="Label" parent="."]
+offset_left = 80.0
+offset_top = 800.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "FIELD RECORDER / SAVE"
+mouse_filter = 2
+
+[node name="FuseSign" type="Label" parent="."]
+offset_left = 2390.0
+offset_top = 160.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "AUXILIARY FUSE SOCKET"
+mouse_filter = 2
+
+[node name="SupplySign" type="Label" parent="."]
+offset_left = 2450.0
+offset_top = 1500.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "MAINTENANCE CAGE"
+mouse_filter = 2
+
+[node name="BunkerExit" type="Area2D" parent="." node_paths=PackedStringArray("ExitInteractable")]
+position = Vector2(500, 100)
+script = ExtResource("e16")
+RequireInteraction = true
+ExitInteractable = NodePath("ExitInteraction")
 TargetScenePath = "res://Scenes/Act2_Checkpoint.tscn"
+RequiredStoryFlag = "gate_overridden"
+LockedMessage = "USE THE BUNKER OVERRIDE CONSOLE FIRST"
 ActTitle = "ACT 2: THE BUNKER"
 Subtitle = "Security Checkpoint — Sub-level 1"
 TargetAct = 2
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Act2Trigger"]
-shape = SubResource("RectangleShape2D_transition")
+[node name="Range" type="CollisionShape2D" parent="BunkerExit"]
+shape = SubResource("exit_shape")
 
-[node name="PropLocker1" parent="." instance=ExtResource("9_locker")]
-position = Vector2(400, 650)
+[node name="Player" parent="." instance=ExtResource("e1")]
+position = Vector2(500, 2800)
 
-[node name="Barrel1" parent="." instance=ExtResource("10_barrel")]
-position = Vector2(800, 600)
+[node name="GameUI" parent="." instance=ExtResource("e2")]
 
-[node name="AmmoPickup1" parent="." instance=ExtResource("5_pickup")]
-position = Vector2(420, 600)
-Item = ExtResource("16_ammo_item")
+[node name="ExitInteraction" type="Area2D" parent="BunkerExit"]
+script = ExtResource("exit_interaction")
+PromptText = "DESCEND TO THE BUNKER"
 
-[node name="BandagePickup1" parent="." instance=ExtResource("5_pickup")]
-position = Vector2(780, 750)
-Item = ExtResource("17_bandage_item")
+[node name="Range" type="CollisionShape2D" parent="BunkerExit/ExitInteraction"]
+shape = SubResource("exit_interaction_shape")
 
-[node name="ZombiePatrol1" parent="." instance=ExtResource("4_zombie")]
-position = Vector2(500, 550)
+[node name="Vehicle" parent="ResponseVehicle" instance=ExtResource("response_vehicle_art")]
 
-[node name="ZombiePatrol2" parent="." instance=ExtResource("4_zombie")]
-position = Vector2(720, 480)
+[node name="Dressing_01_Desk" parent="." instance=ExtResource("dressing_Desk")]
+position = Vector2(180,1180)
 
-[node name="ZombiePatrol3" parent="." instance=ExtResource("4_zombie")]
-position = Vector2(600, 320)
+[node name="Dressing_02_Desk" parent="." instance=ExtResource("dressing_Desk")]
+position = Vector2(820,1800)
 
-[node name="WallLeft1" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(200, 400)
+[node name="Dressing_03_Bunk" parent="." instance=ExtResource("dressing_Bunk")]
+position = Vector2(1260,1180)
 
-[node name="WallLeft2" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(200, 600)
+[node name="Dressing_04_Bunk" parent="." instance=ExtResource("dressing_Bunk")]
+position = Vector2(1740,1180)
 
-[node name="WallLeft3" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(200, 800)
+[node name="Dressing_05_Bunk" parent="." instance=ExtResource("dressing_Bunk")]
+position = Vector2(1260,1800)
 
-[node name="WallRight1" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(1000, 400)
+[node name="Dressing_06_Barrel" parent="." instance=ExtResource("dressing_Barrel")]
+position = Vector2(2180,180)
 
-[node name="WallRight2" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(1000, 600)
+[node name="Dressing_07_Barrel" parent="." instance=ExtResource("dressing_Barrel")]
+position = Vector2(2800,180)
 
-[node name="WallRight3" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(1000, 800)
+[node name="Dressing_08_Barrel" parent="." instance=ExtResource("dressing_Barrel")]
+position = Vector2(2820,800)
+
+[node name="Dressing_09_Desk" parent="." instance=ExtResource("dressing_Desk")]
+position = Vector2(2180,1800)
+
+[node name="Dressing_10_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(180,180)
+
+[node name="Dressing_11_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(820,820)

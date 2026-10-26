@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="5_radial_tex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+resource_local_to_scene = true
 radius = 36.0
 
 [node name="Pickup" type="Area2D" unique_id=98127364]
@@ -21,10 +22,11 @@ texture = ExtResource("3_shadow_tex")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=83746592]
 unique_name_in_owner = true
-scale = Vector2(2, 2)
+scale = Vector2(1, 1)
 texture = ExtResource("4_item_tex")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=47586930]
+[node name="PickupCollision" type="CollisionShape2D" parent="." unique_id=47586930]
+unique_name_in_owner = true
 shape = SubResource("CircleShape2D_pickup")
 
 [node name="GlowLight" type="PointLight2D" parent="." unique_id=58697041]

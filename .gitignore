@@ -11,3 +11,6 @@
 
 # Antigravity / Agents
 .agents/
+
+# Standalone exports
+/builds/

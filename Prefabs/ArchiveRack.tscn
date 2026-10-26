@@ -1,0 +1,105 @@
+[gd_scene format=3]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(160,78)
+
+[sub_resource type="OccluderPolygon2D" id="shadow"]
+polygon = PackedVector2Array(-80.0,-39.0,80.0,-39.0,80.0,39.0,-80.0,39.0)
+
+[node name="ArchiveRack" type="StaticBody2D" groups=["campaign_furniture"]]
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Shadow" type="LightOccluder2D" parent="."]
+occluder = SubResource("shadow")
+
+[node name="Frame" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-80,-39,80,-39,80,39,-80,39)
+color = Color(0.11,0.13,0.12,1)
+
+[node name="Shelf" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-74,-33,74,-33,74,33,-74,33)
+color = Color(0.26,0.25,0.2,1)
+
+[node name="Binder0" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-69,-27,-59,-27,-59,27,-69,27)
+color = Color(0.35,0.34,0.26,1)
+
+[node name="Index0" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-67,-17,-61,-17,-61,-7,-67,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder1" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-55,-27,-45,-27,-45,27,-55,27)
+color = Color(0.25,0.29,0.28,1)
+
+[node name="Index1" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-53,-17,-47,-17,-47,-7,-53,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder2" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-41,-27,-31,-27,-31,27,-41,27)
+color = Color(0.36,0.29,0.21,1)
+
+[node name="Index2" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-39,-17,-33,-17,-33,-7,-39,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder3" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-27,-27,-17,-27,-17,27,-27,27)
+color = Color(0.3,0.32,0.25,1)
+
+[node name="Index3" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-25,-17,-19,-17,-19,-7,-25,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder4" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-13,-27,-3,-27,-3,27,-13,27)
+color = Color(0.35,0.34,0.26,1)
+
+[node name="Index4" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-11,-17,-5,-17,-5,-7,-11,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder5" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(1,-27,11,-27,11,27,1,27)
+color = Color(0.25,0.29,0.28,1)
+
+[node name="Index5" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(3,-17,9,-17,9,-7,3,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder6" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(15,-27,25,-27,25,27,15,27)
+color = Color(0.36,0.29,0.21,1)
+
+[node name="Index6" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(17,-17,23,-17,23,-7,17,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder7" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(29,-27,39,-27,39,27,29,27)
+color = Color(0.3,0.32,0.25,1)
+
+[node name="Index7" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(31,-17,37,-17,37,-7,31,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder8" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(43,-27,53,-27,53,27,43,27)
+color = Color(0.35,0.34,0.26,1)
+
+[node name="Index8" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(45,-17,51,-17,51,-7,45,-7)
+color = Color(0.47,0.44,0.33,1)
+
+[node name="Binder9" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(57,-27,67,-27,67,27,57,27)
+color = Color(0.25,0.29,0.28,1)
+
+[node name="Index9" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(59,-17,65,-17,65,-7,59,-7)
+color = Color(0.47,0.44,0.33,1)

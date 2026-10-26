@@ -15,6 +15,7 @@ public partial class Zombie : CharacterBody2D, IDamageable
     public static event Action OnAnyZombieKilled;
 
     [Export] public EnemyStats Stats { get; set; }
+    public float AttackDamageMultiplier { get; set; } = 1.0f;
 
     [ExportGroup("Components")]
     [Export] public HealthComponent HealthComponent { get; set; }
@@ -25,6 +26,8 @@ public partial class Zombie : CharacterBody2D, IDamageable
     [Export] public Sprite2D Sprite { get; set; }
     [Export] public Area2D AttackArea { get; set; }
     [Export] public PointLight2D EyeGlow { get; set; }
+    [Export] public CollisionShape2D BodyCollision { get; set; }
+    [Export] public CollisionShape2D AttackCollision { get; set; }
 
     [ExportGroup("Drop Scenes")]
     [Export] public PackedScene PickupScene { get; set; }
@@ -38,7 +41,9 @@ public partial class Zombie : CharacterBody2D, IDamageable
 
     public Node2D TargetPlayer { get; private set; }
     public float SpeedModifier { get; private set; } = 1.0f;
-    public bool IsDead => HealthComponent?.IsDead ?? false;
+    private bool _deathStarted;
+    public string PersistentDropId { get; set; } = string.Empty;
+    public bool IsDead => _deathStarted || (HealthComponent?.IsDead ?? false);
 
     public Vector2 LastKnownPlayerPos { get; set; } = Vector2.Zero;
     public bool HasTargetAcquired { get; set; } = false;
@@ -156,30 +161,12 @@ public partial class Zombie : CharacterBody2D, IDamageable
 
     private void UpdateCollisionShapeForStats(EnemyStats stats)
     {
-        var colShapeNode = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
-        if (colShapeNode == null) return;
-
-        colShapeNode.Position = Vector2.Zero;
-
-        if (stats.TypeName == "Specimen Zero")
-        {
-            // Smooth circular navigation hull for the boss: covers full 134px body and glides along walls
-            colShapeNode.Shape = new CircleShape2D { Radius = 44.0f };
-            if (AttackArea != null)
-            {
-                var attackCol = AttackArea.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
-                if (attackCol != null)
-                {
-                    attackCol.Position = Vector2.Zero;
-                    attackCol.Shape = new CircleShape2D { Radius = 72.0f };
-                }
-            }
-        }
-        else
-        {
-            // Circular navigation hull for standard zombies (no sharp corners snagging on walls/boxes)
-            colShapeNode.Shape = new CircleShape2D { Radius = 24.0f };
-        }
+        if (BodyCollision == null || AttackCollision == null) return;
+        bool boss = stats.TypeName == "Specimen Zero";
+        BodyCollision.Position = Vector2.Zero;
+        BodyCollision.Shape = new CircleShape2D { Radius = boss ? 44 : 24 };
+        AttackCollision.Position = boss ? Vector2.Zero : new Vector2(10,0);
+        AttackCollision.Shape = new CircleShape2D { Radius = boss ? 72 : stats.AttackRange };
     }
 
     private void ValidateAndBindNodes()
@@ -189,6 +176,8 @@ public partial class Zombie : CharacterBody2D, IDamageable
         Sprite ??= GetNodeOrNull<Sprite2D>("%Sprite2D");
         AttackArea ??= GetNodeOrNull<Area2D>("%AttackArea");
         EyeGlow ??= GetNodeOrNull<PointLight2D>("%EyeGlow");
+        BodyCollision ??= GetNodeOrNull<CollisionShape2D>("%BodyCollision");
+        AttackCollision ??= GetNodeOrNull<CollisionShape2D>("%AttackCollision");
         FinisherTarget ??= GetNodeOrNull<FinisherTargetComponent>("%FinisherTargetComponent");
 
         if (FinisherTarget == null)
@@ -200,6 +189,7 @@ public partial class Zombie : CharacterBody2D, IDamageable
         if (HealthComponent == null) GD.PrintErr($"[Zombie] Missing HealthComponent on {GetPath()}");
         if (MovementComponent == null) GD.PrintErr($"[Zombie] Missing MovementComponent on {GetPath()}");
         if (Sprite == null) GD.PrintErr($"[Zombie] Missing Sprite on {GetPath()}");
+        if (BodyCollision == null || AttackCollision == null) GD.PushError($"[Zombie] Missing body or melee collision shape on {GetPath()}");
     }
 
     public void FindPlayer()
@@ -250,10 +240,10 @@ public partial class Zombie : CharacterBody2D, IDamageable
 
         foreach (Node2D body in AttackArea.GetOverlappingBodies())
         {
-            if (body.IsInGroup("player") && body is IDamageable playerDamageable)
+            if (body.IsInGroup("player") && body is IDamageable playerDamageable && HasLineOfSightTo(body.GlobalPosition))
             {
                 Vector2 attackDir = (body.GlobalPosition - GlobalPosition).Normalized();
-                playerDamageable.TakeDamage(Stats.AttackDamage, attackDir);
+                playerDamageable.TakeDamage(Stats.AttackDamage * AttackDamageMultiplier, attackDir);
 
                 if (Sprite != null)
                 {
@@ -265,6 +255,8 @@ public partial class Zombie : CharacterBody2D, IDamageable
             }
         }
     }
+
+    public bool CanMeleeTarget() => IsInstanceValid(TargetPlayer) && AttackArea != null && AttackArea.OverlapsBody(TargetPlayer);
 
     public void TakeDamage(float amount, Vector2 knockbackDir)
     {
@@ -529,6 +521,8 @@ public partial class Zombie : CharacterBody2D, IDamageable
 
     public void PerformDeath()
     {
+        if (_deathStarted) return;
+        _deathStarted = true;
         var parent = GetParent();
         if (parent != null)
         {
@@ -578,19 +572,28 @@ public partial class Zombie : CharacterBody2D, IDamageable
                 _ => "res://Resources/Items/AmmoRifle.tres"             // .308
             };
 
-            var pickup = PickupScene.Instantiate<Pickup>();
-            pickup.GlobalPosition = GlobalPosition;
-            pickup.Item = GD.Load<ItemData>(ammoPath);
-            parent.CallDeferred("add_child", pickup);
+            CreateDrop(parent,GD.Load<ItemData>(ammoPath));
         }
         else if (roll < Stats.AmmoDropChance + Stats.MedkitDropChance)
         {
             string healPath = PickHealingDropForEnemy();
-            var pickup = PickupScene.Instantiate<Pickup>();
-            pickup.GlobalPosition = GlobalPosition;
-            pickup.Item = GD.Load<ItemData>(healPath);
-            parent.CallDeferred("add_child", pickup);
+            CreateDrop(parent,GD.Load<ItemData>(healPath));
         }
+    }
+
+    private void CreateDrop(Node parent, ItemData item)
+    {
+        if (item == null) return;
+        if (!string.IsNullOrEmpty(PersistentDropId) && CampaignLootDirector.Instance != null)
+        {
+            CampaignLootDirector.Instance.SpawnEnemyDrop(PersistentDropId,item,GlobalPosition);
+            return;
+        }
+        Vector2 dropPosition = GlobalPosition;
+        var pickup = PickupScene.Instantiate<Pickup>();
+        pickup.Item = item;
+        parent.CallDeferred(Node.MethodName.AddChild,pickup);
+        pickup.SetDeferred(Node2D.PropertyName.GlobalPosition,dropPosition);
     }
 
     private string PickHealingDropForEnemy()

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[ext_resource type="Resource" path="res://Resources/Items/Archivist_Journal.tres" id="reward"]
+[resource]
+script = ExtResource("1")
+Prompt = "SPEAK TO THE ARCHIVIST"
+CompletionFlag = "archivist_journal_collected"
+AdditionalFlags = PackedStringArray("found_archivist")
+DialogueId = "lab_archivist"
+GrantedItem = ExtResource("reward")

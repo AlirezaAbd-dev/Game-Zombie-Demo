@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://Scripts/Core/WeaponData.cs" id="1_weapondata"]
 [ext_resource type="Texture2D" path="res://Assets/textures/rifle.png" id="2_texture"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoRifle.tres" id="3_ammo"]
 
 [resource]
 script = ExtResource("1_weapondata")
 WeaponId = "rifle"
 WeaponName = ".308 Hunting Rifle"
 AmmoId = "ammo_rifle"
+AmmoPickup = ExtResource("3_ammo")
 WeaponSprite = ExtResource("2_texture")
 WeaponOffset = Vector2(16.0, -0.333)
 MuzzleOffset = Vector2(72, 0)
@@ -22,4 +24,5 @@ ReloadDuration = 1.5
 CameraTrauma = 0.42
 RecoilKick = 8.0
 ProjectileSpeed = 2200.0
+NoiseRadius = 650.0
 MuzzleFlashColor = Color(0.9, 0.9, 1.0, 1)

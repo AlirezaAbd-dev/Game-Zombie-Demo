@@ -69,4 +69,16 @@ public partial class PowerGenerator : StaticBody2D
         StoryDirector.Instance?.OnGeneratorActivated();
         EmitSignal(SignalName.GeneratorActivated);
     }
+
+    public void RestoreOnline()
+    {
+        IsOnline = true;
+        if (Interactable != null) Interactable.IsActive = false;
+        if (SparkParticles != null) SparkParticles.Emitting = true;
+        if (CoreLight != null)
+        {
+            CoreLight.Energy = 1.5f;
+            CoreLight.Color = new Color(0.1f, 0.9f, 1.0f);
+        }
+    }
 }

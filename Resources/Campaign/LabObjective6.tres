@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "lab_filtration_online"
+Title = "PROTECT THE PATIENT"
+Instruction = "At the observation panel, enable intake and exhaust. Keep UV purge off."
+Waypoint = Vector2(1700, 1250)
+RequiredFlag = "leila_rescue_accepted"
+ExcludedFlag = "leila_rescued"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "biolab_keycard_found"
+Title = "LEVEL-3 ACCESS"
+Instruction = "Recover the Level-3 keycard from the southern preparation bench."
+Waypoint = Vector2(1600, 2600)
+RequiredFlag = "leila_rescue_accepted"
+ExcludedFlag = "leila_rescued"

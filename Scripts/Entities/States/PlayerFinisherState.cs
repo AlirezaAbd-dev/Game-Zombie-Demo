@@ -11,6 +11,8 @@ public class PlayerFinisherState : PlayerState
     private readonly FinisherType _finisherType;
     private float _durationTimer = 0.38f;
     private bool _hasExecutedImpact = false;
+    private Vector2 _lungeTarget;
+    private float _lungeRemaining;
 
     public PlayerFinisherState(Player player, Zombie target, FinisherType finisherType) : base(player)
     {
@@ -76,10 +78,9 @@ public class PlayerFinisherState : PlayerState
         // Clamp safe striking position to facility boundaries
         safeStrikePos = WorldManager.ClampToPlayableBounds(safeStrikePos);
 
-        var lungeTween = Player.CreateTween();
-        lungeTween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
-        lungeTween.TweenProperty(Player, "global_position", safeStrikePos, 0.12);
-        lungeTween.TweenCallback(Callable.From(ExecuteImpactStrike));
+        // Move the complete physics hull, rather than tweening through collision shapes.
+        _lungeTarget = safeStrikePos;
+        _lungeRemaining = 0.12f;
     }
 
     private void ExecuteImpactStrike()
@@ -236,7 +237,25 @@ public class PlayerFinisherState : PlayerState
 
     public override void PhysicsUpdate(float delta)
     {
-        Player.MovementComponent?.Stop();
+        if (_lungeRemaining > 0.0f)
+        {
+            Vector2 motion = (_lungeTarget - Player.GlobalPosition) * Mathf.Min(1.0f, delta / _lungeRemaining);
+            var collision = Player.MoveAndCollide(motion);
+            _lungeRemaining -= delta;
+            if (collision != null || _lungeRemaining <= 0.0f)
+            {
+                _lungeRemaining = 0.0f;
+                if (GodotObject.IsInstanceValid(_target) && !_target.IsDead
+                    && _target.FinisherTarget?.HasLineOfSightToPlayer(Player) == true)
+                    ExecuteImpactStrike();
+                else
+                {
+                    EndFinisher();
+                    return;
+                }
+            }
+        }
+        else Player.MovementComponent?.Stop();
         Player.GlobalPosition = WorldManager.ClampToPlayableBounds(Player.GlobalPosition);
 
         _durationTimer -= delta;

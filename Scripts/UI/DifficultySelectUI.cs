@@ -14,10 +14,22 @@ public partial class DifficultySelectUI : Control
     public delegate void CancelledEventHandler();
 
     public int TargetSlotIndex { get; set; } = 0;
+    private Button _firstStartButton;
+    private Control _previousFocus;
 
     public override void _Ready()
     {
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         BuildUI();
+        VisibilityChanged += () =>
+        {
+            if (Visible)
+            {
+                _previousFocus = GetViewport().GuiGetFocusOwner();
+                _firstStartButton.GrabFocus();
+            }
+            else if (IsInstanceValid(_previousFocus) && _previousFocus.IsVisibleInTree()) _previousFocus.GrabFocus();
+        };
     }
 
     private void BuildUI()
@@ -54,7 +66,7 @@ public partial class DifficultySelectUI : Control
         cardsHBox.AddChild(CreateDifficultyCard(
             "SURVIVOR",
             "RECOMMENDED FOR FIRST PLAYTHROUGH",
-            "• Standard HP & Ammo capacity\n• Balanced enemy damage (1.0x)\n• Generous stealth detection\n• Full HUD and tactical prompts",
+            LoadoutDetails(DifficultyLevel.Survivor,"1.0×"),
             new Color(0.3f, 0.75f, 0.95f),
             DifficultyLevel.Survivor
         ));
@@ -62,7 +74,7 @@ public partial class DifficultySelectUI : Control
         cardsHBox.AddChild(CreateDifficultyCard(
             "NIGHTMARE",
             "SURVIVAL HORROR VETERAN",
-            "• Reduced ammo drops (-40%)\n• High enemy damage (1.5x)\n• +30% enemy population\n• Strict stealth vision & hearing",
+            LoadoutDetails(DifficultyLevel.Nightmare,"1.35×"),
             new Color(0.95f, 0.65f, 0.25f),
             DifficultyLevel.Nightmare
         ));
@@ -70,7 +82,7 @@ public partial class DifficultySelectUI : Control
         cardsHBox.AddChild(CreateDifficultyCard(
             "RESEARCHER",
             "UNFORGIVING EXTRACTION",
-            "• Scarce ammo supplies (-60%)\n• Lethal enemy damage (2.0x)\n• +60% aggressive infected horde\n• Brutal stealth: single error fatal",
+            LoadoutDetails(DifficultyLevel.Researcher,"1.8×"),
             new Color(0.95f, 0.25f, 0.25f),
             DifficultyLevel.Researcher
         ));
@@ -152,9 +164,17 @@ public partial class DifficultySelectUI : Control
             CustomMinimumSize = new Vector2(0, 44)
         };
         btn.Pressed += () => OnDifficultyChosen(level);
+        _firstStartButton ??= btn;
         vBox.AddChild(btn);
 
         return panel;
+    }
+
+    private static string LoadoutDetails(DifficultyLevel difficulty,string multiplier)
+    {
+        var data = SaveSystem.Instance.StartingLoadout;
+        int count = data.Dressings(difficulty);
+        return $"• 100 HP · {count} {(count == 1 ? "bandage" : "bandages")}\n• Handgun: {data.Rounds(difficulty)} starting rounds\n• Find other weapons on site\n• Infected melee damage: {multiplier}";
     }
 
     private void OnDifficultyChosen(DifficultyLevel level)

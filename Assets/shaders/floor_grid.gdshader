@@ -5,6 +5,7 @@ uniform vec4 line_color : source_color = vec4(0.16, 0.20, 0.26, 1.0);
 uniform vec4 dot_color : source_color = vec4(0.24, 0.32, 0.42, 1.0);
 uniform float tile_size = 96.0;
 uniform float line_thickness = 2.0;
+uniform float edge_fade = 1.0;
 
 varying vec2 world_pos;
 
@@ -45,5 +46,5 @@ void fragment() {
 	vec2 uv_dist = abs(UV - 0.5) * 2.0;
 	float border_fade = 1.0 - smoothstep(0.85, 1.0, max(uv_dist.x, uv_dist.y));
 	
-	COLOR = vec4(col, base_color.a * border_fade);
+	COLOR = vec4(col, base_color.a * mix(1.0, border_fade, edge_fade));
 }

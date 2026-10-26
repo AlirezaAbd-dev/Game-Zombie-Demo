@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "READ SILO EMERGENCY PROCEDURE"
+CompletionFlag = "silo_briefing_read"
+Speaker = "EMERGENCY PROCEDURE"
+Message = "Restore the backup generator with the starter battery in its east storage cage. Release the silo access shutter from preparation. Unit-9 blocks the communications route. The blue marked coolant zone can weaken it: lure it into the ring, discharge at the east valve, then let pressure recover."

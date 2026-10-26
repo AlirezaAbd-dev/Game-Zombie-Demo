@@ -309,13 +309,15 @@ public partial class Player : CharacterBody2D, IDamageable
 
         Vector2 muzzleGlobal = ToGlobal(weapon.MuzzleOffset);
         float spreadRange = IsAiming ? weapon.AimSpread : weapon.BaseSpread;
+        var shotReport = new ShotReport();
 
         for (int i = 0; i < weapon.Pellets; i++)
         {
             float spread = (float)GD.RandRange(-spreadRange, spreadRange);
             if (ProjectilePool.Instance != null)
             {
-                ProjectilePool.Instance.Spawn(muzzleGlobal, GlobalRotation + spread, GetParent(), weapon.Damage, weapon.ProjectileSpeed);
+                ProjectilePool.Instance.Spawn(muzzleGlobal, GlobalRotation + spread, GetParent(), weapon.Damage, weapon.ProjectileSpeed,
+                    launchOrigin: GlobalPosition,shotReport: shotReport);
             }
         }
 
@@ -343,14 +345,8 @@ public partial class Player : CharacterBody2D, IDamageable
 
         AudioManager.Instance?.PlayGunshot(weapon.WeaponId, GlobalPosition);
 
-        float noiseRadius = weapon.WeaponId switch
-        {
-            "weapon_shotgun" => 750.0f,
-            "weapon_rifle" => 650.0f,
-            _ => 450.0f
-        };
-        AlertNearbyZombies(noiseRadius);
-        StealthSystem.Instance?.ReportGunshot(GlobalPosition, noiseRadius);
+        if (StealthSystem.Instance != null) StealthSystem.Instance.ReportGunshot(GlobalPosition,weapon.NoiseRadius);
+        else AlertNearbyZombies(weapon.NoiseRadius);
 
         if (InventoryComponent.CurrentAmmo == 0)
         {
@@ -598,7 +594,7 @@ public partial class Player : CharacterBody2D, IDamageable
             targetOffset = _cameraFocusWorldPos.Value - GlobalPosition;
             targetZoom = new Vector2(_cameraFocusZoom, _cameraFocusZoom);
         }
-        else if (!IsDead)
+        else if (!IsDead && PlayerSettings.Current.CameraLookAhead)
         {
             Vector2 mouseLocal = GetLocalMousePosition();
             float shiftRatio = IsAiming ? 0.32f : 0.16f;
@@ -609,7 +605,7 @@ public partial class Player : CharacterBody2D, IDamageable
         Camera.Zoom = Camera.Zoom.Lerp(targetZoom, delta * 6.0f);
 
         _cameraTrauma = Mathf.Max(0.0f, _cameraTrauma - delta * 1.8f);
-        float shakeStrength = _cameraTrauma * _cameraTrauma * 16.0f;
+        float shakeStrength = _cameraTrauma * _cameraTrauma * 16.0f * PlayerSettings.Current.CameraShake;
         Vector2 shakeOffset = new(
             (float)GD.RandRange(-shakeStrength, shakeStrength),
             (float)GD.RandRange(-shakeStrength, shakeStrength)

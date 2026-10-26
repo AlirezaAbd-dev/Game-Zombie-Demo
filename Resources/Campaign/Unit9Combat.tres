@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BossCombatData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/BossCombatData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+MeleeWindup = 0.65
+AcidWindup = 1.0
+RecoverySeconds = 0.55
+MeleeCooldown = 1.3
+AcidCooldown = 7.0
+SweepHalfAngle = 0.95

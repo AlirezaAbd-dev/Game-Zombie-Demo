@@ -1,13 +1,15 @@
-[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://Scripts/Core/WeaponData.cs" id="1_weapondata"]
 [ext_resource type="Texture2D" path="res://Assets/textures/gun.png" id="2_texture"]
+[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="3_ammo"]
 
 [resource]
 script = ExtResource("1_weapondata")
 WeaponId = "handgun"
 WeaponName = "9mm Handgun"
 AmmoId = "ammo_handgun"
+AmmoPickup = ExtResource("3_ammo")
 WeaponSprite = ExtResource("2_texture")
 WeaponOffset = Vector2(12.333, -0.333)
 MuzzleOffset = Vector2(55, 0)
@@ -22,4 +24,5 @@ ReloadDuration = 1.2
 CameraTrauma = 0.16
 RecoilKick = 3.5
 ProjectileSpeed = 1400.0
+NoiseRadius = 450.0
 MuzzleFlashColor = Color(1, 0.85, 0.45, 1)

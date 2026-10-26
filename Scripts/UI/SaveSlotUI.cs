@@ -24,11 +24,23 @@ public partial class SaveSlotUI : Control
 
     private VBoxContainer _slotContainer;
     private Button _closeButton;
+    private Label _title;
+    private Control _previousFocus;
 
     public override void _Ready()
     {
+        SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         BuildUI();
         RefreshSlots();
+        VisibilityChanged += () =>
+        {
+            if (Visible)
+            {
+                _previousFocus = GetViewport().GuiGetFocusOwner();
+                _closeButton.GrabFocus();
+            }
+            else if (IsInstanceValid(_previousFocus) && _previousFocus.IsVisibleInTree()) _previousFocus.GrabFocus();
+        };
     }
 
     private void BuildUI()
@@ -74,14 +86,14 @@ public partial class SaveSlotUI : Control
         vBox.AddThemeConstantOverride("separation", 16);
         panel.AddChild(vBox);
 
-        var title = new Label
+        _title = new Label
         {
             Text = CurrentMode == Mode.Save ? "SELECT SAVE SLOT" : "LOAD GAME",
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        title.AddThemeFontSizeOverride("font_size", 24);
-        title.AddThemeColorOverride("font_color", new Color(0.95f, 0.75f, 0.3f));
-        vBox.AddChild(title);
+        _title.AddThemeFontSizeOverride("font_size", 24);
+        _title.AddThemeColorOverride("font_color", new Color(0.95f, 0.75f, 0.3f));
+        vBox.AddChild(_title);
 
         _slotContainer = new VBoxContainer();
         _slotContainer.AddThemeConstantOverride("separation", 12);
@@ -99,6 +111,7 @@ public partial class SaveSlotUI : Control
 
     public void RefreshSlots()
     {
+        if (_title != null) _title.Text = CurrentMode == Mode.Save ? "SELECT SAVE SLOT" : "LOAD GAME";
         if (_slotContainer == null) return;
 
         foreach (Node child in _slotContainer.GetChildren())
@@ -154,8 +167,9 @@ public partial class SaveSlotUI : Control
                 slotHeader.AddThemeColorOverride("font_color", new Color(0.95f, 0.8f, 0.4f));
                 infoBox.AddChild(slotHeader);
 
-                int mins = (int)(data.PlaytimeSeconds / 60.0f);
-                int secs = (int)(data.PlaytimeSeconds % 60.0f);
+                float duration = data.PlaytimeSeconds + data.DialoguePlaytimeSeconds;
+                int mins = (int)(duration / 60.0f);
+                int secs = (int)(duration % 60.0f);
                 var details = new Label
                 {
                     Text = $"Difficulty: {data.Difficulty} | HP: {(int)data.PlayerHealth} | Time: {mins:D2}:{secs:D2} | Saved: {data.SavedAt.ToLocalTime():yyyy-MM-dd HH:mm}"

@@ -1,139 +1,1394 @@
-[gd_scene format=3 uid="uid://act4sub004"]
+[gd_scene format=3]
 
-[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="1_floor_sh"]
-[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="2_ui"]
-[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="3_player"]
-[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="4_zombie"]
-[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="5_pickup"]
-[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="6_blast_door"]
-[ext_resource type="PackedScene" path="res://Prefabs/WallSteel.tscn" id="7_wall_steel"]
-[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="8_map_bound"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="9_desk"]
-[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="10_act_director"]
-[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="11_audio_mgr"]
-[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="12_story_dir"]
-[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="13_proj_pool"]
-[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="14_bullet"]
-[ext_resource type="Resource" path="res://Resources/Items/Ghorbani_Files.tres" id="15_ghorbani_files"]
-[ext_resource type="Resource" path="res://Resources/Items/AmmoRifle.tres" id="16_rifle_ammo"]
-[ext_resource type="Resource" path="res://Resources/Items/TraumaKit.tres" id="17_trauma_kit"]
-[ext_resource type="Script" path="res://Scripts/Entities/NPC.cs" id="18_npc_script"]
-[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="19_trans_trigger"]
-[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="20_light"]
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="e1"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_sub_floor"]
-shader = ExtResource("1_floor_sh")
-shader_parameter/base_color = Color(0.06, 0.04, 0.08, 1)
-shader_parameter/line_color = Color(0.12, 0.08, 0.16, 1)
-shader_parameter/dot_color = Color(0.25, 0.15, 0.35, 1)
-shader_parameter/tile_size = 96.0
-shader_parameter/line_thickness = 2.0
+[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="e2"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_transition"]
-size = Vector2(180, 60)
+[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="e3"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="e4"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="e5"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="e6"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropLocker.tscn" id="e7"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="e8"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="e9"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="e10"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="e11"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="e12"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/WorldStateComponent.cs" id="e13"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/CampaignInteraction.cs" id="e14"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="e15"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="e16"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/PowerRoutingPanel.cs" id="e17"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="e18"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="e20"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_desk.png" id="e21"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/generator.png" id="e22"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_hazard_barrel.png" id="e23"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="e24"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Bandage.tres" id="e25"]
+
+[ext_resource type="Resource" path="res://Resources/Items/ArchiveVaultKey.tres" id="e26"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Ghorbani_Files.tres" id="e27"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoRifle.tres" id="e28"]
+
+[ext_resource type="Resource" path="res://Resources/Items/TraumaKit.tres" id="e29"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="e30"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoShotgun.tres" id="e31"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveIndex.tres" id="e32"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveProtocol.tres" id="e33"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveConfrontation.tres" id="e34"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveCounterweight.tres" id="e35"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchivePump.tres" id="e36"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveCompareEvidence.tres" id="e37"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRecorder.tres" id="e38"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveLiftNotice.tres" id="e39"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GatePowerRouting.tres" id="e40"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveObjective1.tres" id="e41"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveObjective2.tres" id="e42"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveObjective3.tres" id="e43"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveObjective4.tres" id="e44"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveObjective5.tres" id="e45"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveObjective6.tres" id="e46"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/EnemyActivationComponent.cs" id="e47"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/SequencePanel.cs" id="e48"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveLiftSequence.tres" id="e49"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/topdown_character.png" id="e50"]
+
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Walker.tres" id="e51"]
+
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Runner.tres" id="e52"]
+
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Brute.tres" id="e53"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom1.tres" id="e54"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom2.tres" id="e55"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom3.tres" id="e56"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom4.tres" id="e57"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom5.tres" id="e58"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom6.tres" id="e59"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom7.tres" id="e60"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom8.tres" id="e61"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/ArchiveRoom9.tres" id="e62"]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="e63"]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignRoomData.cs" id="e64"]
+
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/CarpetMaterial.tres" id="surface_Carpet"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/ConcreteMaterial.tres" id="surface_Concrete"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/SteelMaterial.tres" id="surface_Steel"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/ArchiveRack.tscn" id="dressing_Rack"]
+
+[ext_resource type="Resource" path="res://Resources/Items/RiflePickup.tres" id="weapon_reward"]
+
+[sub_resource type="CircleShape2D" id="interaction_range"]
+radius = 90.0
+
+[sub_resource type="RectangleShape2D" id="exit_shape"]
+size = Vector2(240, 100)
+
+[sub_resource type="RectangleShape2D" id="shape_WestBoundary"]
+size = Vector2(80, 3080)
+
+[sub_resource type="OccluderPolygon2D" id="occ_WestBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+
+[sub_resource type="RectangleShape2D" id="shape_EastBoundary"]
+size = Vector2(80, 3080)
+
+[sub_resource type="OccluderPolygon2D" id="occ_EastBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+
+[sub_resource type="RectangleShape2D" id="shape_SouthBoundary"]
+size = Vector2(3080, 80)
+
+[sub_resource type="OccluderPolygon2D" id="occ_SouthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+
+[sub_resource type="RectangleShape2D" id="shape_NorthBoundary"]
+size = Vector2(3080, 80)
+
+[sub_resource type="OccluderPolygon2D" id="occ_NorthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Vertical1000_0"]
+size = Vector2(64, 1390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Vertical1000_0"]
+polygon = PackedVector2Array(-32.0, -695.0, 32.0, -695.0, 32.0, 695.0, -32.0, 695.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Vertical1000_1"]
+size = Vector2(64, 780)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Vertical1000_1"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Vertical1000_end"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Vertical1000_end"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Vertical2000_0"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Vertical2000_0"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Vertical2000_1"]
+size = Vector2(64, 780)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Vertical2000_1"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Vertical2000_2"]
+size = Vector2(64, 780)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Vertical2000_2"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Vertical2000_end"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Vertical2000_end"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Horizontal1000_0"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Horizontal1000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Horizontal1000_1"]
+size = Vector2(780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Horizontal1000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Horizontal1000_end"]
+size = Vector2(1390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Horizontal1000_end"]
+polygon = PackedVector2Array(-695.0, -32.0, 695.0, -32.0, 695.0, 32.0, -695.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Horizontal2000_0"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Horizontal2000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Horizontal2000_1"]
+size = Vector2(780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Horizontal2000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Horizontal2000_end"]
+size = Vector2(1390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Horizontal2000_end"]
+polygon = PackedVector2Array(-695.0, -32.0, 695.0, -32.0, 695.0, 32.0, -695.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_RecordShelf0"]
+size = Vector2(200, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_RecordShelf0"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_RecordShelf1"]
+size = Vector2(200, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_RecordShelf1"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_RecordShelf2"]
+size = Vector2(200, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_RecordShelf2"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_RecordShelf3"]
+size = Vector2(200, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_RecordShelf3"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_RecordShelf4"]
+size = Vector2(200, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_RecordShelf4"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
 
 [node name="Act4_SubBasement" type="Node2D"]
 
-[node name="CampaignActDirector" type="Node" parent="."]
-script = ExtResource("10_act_director")
+
+[node name="CampaignActDirector" type="Node" parent="." node_paths=PackedStringArray("AmbientLight")]
+script = ExtResource("e9")
 CurrentAct = 4
+LayoutVersion = 3
 SceneId = "act4_subbasement"
-ObjectiveTitle = "THE REVELATION"
-ObjectiveSubtask = "Confront Dr. Sadeghi & acquire Ghorbani's secret files"
-StartDialogueId = "act4_betrayal"
-StartDialogueDelay = 1.0
+ObjectiveTitle = "REACH THE SURFACE SILO"
+ObjectiveSubtask = "Save at the platform recorder, then operate the freight lift [E]."
+StartDialogueId = ""
+AmbientLight = NodePath("../AmbientLight")
+Objectives = Array[ExtResource("e63")]([ExtResource("e41"), ExtResource("e42"), ExtResource("e43"), ExtResource("e44"), ExtResource("e45"), ExtResource("e46")])
+Rooms = Array[ExtResource("e64")]([ExtResource("e54"), ExtResource("e55"), ExtResource("e56"), ExtResource("e57"), ExtResource("e58"), ExtResource("e59"), ExtResource("e60"), ExtResource("e61"), ExtResource("e62")])
 
 [node name="StoryDirector" type="Node" parent="."]
-script = ExtResource("12_story_dir")
+script = ExtResource("e10")
+IsCampaign = true
 
 [node name="AudioManager" type="Node" parent="."]
-script = ExtResource("11_audio_mgr")
+script = ExtResource("e11")
 
 [node name="ProjectilePool" type="Node" parent="."]
-script = ExtResource("13_proj_pool")
-BulletScene = ExtResource("14_bullet")
+script = ExtResource("e12")
+BulletScene = ExtResource("e18")
 
-[node name="CanvasModulate" type="CanvasModulate" parent="."]
-color = Color(0.03, 0.02, 0.04, 1)
+[node name="AmbientLight" type="CanvasModulate" parent="."]
+color = Color(0.12, 0.13, 0.18, 1)
 
-[node name="DimAmberLight" type="PointLight2D" parent="."]
-position = Vector2(600, 480)
-color = Color(0.95, 0.65, 0.25, 1)
-energy = 1.2
-texture = ExtResource("20_light")
-texture_scale = 2.8
+[node name="Room1" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 0.0
+offset_top = 2000.0
+offset_right = 1000.0
+offset_bottom = 3000.0
+mouse_filter = 2
 
-[node name="Floor" type="ColorRect" parent="."]
-material = SubResource("ShaderMaterial_sub_floor")
-offset_left = -300.0
-offset_top = -600.0
-offset_right = 1500.0
-offset_bottom = 1200.0
+[node name="RoomSign1" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 2100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "LIFT ARRIVAL"
+mouse_filter = 2
 
-[node name="MapBoundary" parent="." instance=ExtResource("8_map_bound")]
+[node name="Fixture1" type="PointLight2D" parent="."]
+position = Vector2(500, 2500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
 
-[node name="GameUI" parent="." instance=ExtResource("2_ui")]
+[node name="Room2" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Concrete")
+offset_left = 1000.0
+offset_top = 2000.0
+offset_right = 2000.0
+offset_bottom = 3000.0
+mouse_filter = 2
 
-[node name="Player" parent="." instance=ExtResource("3_player")]
-position = Vector2(600, 950)
+[node name="RoomSign2" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 1100.0
+offset_top = 2100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "MAINTENANCE"
+mouse_filter = 2
 
-[node name="SadeghiDesk" parent="." instance=ExtResource("9_desk")]
-position = Vector2(600, 480)
+[node name="Fixture2" type="PointLight2D" parent="."]
+position = Vector2(1500, 2500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
 
-[node name="DrSadeghiNPC" type="CharacterBody2D" parent="."]
-position = Vector2(600, 400)
-script = ExtResource("18_npc_script")
-CharacterName = "Dr. Karim Sadeghi"
-PromptText = "CONFRONT"
+[node name="Room3" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 2000.0
+offset_top = 2000.0
+offset_right = 3000.0
+offset_bottom = 3000.0
+mouse_filter = 2
 
-[node name="GhorbaniFilesPickup" parent="." instance=ExtResource("5_pickup")]
-position = Vector2(680, 480)
-Item = ExtResource("15_ghorbani_files")
+[node name="RoomSign3" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 2100.0
+offset_top = 2100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "HYDRAULICS"
+mouse_filter = 2
 
-[node name="RifleAmmoPickup" parent="." instance=ExtResource("5_pickup")]
-position = Vector2(350, 650)
-Item = ExtResource("16_rifle_ammo")
+[node name="Fixture3" type="PointLight2D" parent="."]
+position = Vector2(2500, 2500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
 
-[node name="TraumaKitPickup" parent="." instance=ExtResource("5_pickup")]
-position = Vector2(850, 650)
-Item = ExtResource("17_trauma_kit")
+[node name="Room4" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Carpet")
+offset_left = 0.0
+offset_top = 1000.0
+offset_right = 1000.0
+offset_bottom = 2000.0
+mouse_filter = 2
 
-[node name="SubZombie1" parent="." instance=ExtResource("4_zombie")]
-position = Vector2(400, 750)
+[node name="RoomSign4" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "PAPER ARCHIVE"
+mouse_filter = 2
 
-[node name="SubZombie2" parent="." instance=ExtResource("4_zombie")]
-position = Vector2(800, 750)
+[node name="Fixture4" type="PointLight2D" parent="."]
+position = Vector2(500, 1500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
 
-[node name="SiloBlastDoor" parent="." instance=ExtResource("6_blast_door")]
-position = Vector2(600, 200)
-DoorId = "door_missile_silo"
-SlideOffset = Vector2(180, 0)
+[node name="Room5" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Carpet")
+offset_left = 1000.0
+offset_top = 1000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+mouse_filter = 2
 
-[node name="Act5Trigger" type="Area2D" parent="."]
-position = Vector2(600, 50)
-script = ExtResource("19_trans_trigger")
+[node name="RoomSign5" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 1100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "CENTRAL RECORDS"
+mouse_filter = 2
+
+[node name="Fixture5" type="PointLight2D" parent="."]
+position = Vector2(1500, 1500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
+
+[node name="Room6" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 2000.0
+offset_top = 1000.0
+offset_right = 3000.0
+offset_bottom = 2000.0
+mouse_filter = 2
+
+[node name="RoomSign6" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 2100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "COMMAND VAULT"
+mouse_filter = 2
+
+[node name="Fixture6" type="PointLight2D" parent="."]
+position = Vector2(2500, 1500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
+
+[node name="Room7" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Carpet")
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="RoomSign7" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "COMMAND OFFICE"
+mouse_filter = 2
+
+[node name="Fixture7" type="PointLight2D" parent="."]
+position = Vector2(500, 500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
+
+[node name="Room8" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Concrete")
+offset_left = 1000.0
+offset_top = 0.0
+offset_right = 2000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="RoomSign8" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 1100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "SHELTER"
+mouse_filter = 2
+
+[node name="Fixture8" type="PointLight2D" parent="."]
+position = Vector2(1500, 500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
+
+[node name="Room9" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 2000.0
+offset_top = 0.0
+offset_right = 3000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="RoomSign9" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 2100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "FREIGHT LIFT"
+mouse_filter = 2
+
+[node name="Fixture9" type="PointLight2D" parent="."]
+position = Vector2(2500, 500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.8, 0.6, 0.35, 1)
+
+[node name="WestBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(-40, 1500)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="WestBoundary"]
+shape = SubResource("shape_WestBoundary")
+
+[node name="Surface" type="Polygon2D" parent="WestBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="WestBoundary"]
+occluder = SubResource("occ_WestBoundary")
+
+[node name="EastBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(3040, 1500)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="EastBoundary"]
+shape = SubResource("shape_EastBoundary")
+
+[node name="Surface" type="Polygon2D" parent="EastBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="EastBoundary"]
+occluder = SubResource("occ_EastBoundary")
+
+[node name="SouthBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1500, 3040)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="SouthBoundary"]
+shape = SubResource("shape_SouthBoundary")
+
+[node name="Surface" type="Polygon2D" parent="SouthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="SouthBoundary"]
+occluder = SubResource("occ_SouthBoundary")
+
+[node name="NorthBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1500, -40)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="NorthBoundary"]
+shape = SubResource("shape_NorthBoundary")
+
+[node name="Surface" type="Polygon2D" parent="NorthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="NorthBoundary"]
+occluder = SubResource("occ_NorthBoundary")
+
+[node name="Vertical1000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 695.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Vertical1000_0"]
+shape = SubResource("shape_Vertical1000_0")
+
+[node name="Surface" type="Polygon2D" parent="Vertical1000_0"]
+polygon = PackedVector2Array(-32.0, -695.0, 32.0, -695.0, 32.0, 695.0, -32.0, 695.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Vertical1000_0"]
+occluder = SubResource("occ_Vertical1000_0")
+
+[node name="Vertical1000_1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 2000.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Vertical1000_1"]
+shape = SubResource("shape_Vertical1000_1")
+
+[node name="Surface" type="Polygon2D" parent="Vertical1000_1"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Vertical1000_1"]
+occluder = SubResource("occ_Vertical1000_1")
+
+[node name="Vertical1000_end" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 2805.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Vertical1000_end"]
+shape = SubResource("shape_Vertical1000_end")
+
+[node name="Surface" type="Polygon2D" parent="Vertical1000_end"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Vertical1000_end"]
+occluder = SubResource("occ_Vertical1000_end")
+
+[node name="Vertical2000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 195.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Vertical2000_0"]
+shape = SubResource("shape_Vertical2000_0")
+
+[node name="Surface" type="Polygon2D" parent="Vertical2000_0"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Vertical2000_0"]
+occluder = SubResource("occ_Vertical2000_0")
+
+[node name="Vertical2000_1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 1000.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Vertical2000_1"]
+shape = SubResource("shape_Vertical2000_1")
+
+[node name="Surface" type="Polygon2D" parent="Vertical2000_1"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Vertical2000_1"]
+occluder = SubResource("occ_Vertical2000_1")
+
+[node name="Vertical2000_2" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 2000.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Vertical2000_2"]
+shape = SubResource("shape_Vertical2000_2")
+
+[node name="Surface" type="Polygon2D" parent="Vertical2000_2"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Vertical2000_2"]
+occluder = SubResource("occ_Vertical2000_2")
+
+[node name="Vertical2000_end" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 2805.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Vertical2000_end"]
+shape = SubResource("shape_Vertical2000_end")
+
+[node name="Surface" type="Polygon2D" parent="Vertical2000_end"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Vertical2000_end"]
+occluder = SubResource("occ_Vertical2000_end")
+
+[node name="Horizontal1000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(195.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Horizontal1000_0"]
+shape = SubResource("shape_Horizontal1000_0")
+
+[node name="Surface" type="Polygon2D" parent="Horizontal1000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Horizontal1000_0"]
+occluder = SubResource("occ_Horizontal1000_0")
+
+[node name="Horizontal1000_1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Horizontal1000_1"]
+shape = SubResource("shape_Horizontal1000_1")
+
+[node name="Surface" type="Polygon2D" parent="Horizontal1000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Horizontal1000_1"]
+occluder = SubResource("occ_Horizontal1000_1")
+
+[node name="Horizontal1000_end" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2305.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Horizontal1000_end"]
+shape = SubResource("shape_Horizontal1000_end")
+
+[node name="Surface" type="Polygon2D" parent="Horizontal1000_end"]
+polygon = PackedVector2Array(-695.0, -32.0, 695.0, -32.0, 695.0, 32.0, -695.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Horizontal1000_end"]
+occluder = SubResource("occ_Horizontal1000_end")
+
+[node name="Horizontal2000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(195.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Horizontal2000_0"]
+shape = SubResource("shape_Horizontal2000_0")
+
+[node name="Surface" type="Polygon2D" parent="Horizontal2000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Horizontal2000_0"]
+occluder = SubResource("occ_Horizontal2000_0")
+
+[node name="Horizontal2000_1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Horizontal2000_1"]
+shape = SubResource("shape_Horizontal2000_1")
+
+[node name="Surface" type="Polygon2D" parent="Horizontal2000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Horizontal2000_1"]
+occluder = SubResource("occ_Horizontal2000_1")
+
+[node name="Horizontal2000_end" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2305.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Horizontal2000_end"]
+shape = SubResource("shape_Horizontal2000_end")
+
+[node name="Surface" type="Polygon2D" parent="Horizontal2000_end"]
+polygon = PackedVector2Array(-695.0, -32.0, 695.0, -32.0, 695.0, 32.0, -695.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Horizontal2000_end"]
+occluder = SubResource("occ_Horizontal2000_end")
+
+[node name="RecordsDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(1000, 1500)
+rotation = 1.570796
+scale = Vector2(2.1, 1.0)
+DoorId = "RecordsDoor"
+RequiredStoryFlag = "archive_index_read"
+RequiredItemId = ""
+LockedPromptText = "SECURITY INTERLOCK - CHECK THE CURRENT OBJECTIVE"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="RecordsDoor"]
+script = ExtResource("e13")
+StableId = "RecordsDoor"
+
+[node name="CommandDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(500, 1000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "CommandDoor"
+RequiredStoryFlag = "outbreak_protocol_revealed"
+RequiredItemId = ""
+LockedPromptText = "SECURITY INTERLOCK - CHECK THE CURRENT OBJECTIVE"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="CommandDoor"]
+script = ExtResource("e13")
+StableId = "CommandDoor"
+
+[node name="ShelterDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(1500, 1000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "ShelterDoor"
+RequiredStoryFlag = "outbreak_protocol_revealed"
+RequiredItemId = ""
+LockedPromptText = "SECURITY INTERLOCK - CHECK THE CURRENT OBJECTIVE"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="ShelterDoor"]
+script = ExtResource("e13")
+StableId = "ShelterDoor"
+
+[node name="VaultDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(2000, 1500)
+rotation = 1.570796
+scale = Vector2(2.1, 1.0)
+DoorId = "VaultDoor"
+RequiredStoryFlag = ""
+RequiredItemId = "archive_vault_key"
+LockedPromptText = "SECURITY INTERLOCK - CHECK THE CURRENT OBJECTIVE"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="VaultDoor"]
+script = ExtResource("e13")
+StableId = "VaultDoor"
+
+[node name="HydraulicDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(2000, 2500)
+rotation = 1.570796
+scale = Vector2(2.1, 1.0)
+DoorId = "HydraulicDoor"
+RequiredStoryFlag = "archive_counterweight_released"
+RequiredItemId = ""
+LockedPromptText = "SECURITY INTERLOCK - CHECK THE CURRENT OBJECTIVE"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="HydraulicDoor"]
+script = ExtResource("e13")
+StableId = "HydraulicDoor"
+
+[node name="FreightDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(2000, 500)
+rotation = 1.570796
+scale = Vector2(2.1, 1.0)
+DoorId = "FreightDoor"
+RequiredStoryFlag = "archive_lift_ready"
+RequiredItemId = ""
+LockedPromptText = "SECURITY INTERLOCK - CHECK THE CURRENT OBJECTIVE"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="FreightDoor"]
+script = ExtResource("e13")
+StableId = "FreightDoor"
+
+[node name="ArrivalLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(200, 2750)
+
+[node name="PaperDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(350, 1350)
+
+[node name="RecordsDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(1550, 1300)
+
+[node name="CommandDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(650, 550)
+
+[node name="VaultDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(2500, 1300)
+
+[node name="ShelterDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(1400, 450)
+
+[node name="WorkshopLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(1200, 2800)
+
+[node name="HydraulicReservoir" parent="." instance=ExtResource("e8")]
+position = Vector2(2700, 2700)
+
+[node name="FreightLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(2800, 700)
+
+[node name="RecordShelf0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(300, 1750)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="RecordShelf0"]
+shape = SubResource("shape_RecordShelf0")
+
+[node name="Surface" type="Polygon2D" parent="RecordShelf0"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="RecordShelf0"]
+occluder = SubResource("occ_RecordShelf0")
+
+[node name="RecordShelf1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(700, 1200)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="RecordShelf1"]
+shape = SubResource("shape_RecordShelf1")
+
+[node name="Surface" type="Polygon2D" parent="RecordShelf1"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="RecordShelf1"]
+occluder = SubResource("occ_RecordShelf1")
+
+[node name="RecordShelf2" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1250, 1750)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="RecordShelf2"]
+shape = SubResource("shape_RecordShelf2")
+
+[node name="Surface" type="Polygon2D" parent="RecordShelf2"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="RecordShelf2"]
+occluder = SubResource("occ_RecordShelf2")
+
+[node name="RecordShelf3" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1750, 1750)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="RecordShelf3"]
+shape = SubResource("shape_RecordShelf3")
+
+[node name="Surface" type="Polygon2D" parent="RecordShelf3"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="RecordShelf3"]
+occluder = SubResource("occ_RecordShelf3")
+
+[node name="RecordShelf4" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2400, 1750)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="RecordShelf4"]
+shape = SubResource("shape_RecordShelf4")
+
+[node name="Surface" type="Polygon2D" parent="RecordShelf4"]
+polygon = PackedVector2Array(-100.0, -32.0, 100.0, -32.0, 100.0, 32.0, -100.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="RecordShelf4"]
+occluder = SubResource("occ_RecordShelf4")
+
+[node name="IndexDesk" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(300, 1450)
+script = ExtResource("e14")
+Data = ExtResource("e32")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="IndexDesk"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="IndexDesk/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="IndexDesk"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="IndexDesk"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="ProtocolTerminal" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1500, 1400)
+script = ExtResource("e14")
+Data = ExtResource("e33")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="ProtocolTerminal"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="ProtocolTerminal/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="ProtocolTerminal"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="ProtocolTerminal"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="Sadeghi" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1500, 350)
+script = ExtResource("e14")
+Data = ExtResource("e34")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="Sadeghi"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="Sadeghi/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="Sadeghi"]
+texture = ExtResource("e50")
+scale = Vector2(3,3)
+modulate = Color(0.8, 0.85, 0.65, 1)
+
+[node name="Indicator" type="PointLight2D" parent="Sadeghi"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="CounterweightLock" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1400, 2500)
+script = ExtResource("e14")
+Data = ExtResource("e35")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="CounterweightLock"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="CounterweightLock/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="CounterweightLock"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="CounterweightLock"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="HydraulicPump" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(2600, 2500)
+script = ExtResource("e14")
+Data = ExtResource("e36")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="HydraulicPump"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="HydraulicPump/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="HydraulicPump"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="HydraulicPump"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="EvidenceDesk" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(2500, 1400)
+script = ExtResource("e14")
+Data = ExtResource("e37")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="EvidenceDesk"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="EvidenceDesk/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="EvidenceDesk"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="EvidenceDesk"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="EntryRecorder" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(300, 2500)
+script = ExtResource("e14")
+Data = ExtResource("e38")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="EntryRecorder"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="EntryRecorder/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="EntryRecorder"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="EntryRecorder"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="PlatformRecorder" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(2600, 700)
+script = ExtResource("e14")
+Data = ExtResource("e38")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="PlatformRecorder"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="PlatformRecorder/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="PlatformRecorder"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="PlatformRecorder"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="ServicePlacard" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1200, 2300)
+script = ExtResource("e14")
+Data = ExtResource("e39")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="ServicePlacard"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="ServicePlacard/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="ServicePlacard"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="ServicePlacard"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="LiftStartup" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1700,650)
+script = ExtResource("e48")
+Data = ExtResource("e49")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="LiftStartup"]
+script = ExtResource("e15")
+PromptText = "PERFORM FREIGHT STARTUP"
+RequiredStoryFlag = "archive_pump_primed"
+LockedPromptText = "PRIME THE HYDRAULIC RETURN IN THE EAST PUMP ROOM"
+
+[node name="Range" type="CollisionShape2D" parent="LiftStartup/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="LiftStartup"]
+texture = ExtResource("e21")
+
+[node name="VaultCredential" parent="." instance=ExtResource("e4")]
+position = Vector2(350, 350)
+Item = ExtResource("e26")
+StoryFlagOnCollect = "archive_vault_key_found"
+
+[node name="WorldState" type="Node" parent="VaultCredential"]
+script = ExtResource("e13")
+StableId = "VaultCredential"
+
+[node name="GhorbaniFilesPickup" parent="." instance=ExtResource("e4")]
+position = Vector2(2700, 1300)
+Item = ExtResource("e27")
+StoryFlagOnCollect = "ghorbani_files_found"
+
+[node name="WorldState" type="Node" parent="GhorbaniFilesPickup"]
+script = ExtResource("e13")
+StableId = "GhorbaniFilesPickup"
+
+[node name="ArrivalAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(650, 2700)
+Item = ExtResource("e24")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="ArrivalAmmo"]
+script = ExtResource("e13")
+StableId = "ArrivalAmmo"
+
+[node name="PaperBandage" parent="." instance=ExtResource("e4")]
+position = Vector2(200, 1600)
+Item = ExtResource("e25")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="PaperBandage"]
+script = ExtResource("e13")
+StableId = "PaperBandage"
+
+[node name="WorkshopAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(1700, 2750)
+Item = ExtResource("e24")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="WorkshopAmmo"]
+script = ExtResource("e13")
+StableId = "WorkshopAmmo"
+
+[node name="VaultRifleAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(2700, 1700)
+Item = ExtResource("e28")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="VaultRifleAmmo"]
+script = ExtResource("e13")
+StableId = "VaultRifleAmmo"
+
+[node name="PumpTraumaKit" parent="." instance=ExtResource("e4")]
+position = Vector2(2750, 2300)
+Item = ExtResource("e29")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="PumpTraumaKit"]
+script = ExtResource("e13")
+StableId = "PumpTraumaKit"
+
+[node name="PlatformShells" parent="." instance=ExtResource("e4")]
+position = Vector2(2800, 400)
+Item = ExtResource("e31")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="PlatformShells"]
+script = ExtResource("e13")
+StableId = "PlatformShells"
+
+[node name="PaperWalker" parent="." instance=ExtResource("e3")]
+position = Vector2(700,1800)
+Stats = ExtResource("e51")
+
+[node name="WorldState" type="Node" parent="PaperWalker"]
+script = ExtResource("e13")
+StableId = "PaperWalker"
+
+[node name="RecordsWalker" parent="." instance=ExtResource("e3")]
+position = Vector2(1700,1500)
+Stats = ExtResource("e51")
+
+[node name="WorldState" type="Node" parent="RecordsWalker"]
+script = ExtResource("e13")
+StableId = "RecordsWalker"
+
+[node name="CommandBrute" parent="." instance=ExtResource("e3")]
+position = Vector2(750,700)
+Stats = ExtResource("e53")
+
+[node name="WorldState" type="Node" parent="CommandBrute"]
+script = ExtResource("e13")
+StableId = "CommandBrute"
+
+[node name="PumpWalker" parent="." instance=ExtResource("e3")]
+position = Vector2(2400,2700)
+Stats = ExtResource("e51")
+
+[node name="WorldState" type="Node" parent="PumpWalker"]
+script = ExtResource("e13")
+StableId = "PumpWalker"
+
+[node name="VaultWalker" parent="." instance=ExtResource("e3")]
+position = Vector2(2700,1800)
+Stats = ExtResource("e51")
+
+[node name="WorldState" type="Node" parent="VaultWalker"]
+script = ExtResource("e13")
+StableId = "VaultWalker"
+
+[node name="RecordsReturnRunner" parent="." instance=ExtResource("e3")]
+position = Vector2(1300,1700)
+Stats = ExtResource("e52")
+
+[node name="WorldState" type="Node" parent="RecordsReturnRunner"]
+script = ExtResource("e13")
+StableId = "RecordsReturnRunner"
+
+[node name="Activation" type="Node" parent="RecordsReturnRunner"]
+script = ExtResource("e47")
+ActivationFlag = "outbreak_protocol_revealed"
+
+[node name="WorkshopReturnRunner" parent="." instance=ExtResource("e3")]
+position = Vector2(1750,2600)
+Stats = ExtResource("e52")
+
+[node name="WorldState" type="Node" parent="WorkshopReturnRunner"]
+script = ExtResource("e13")
+StableId = "WorkshopReturnRunner"
+
+[node name="Activation" type="Node" parent="WorkshopReturnRunner"]
+script = ExtResource("e47")
+ActivationFlag = "sadeghi_confronted"
+
+[node name="LiftWarning" type="Label" parent="."]
+offset_left = 2220.0
+offset_top = 250.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "SURFACE FREIGHT / MAXIMUM LOAD 2 OPERATIVES"
+mouse_filter = 2
+
+[node name="Act5Trigger" type="Area2D" parent="." node_paths=PackedStringArray("ExitInteractable")]
+position = Vector2(2500,400)
+script = ExtResource("e16")
+RequireInteraction = true
+ExitInteractable = NodePath("ExitInteraction")
+RequiredStoryFlag = "archive_lift_ready"
+LockedMessage = "FREIGHT DRIVE OFFLINE - COMPLETE THE STARTUP SEQUENCE"
 TargetScenePath = "res://Scenes/Act5_Arena.tscn"
 ActTitle = "ACT 5: EXTRACTION"
-Subtitle = "Containment Silo — Final Encounter"
+Subtitle = "Surface freight / Containment Silo"
 TargetAct = 5
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Act5Trigger"]
-shape = SubResource("RectangleShape2D_transition")
+[node name="Range" type="CollisionShape2D" parent="Act5Trigger"]
+shape = SubResource("exit_shape")
 
-[node name="WallS1" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(200, 350)
+[node name="ExitInteraction" type="Area2D" parent="Act5Trigger"]
+script = ExtResource("e15")
+PromptText = "BOARD AND OPERATE SURFACE FREIGHT LIFT"
 
-[node name="WallS2" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(200, 650)
+[node name="Range" type="CollisionShape2D" parent="Act5Trigger/ExitInteraction"]
+shape = SubResource("interaction_range")
 
-[node name="WallS3" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(200, 950)
+[node name="Player" parent="." instance=ExtResource("e1")]
+position = Vector2(500,2800)
 
-[node name="WallS4" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(1000, 350)
+[node name="GameUI" parent="." instance=ExtResource("e2")]
 
-[node name="WallS5" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(1000, 650)
+[node name="Dressing_01_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(200,1150)
 
-[node name="WallS6" parent="." instance=ExtResource("7_wall_steel")]
-position = Vector2(1000, 950)
+[node name="Dressing_02_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(450,1150)
+
+[node name="Dressing_03_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(750,1150)
+
+[node name="Dressing_04_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(200,1870)
+
+[node name="Dressing_05_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(450,1870)
+
+[node name="Dressing_06_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(750,1870)
+
+[node name="Dressing_07_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(160,150)
+
+[node name="Dressing_08_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(840,150)
+
+[node name="Dressing_09_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(1250,1200)
+
+[node name="Dressing_10_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(1750,1200)
+
+[node name="VaultRifle" parent="." instance=ExtResource("e4")]
+position = Vector2(2350,1700)
+Item = ExtResource("weapon_reward")
+
+[node name="WorldState" type="Node" parent="VaultRifle"]
+script = ExtResource("e13")
+StableId = "vault_rifle"

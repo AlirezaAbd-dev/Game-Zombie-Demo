@@ -54,6 +54,7 @@ public partial class HUDUI : Control
     public static HUDUI Instance { get; private set; }
 
     private WeaponData _currentWeapon;
+    private string _objectiveInstruction = "";
     private int _kills = 0;
 
     private float _healthRatio = 1.0f;
@@ -76,6 +77,7 @@ public partial class HUDUI : Control
     public override void _Ready()
     {
         BindNodes();
+        ControlBindings.Changed += RefreshObjectiveControls;
 
         if (GameOverPanel != null) GameOverPanel.Visible = false;
         if (RadioCommsPanel != null) RadioCommsPanel.Visible = false;
@@ -154,6 +156,7 @@ public partial class HUDUI : Control
 
     public override void _ExitTree()
     {
+        ControlBindings.Changed -= RefreshObjectiveControls;
         if (Instance == this) Instance = null;
         Zombie.OnAnyZombieKilled -= OnZombieKilled;
         if (_stealthConnected && StealthSystem.Instance != null)
@@ -181,7 +184,7 @@ public partial class HUDUI : Control
             if (WeaponLabel != null && _currentWeapon != null)
             {
                 string aimIndicator = _player.IsAiming ? " [AIMING]" : "";
-                WeaponLabel.Text = $"{_currentWeapon.WeaponName.ToUpper()}{aimIndicator} (Q/1-3)";
+                WeaponLabel.Text = $"{_currentWeapon.WeaponName.ToUpper()}{aimIndicator} [{ControlBindings.Hint("switch_weapon")}]";
                 WeaponLabel.Modulate = _player.IsAiming ? new Color(1.0f, 0.4f, 0.4f, 1.0f) : new Color(0.85f, 0.9f, 1.0f, 0.9f);
             }
         }
@@ -226,6 +229,7 @@ public partial class HUDUI : Control
         if (_player.InventoryComponent != null)
         {
             _player.InventoryComponent.WeaponChanged += OnWeaponChanged;
+            _player.InventoryComponent.WeaponSelectionDenied += OnWeaponSelectionDenied;
             _player.InventoryComponent.AmmoChanged += OnAmmoChanged;
 
             if (_player.InventoryComponent.CurrentWeapon != null)
@@ -258,7 +262,7 @@ public partial class HUDUI : Control
         {
             _hasInteractablePrompt = true;
             InteractionPromptLabel.Visible = true;
-            InteractionPromptLabel.Text = $"[E] {promptText.ToUpper()}";
+            InteractionPromptLabel.Text = $"[{ControlBindings.Hint("interact")}] {promptText.ToUpper()}";
             InteractionPromptLabel.Modulate = canInteract ? new Color(0.2f, 1.0f, 0.5f, 1.0f) : new Color(1.0f, 0.4f, 0.3f, 1.0f);
         }
     }
@@ -300,7 +304,7 @@ public partial class HUDUI : Control
         {
             InteractionPromptLabel.Visible = true;
             string actionName = finisherTarget.Stats?.TypeName == "Specimen Zero" ? "POWER STRIKE" : "KICK / FINISH";
-            InteractionPromptLabel.Text = $"[F] {actionName}";
+            InteractionPromptLabel.Text = $"[{ControlBindings.Hint("finisher")}] {actionName}";
             InteractionPromptLabel.Modulate = new Color(1.0f, 0.95f, 0.2f, 1.0f);
         }
         else if (_hasInteractablePrompt)
@@ -311,13 +315,13 @@ public partial class HUDUI : Control
         else if (hasCloseZombie)
         {
             InteractionPromptLabel.Visible = true;
-            InteractionPromptLabel.Text = "[V] QUICK KNIFE";
+            InteractionPromptLabel.Text = $"[{ControlBindings.Hint("knife")}] QUICK KNIFE";
             InteractionPromptLabel.Modulate = new Color(1.0f, 0.85f, 0.3f, 0.95f);
         }
         else if (_healthRatio <= 0.60f && HasHealingItemInInventory())
         {
             InteractionPromptLabel.Visible = true;
-            InteractionPromptLabel.Text = "[H] QUICK HEAL";
+            InteractionPromptLabel.Text = $"[{ControlBindings.Hint("quick_heal")}] QUICK HEAL";
             InteractionPromptLabel.Modulate = new Color(0.2f, 1.0f, 0.5f, 0.95f);
         }
         else
@@ -391,10 +395,16 @@ public partial class HUDUI : Control
         ShowFloatingNotification(msg, new Color(0.2f, 1.0f, 0.45f, 1.0f));
     }
 
+    private void RefreshObjectiveControls()
+    {
+        if (ObjectiveSubtaskLabel != null) ObjectiveSubtaskLabel.Text = ControlBindings.Format(_objectiveInstruction);
+    }
+
     private void OnObjectiveUpdated(string title, string subtask)
     {
         if (ObjectiveTitleLabel != null) ObjectiveTitleLabel.Text = title;
-        if (ObjectiveSubtaskLabel != null) ObjectiveSubtaskLabel.Text = subtask;
+        _objectiveInstruction = subtask;
+        RefreshObjectiveControls();
 
         if (ObjectiveTitleLabel != null)
         {
@@ -542,9 +552,11 @@ public partial class HUDUI : Control
         _currentWeapon = newWeapon;
         if (WeaponLabel != null && newWeapon != null)
         {
-            WeaponLabel.Text = $"{newWeapon.WeaponName.ToUpper()} (Q/1-3)";
+            WeaponLabel.Text = $"{newWeapon.WeaponName.ToUpper()} [{ControlBindings.Hint("switch_weapon")}]";
         }
     }
+
+    private void OnWeaponSelectionDenied(string weaponName) => ShowFloatingNotification(weaponName.ToUpper() + " NOT ACQUIRED",Colors.Orange);
 
     public void OnHealthChanged(float current, float maximum)
     {

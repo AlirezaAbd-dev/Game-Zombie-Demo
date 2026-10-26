@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "lab_access_authorized"
+Title = "LABORATORY CLEARANCE"
+Instruction = "Present the transfer orders at the north-west lift console."
+Waypoint = Vector2(400, 300)

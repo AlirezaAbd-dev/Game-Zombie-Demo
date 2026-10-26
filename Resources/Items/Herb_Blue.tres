@@ -7,10 +7,12 @@
 script = ExtResource("1_itemdata")
 Id = "herb_blue"
 ItemName = "Blue Herb"
-Description = "Rare restorative herb. Cures toxins and restores 50 Stamina. Can be combined with Green Herb."
+Description = "Rare restorative herb. Restores 50 Stamina. Can be combined with Green Herb."
 Type = 4
-Value = 50.0
+Value = 0.0
+StaminaRestore = 50.0
 MaxStack = 5
+WorldIconSize = 24.0
 Icon = ExtResource("2_texture")
 CombineWithId = "herb_green"
 CombineResultId = "herb_mixed"

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "AUTHORIZE LABORATORY TRANSFER"
+RequiredFlag = "security_grid_routed"
+RequiredItemId = "lab_transfer_orders"
+LockedMessage = "RESTORE SECURITY POWER AND RECOVER THE TRANSFER ORDERS"
+CompletionFlag = "lab_access_authorized"
+Speaker = "DR. SADEGHI"
+Message = "Leila was sent through that lift. Blast Door C is an isolation chamber, not a shelter. Take the orders with you. Save at the field recorder before descending."

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "SECURE LEILA IN THE CLEAN-AIR REFUGE"
+RequiredFlag = "lab_filtration_online"
+RequiredItemId = "biolab_keycard"
+LockedMessage = "RESTORE CLEAN AIR AND RECOVER LEVEL-3 ACCESS"
+CompletionFlag = "leila_rescued"
+AdditionalFlags = PackedStringArray("lab_route_complete")
+DialogueId = "lab_leila_rescue"

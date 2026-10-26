@@ -98,12 +98,13 @@ public partial class CreditsUI : Control
 
     private void DisplayEndingStatus()
     {
-        if (StoryDirector.Instance == null) return;
+        var flags = StoryDirector.Instance?.Flags ?? SaveSystem.Instance?.ActiveSaveData.Flags;
+        if (flags == null || !flags.Contains(StoryFlags.UNIT9_DEFEATED)) return;
 
-        bool unit9Defeated = StoryDirector.Instance.HasFlag(StoryFlags.UNIT9_DEFEATED);
-        bool sadeghiTrusted = StoryDirector.Instance.HasFlag(StoryFlags.SADEGHI_TRUSTED);
-        bool leilaRescued = StoryDirector.Instance.HasFlag(StoryFlags.LEILA_RESCUED);
-        bool secretConspiracy = StoryDirector.Instance.HasFlag(StoryFlags.SECRET_CONSPIRACY_UNLOCKED);
+        bool unit9Defeated = flags.Contains(StoryFlags.UNIT9_DEFEATED);
+        bool sadeghiTrusted = flags.Contains(StoryFlags.SADEGHI_TRUSTED);
+        bool leilaRescued = flags.Contains(StoryFlags.LEILA_RESCUED);
+        bool secretConspiracy = flags.Contains(StoryFlags.SECRET_CONSPIRACY_UNLOCKED);
 
         if (secretConspiracy)
         {

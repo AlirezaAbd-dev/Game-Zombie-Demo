@@ -12,6 +12,11 @@ public partial class Bullet : Area2D
 
     private float _lifetime = 0.0f;
     private bool _isActive = false;
+    private Vector2? _launchOrigin;
+    private ShotReport _shotReport;
+    public bool IsActive => _isActive;
+    private readonly PhysicsRayQueryParameters2D _rayQuery = new() { CollisionMask = 3, HitFromInside = true };
+    private readonly Godot.Collections.Array<Rid> _rayExclusions = new();
 
     public bool IsEnemyBullet { get; set; } = false;
 
@@ -20,8 +25,10 @@ public partial class Bullet : Area2D
         BodyEntered += OnBodyEntered;
     }
 
-    public void Activate(float damage = 25.0f, float speed = 1400.0f, bool isEnemy = false)
+    public void Activate(float damage = 25.0f, float speed = 1400.0f, bool isEnemy = false, Vector2? launchOrigin = null, ShotReport shotReport = null)
     {
+        _launchOrigin = launchOrigin;
+        _shotReport = shotReport;
         Damage = damage;
         Speed = speed;
         IsEnemyBullet = isEnemy;
@@ -29,7 +36,7 @@ public partial class Bullet : Area2D
         _isActive = true;
         Visible = true;
         SetPhysicsProcess(true);
-        Monitoring = true;
+        SetDeferred(Area2D.PropertyName.Monitoring, true);
 
         Modulate = isEnemy ? new Color(0.3f, 1.8f, 0.4f, 1.0f) : Colors.White;
     }
@@ -37,9 +44,11 @@ public partial class Bullet : Area2D
     public void Deactivate()
     {
         _isActive = false;
+        _launchOrigin = null;
+        _shotReport = null;
         Visible = false;
         SetPhysicsProcess(false);
-        Monitoring = false;
+        SetDeferred(Area2D.PropertyName.Monitoring, false);
         Modulate = Colors.White;
     }
 
@@ -47,16 +56,25 @@ public partial class Bullet : Area2D
     {
         if (!_isActive) return;
 
-        Vector2 step = Transform.X * Speed * (float)delta;
+        Vector2 step = GlobalTransform.X.Normalized() * Speed * (float)delta;
+        Vector2 rayStart = _launchOrigin ?? GlobalPosition;
+        _launchOrigin = null;
 
         // Continuous collision detection raycast to prevent high-speed tunneling
         var spaceState = GetWorld2D()?.DirectSpaceState;
         if (spaceState != null)
         {
-            var query = PhysicsRayQueryParameters2D.Create(GlobalPosition, GlobalPosition + step, collisionMask: 3);
-            var hit = spaceState.IntersectRay(query);
-            if (hit != null && hit.Count > 0)
+            // The first sweep includes the body-to-muzzle segment: a long barrel must
+            // not spawn a round beyond a close target or through a nearby wall.
+            _rayQuery.From = rayStart;
+            _rayQuery.To = GlobalPosition + step;
+            _rayExclusions.Clear();
+            // A friendly body must not hide a wall or hostile farther along this same step.
+            for (int pass = 0; pass < 32; pass++)
             {
+                _rayQuery.Exclude = _rayExclusions;
+                var hit = spaceState.IntersectRay(_rayQuery);
+                if (hit.Count == 0) break;
                 var hitNode = hit["collider"].AsGodotObject() as Node2D;
                 if (hitNode != null)
                 {
@@ -71,10 +89,12 @@ public partial class Bullet : Area2D
                         return;
                     }
                 }
+                _rayExclusions.Add(hit["rid"].AsRid());
+                if (pass == 31) { Despawn(); return; }
             }
         }
 
-        Position += step;
+        GlobalPosition += step;
         _lifetime += (float)delta;
         if (_lifetime >= MaxLifetime)
         {
@@ -84,7 +104,7 @@ public partial class Bullet : Area2D
 
     private void OnBodyEntered(Node2D body)
     {
-        if (!_isActive) return;
+        if (!_isActive || _launchOrigin.HasValue) return;
 
         if (IsEnemyBullet)
         {
@@ -93,8 +113,7 @@ public partial class Bullet : Area2D
 
             if (body is Player player && GodotObject.IsInstanceValid(player))
             {
-                player.HealthComponent?.TakeDamage(Damage, Transform.X);
-                player.AddTrauma(0.25f);
+                player.TakeDamage(Damage, GlobalTransform.X.Normalized());
                 SpawnAcidImpact(GlobalPosition);
                 Despawn();
                 return;
@@ -121,7 +140,7 @@ public partial class Bullet : Area2D
             if (body is IDamageable damageable)
             {
                 damageable.TakeDamage(Damage, Transform.X);
-                StoryDirector.Instance?.RecordShotHit();
+                if (_shotReport?.TryRecordHit() == true) StoryDirector.Instance?.RecordShotHit();
                 SpawnBloodImpact(GlobalPosition);
             }
             else
@@ -141,6 +160,7 @@ public partial class Bullet : Area2D
         }
         else
         {
+            Deactivate();
             QueueFree();
         }
     }

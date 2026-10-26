@@ -17,6 +17,15 @@ public partial class Boss_Unit9 : CharacterBody2D, IDamageable
     [Export] public float AttackDamage { get; set; } = 35.0f;
     [Export] public float AttackRange { get; set; } = 90.0f;
 
+    [Export] public string ActivationFlag { get; set; } = string.Empty;
+    [Export] public bool AuthoredReinforcements { get; set; }
+    [Export] public BossCombatData CombatData { get; set; }
+    public BossCombatComponent Combat { get; private set; }
+    public bool IsEncounterActive => string.IsNullOrEmpty(ActivationFlag) || StoryDirector.Instance?.HasFlag(ActivationFlag) == true;
+    private ObstacleSteeringComponent _steering;
+    private StoryDirector _story;
+    private bool _activated;
+
     public HealthComponent HealthComponent { get; private set; }
     public MovementComponent MovementComponent { get; private set; }
     public Sprite2D Sprite { get; private set; }
@@ -26,8 +35,6 @@ public partial class Boss_Unit9 : CharacterBody2D, IDamageable
     public bool IsDead => HealthComponent?.IsDead ?? false;
 
     private Node2D _targetPlayer;
-    private float _attackCooldown = 0.0f;
-    private float _specialAttackCooldown = 6.0f;
     private float _phaseRoarTimer = 0.0f;
     private bool _isRoaring = false;
     private Vector2 _baseScale = new(4.2f, 4.2f);
@@ -109,9 +116,43 @@ public partial class Boss_Unit9 : CharacterBody2D, IDamageable
 
         FindPlayer();
 
-        // Register to StoryDirector and play boss music
-        StoryDirector.Instance?.SetFlag(StoryFlags.UNIT9_ENCOUNTERED);
+        Combat = new BossCombatComponent { Data = CombatData };
+        AddChild(Combat);
+        _steering = new ObstacleSteeringComponent { Body = this };
+        AddChild(_steering);
+        AddChild(new BossTelegraphView { Boss = this });
+        CallDeferred(nameof(InitializeEncounter));
+    }
+
+    private void InitializeEncounter()
+    {
+        if (IsQueuedForDeletion()) return;
+        _story = StoryDirector.Instance;
+        if (_story == null) return;
+        _story.FlagsChanged += RefreshEncounter;
+        RefreshEncounter();
+    }
+
+    private void RefreshEncounter()
+    {
+        if (_activated || !IsEncounterActive || IsDead) return;
+        _activated = true;
+        _story.SetFlag(StoryFlags.UNIT9_ENCOUNTERED);
+        if (CurrentPhase >= 2) _story.SetFlag("unit9_phase2");
         AudioManager.Instance?.PlayMusic("boss", 1.5f);
+        HUDUI.Instance?.UpdateBossHealth(HealthComponent.CurrentHealth, MaxHealth);
+    }
+
+    public override void _ExitTree()
+    {
+        if (IsInstanceValid(_story)) _story.FlagsChanged -= RefreshEncounter;
+    }
+
+    public void ApplyStagger(float seconds)
+    {
+        Combat?.Cancel();
+        _isRoaring = true;
+        _phaseRoarTimer = Mathf.Max(_phaseRoarTimer, seconds);
     }
 
     private void FindPlayer()
@@ -121,7 +162,7 @@ public partial class Boss_Unit9 : CharacterBody2D, IDamageable
 
     public void TakeDamage(float amount, Vector2 knockbackDir)
     {
-        if (IsDead) return;
+        if (IsDead || !IsEncounterActive) return;
 
         // Difficulty damage mitigation
         if (StoryDirector.Instance != null && StoryDirector.Instance.Difficulty == DifficultyLevel.Researcher)
@@ -154,24 +195,19 @@ public partial class Boss_Unit9 : CharacterBody2D, IDamageable
     private void OnHealthChanged(float current, float max)
     {
         HUDUI.Instance?.UpdateBossHealth(current, max);
+        if (current <= 0) return;
 
         float healthRatio = current / max;
 
-        if (CurrentPhase == 1 && healthRatio <= 0.66f)
-        {
-            TransitionToPhase(2);
-        }
-        else if (CurrentPhase == 2 && healthRatio <= 0.33f)
-        {
-            TransitionToPhase(3);
-        }
+        int phase = healthRatio <= 0.33f ? 3 : healthRatio <= 0.66f ? 2 : 1;
+        if (phase > CurrentPhase) TransitionToPhase(phase);
     }
 
     private void TransitionToPhase(int newPhase)
     {
         CurrentPhase = newPhase;
-        _isRoaring = true;
-        _phaseRoarTimer = 1.6f;
+        ApplyStagger(1.6f);
+        if (newPhase >= 2) StoryDirector.Instance?.SetFlag("unit9_phase2");
 
         AudioManager.Instance?.PlaySound(SoundType.BossRoar, GlobalPosition);
 
@@ -184,7 +220,7 @@ public partial class Boss_Unit9 : CharacterBody2D, IDamageable
         {
             MovementComponent.BaseSpeed = BaseSpeed * 1.25f;
             HUDUI.Instance?.ShowWarningBanner("UNIT-9 MUTATION ESCALATED — CORROSIVE SUBSTANCE DETECTED!");
-            SpawnMinions(2);
+            if (!AuthoredReinforcements) SpawnMinions(2);
         }
         else if (newPhase == 3)
         {
@@ -213,13 +249,14 @@ public partial class Boss_Unit9 : CharacterBody2D, IDamageable
         float dt = (float)delta;
         MovementComponent?.DecayKnockback(dt);
 
-        if (IsDead) return;
+        if (IsDead || !IsEncounterActive) { Combat?.Cancel(); MovementComponent?.Stop(); return; }
 
         if (_targetPlayer == null || !GodotObject.IsInstanceValid(_targetPlayer))
         {
             FindPlayer();
             return;
         }
+        if (_targetPlayer is Player { IsDead: true }) { MovementComponent?.Stop(); return; }
 
         if (_isRoaring)
         {
@@ -237,77 +274,34 @@ public partial class Boss_Unit9 : CharacterBody2D, IDamageable
             return;
         }
 
-        _attackCooldown -= dt;
-        _specialAttackCooldown -= dt;
-
         Vector2 toPlayer = _targetPlayer.GlobalPosition - GlobalPosition;
         float distance = toPlayer.Length();
         Vector2 dir = toPlayer.Normalized();
 
         Rotation = Mathf.LerpAngle(Rotation, dir.Angle(), dt * 6.0f);
 
-        // Acid spit special attack in Phase 2 & 3
-        if ((CurrentPhase >= 2) && _specialAttackCooldown <= 0.0f && distance > 140.0f)
-        {
-            ExecuteAcidSpit(dir);
-            _specialAttackCooldown = CurrentPhase == 3 ? 4.0f : 7.0f;
-        }
-
-        if (distance > AttackRange)
-        {
-            // Chase player
-            MovementComponent?.Move(dir, 1.0f);
-            _walkPhase += dt * (MovementComponent?.BaseSpeed ?? 150f) * 0.08f;
-            if (Sprite != null)
-            {
-                float sway = Mathf.Sin(_walkPhase) * 0.08f;
-                Sprite.Rotation = sway;
-            }
-        }
-        else
+        if (_targetPlayer is not Player target) return;
+        if (Combat.Step(dt, target))
         {
             MovementComponent?.Stop();
-            if (_attackCooldown <= 0.0f)
-            {
-                ExecuteMeleeAttack();
-            }
+            if (Combat.Phase is BossAttackPhase.MeleeWindup or BossAttackPhase.AcidWindup)
+                Rotation = Combat.LockedDirection.Angle();
+            return;
         }
-    }
-
-    private void ExecuteAcidSpit(Vector2 dir)
-    {
-        AudioManager.Instance?.PlaySound(SoundType.VentBreak, GlobalPosition);
-
-        // Spawn acid projectile using ProjectilePool or direct Node
-        if (ProjectilePool.Instance != null)
+        if (distance > AttackRange || !Combat.HasSight(target))
         {
-            for (int i = -1; i <= 1; i++)
-            {
-                float angleOffset = i * 0.25f;
-                ProjectilePool.Instance.Spawn(GlobalPosition + dir * 45f, dir.Angle() + angleOffset, GetParent(), 20.0f, 320.0f, isEnemy: true);
-            }
+            Vector2 movement = _steering.GetDirection(target);
+            if (movement == Vector2.Zero) MovementComponent.Stop();
+            else MovementComponent.Move(movement);
+            _walkPhase += dt * MovementComponent.BaseSpeed * 0.08f;
+            if (Sprite != null) Sprite.Rotation = Mathf.Sin(_walkPhase) * 0.08f;
         }
-    }
-
-    private void ExecuteMeleeAttack()
-    {
-        _attackCooldown = CurrentPhase == 3 ? 0.75f : 1.3f;
-        AudioManager.Instance?.PlaySound(SoundType.FinisherSlash, GlobalPosition);
-
-        if (_targetPlayer is Player player && GodotObject.IsInstanceValid(player))
-        {
-            float dist = GlobalPosition.DistanceTo(player.GlobalPosition);
-            if (dist <= AttackRange + 25.0f)
-            {
-                Vector2 knockback = (player.GlobalPosition - GlobalPosition).Normalized();
-                player.HealthComponent?.TakeDamage(AttackDamage, knockback);
-                player.AddTrauma(0.45f);
-            }
-        }
+        else MovementComponent.Stop();
     }
 
     private void OnDied()
     {
+        Combat?.Cancel();
         AudioManager.Instance?.PlaySound(SoundType.BossRoar, GlobalPosition);
         StoryDirector.Instance?.SetFlag(StoryFlags.UNIT9_DEFEATED);
         EmitSignal(SignalName.BossDied);

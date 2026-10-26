@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "sadeghi_confronted"
+Title = "SADEGHI'S ACCOUNT"
+Instruction = "Confront Sadeghi in the northern shelter. Search the command vault first for optional evidence."
+Waypoint = Vector2(1500, 350)

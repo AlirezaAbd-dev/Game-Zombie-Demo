@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "PRIME THE HYDRAULIC RETURN"
+RequiredFlag = "archive_counterweight_released"
+CompletionFlag = "archive_pump_primed"
+LockedMessage = "RELEASE THE COUNTERWEIGHT LOCK IN MAINTENANCE FIRST"
+Speaker = "LIFT SERVICE RECORD"
+Message = "Hydraulic return primed. At the shelter panel: PRESSURIZE the circuit, RELEASE the brake, then ENABLE the drive. Keep that order to prevent a runaway platform."

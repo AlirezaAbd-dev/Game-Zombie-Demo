@@ -15,6 +15,7 @@ public partial class MainMenuUI : Control
 
     private SaveSlotUI _saveSlotUI;
     private DifficultySelectUI _difficultySelectUI;
+    private SettingsUI _settingsUI;
 
     public override void _Ready()
     {
@@ -64,6 +65,10 @@ public partial class MainMenuUI : Control
             Visible = false
         };
         AddChild(_difficultySelectUI);
+        _settingsUI = new SettingsUI { Name = "SettingsUI" };
+        AddChild(_settingsUI);
+        var settingsButton = GetNodeOrNull<Button>("%BtnSettings");
+        if (settingsButton != null) settingsButton.Pressed += _settingsUI.Open;
     }
 
     private void OnNewGamePressed()
@@ -121,6 +126,6 @@ public partial class MainMenuUI : Control
 
     private void OnQuitPressed()
     {
-        GetTree().Quit();
+        ApplicationExit.Request(GetTree());
     }
 }

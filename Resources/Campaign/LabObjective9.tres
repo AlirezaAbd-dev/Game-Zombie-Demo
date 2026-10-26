@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "lab_service_lock_drained"
+Title = "CLEAR THE SERVICE LOCK"
+Instruction = "Open the drain valve at the north end of the service route."
+Waypoint = Vector2(2700, 1200)
+RequiredFlag = "leila_abandoned"

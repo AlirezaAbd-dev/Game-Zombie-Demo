@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "lab_filter_found"
+Title = "CLEAN AIR"
+Instruction = "Find the sealed filter cartridge at the far end of the air plant."
+Waypoint = Vector2(2700, 2500)
+RequiredFlag = "leila_rescue_accepted"
+ExcludedFlag = "leila_rescued"

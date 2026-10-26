@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "ending_triggered"
+Title = "BOARD VULTURE-9"
+Instruction = "Approach the helicopter east door and board [{input:interact}]."
+Waypoint = Vector2(1160, 350)

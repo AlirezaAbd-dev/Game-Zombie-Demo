@@ -15,6 +15,7 @@ public partial class InteractableComponent : Area2D
 
     [Export] public string PromptText { get; set; } = "INTERACT";
     [Export] public string RequiredItemId { get; set; } = string.Empty;
+    [Export] public string RequiredStoryFlag { get; set; } = string.Empty;
     [Export] public string LockedPromptText { get; set; } = "LOCKED";
     [Export] public bool ConsumeItemOnUse { get; set; } = false;
     [Export] public bool IsActive { get; set; } = true;
@@ -54,6 +55,7 @@ public partial class InteractableComponent : Area2D
 
     public bool HasRequiredItem(Player player)
     {
+        if (!string.IsNullOrEmpty(RequiredStoryFlag) && StoryDirector.Instance?.HasFlag(RequiredStoryFlag) != true) return false;
         if (string.IsNullOrWhiteSpace(RequiredItemId)) return true;
         return player?.InventoryComponent?.HasItem(RequiredItemId) ?? false;
     }
@@ -70,7 +72,7 @@ public partial class InteractableComponent : Area2D
         if (!IsActive) return string.Empty;
         if (OneShot && HasInteracted) return string.Empty;
 
-        if (!string.IsNullOrWhiteSpace(RequiredItemId))
+        if (!string.IsNullOrWhiteSpace(RequiredItemId) || !string.IsNullOrWhiteSpace(RequiredStoryFlag))
         {
             if (!HasRequiredItem(player))
             {
@@ -85,6 +87,11 @@ public partial class InteractableComponent : Area2D
     public bool TryInteract(Player player)
     {
         if (!CanInteract(player)) return false;
+        if (!HasRequiredItem(player))
+        {
+            AudioManager.Instance?.PlaySound(SoundType.TerminalData, GlobalPosition);
+            return false;
+        }
 
         if (!string.IsNullOrWhiteSpace(RequiredItemId))
         {

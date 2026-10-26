@@ -13,6 +13,9 @@ public partial class ActTransitionTrigger : Area2D
     [Export] public string RequiredStoryFlag { get; set; } = "";
     [Export] public string LockedMessage { get; set; } = "GATE LOCKED - COMPLETE OBJECTIVE FIRST";
     [Export] public StoryAct TargetAct { get; set; } = StoryAct.Act2_Bunker;
+    [Export] public bool RequireInteraction { get; set; }
+    [Export] public string DepartureFlag { get; set; } = string.Empty;
+    [Export] public TopDownDemo.Entities.Components.InteractableComponent ExitInteractable { get; set; }
 
     private bool _triggered = false;
 
@@ -21,31 +24,46 @@ public partial class ActTransitionTrigger : Area2D
         CollisionLayer = 0;
         CollisionMask = 1; // Detect player layer 1
         BodyEntered += OnBodyEntered;
+        if (RequireInteraction)
+        {
+            if (ExitInteractable == null)
+            {
+                GD.PushError($"Explicit scene exit requires an interaction area: {GetPath()}");
+                return;
+            }
+            ExitInteractable.RequiredStoryFlag = RequiredStoryFlag;
+            ExitInteractable.LockedPromptText = LockedMessage;
+            ExitInteractable.Interacted += player => TryTransition(player);
+        }
     }
 
     private void OnBodyEntered(Node2D body)
     {
-        if (_triggered) return;
+        if (!RequireInteraction && body is Player player) TryTransition(player);
+    }
 
-        if (body is Player player && !player.IsDead)
+    public bool TryTransition(Player player)
+    {
+        if (_triggered || player == null || player.IsDead) return false;
+        var transitions = SceneTransitionManager.Instance;
+        var saves = SaveSystem.Instance;
+        if (transitions == null || transitions.IsTransitioning || saves == null) return false;
+        if (!string.IsNullOrEmpty(RequiredStoryFlag) && StoryDirector.Instance?.HasFlag(RequiredStoryFlag) != true)
         {
-            if (!string.IsNullOrEmpty(RequiredStoryFlag) && StoryDirector.Instance != null && !StoryDirector.Instance.HasFlag(RequiredStoryFlag))
-            {
-                HUDUI.Instance?.ShowHealNotification("SECURITY LOCKDOWN", 0, LockedMessage);
-                AudioManager.Instance?.PlaySound(SoundType.AlarmKlaxon);
-                return;
-            }
-
-            _triggered = true;
-            if (StoryDirector.Instance != null)
-            {
-                StoryDirector.Instance.CurrentAct = TargetAct;
-            }
-
-            // Auto-save progress at checkpoint
-            SaveSystem.Instance?.Save(SaveSystem.Instance.CurrentSlot, player, TargetScenePath, TargetAct);
-
-            SceneTransitionManager.Instance?.TransitionToScene(TargetScenePath, ActTitle, Subtitle);
+            HUDUI.Instance?.ShowHealNotification("SECURITY LOCKDOWN", 0, LockedMessage);
+            return false;
         }
+        bool departureWasSet = !string.IsNullOrEmpty(DepartureFlag) && StoryDirector.Instance?.HasFlag(DepartureFlag) == true;
+        if (!string.IsNullOrEmpty(DepartureFlag)) StoryDirector.Instance?.SetFlag(DepartureFlag);
+        if (!saves.Save(saves.CurrentSlot, player, TargetScenePath, TargetAct))
+        {
+            if (!departureWasSet && !string.IsNullOrEmpty(DepartureFlag)) StoryDirector.Instance?.RemoveFlag(DepartureFlag);
+            HUDUI.Instance?.ShowFloatingNotification("CHECKPOINT FAILED - TRY THE EXIT AGAIN", Colors.OrangeRed);
+            return false;
+        }
+        _triggered = true;
+        if (StoryDirector.Instance != null) StoryDirector.Instance.CurrentAct = TargetAct;
+        transitions.TransitionToScene(TargetScenePath, ActTitle, Subtitle);
+        return true;
     }
 }

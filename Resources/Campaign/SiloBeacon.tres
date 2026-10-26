@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "TRANSMIT EXTRACTION BEACON / SAVE"
+RequiredFlag = "unit9_defeated"
+RequiredItemId = "evac_battery"
+CompletionFlag = "evac_beacon_online"
+IsCheckpoint = true
+Repeatable = true
+LockedMessage = "NEUTRALIZE UNIT-9 AND RESTORE EMERGENCY POWER"
+Speaker = "VULTURE-9"
+Message = "Beacon acquired. We are inbound to the north landing pad. Clear infected and stand outside the marked landing zone. Board at the east door once we are on the ground."

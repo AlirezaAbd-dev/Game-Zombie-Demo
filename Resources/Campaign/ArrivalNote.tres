@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Prompt = "EXAMINE ABANDONED RESPONSE VEHICLE"
+CompletionFlag = "response_vehicle_examined"
+Speaker = "SARA"
+Message = "The response team left their vehicle running. No one came back. [{input:move_up}/{input:move_left}/{input:move_down}/{input:move_right}] Move. [{input:aim}] Aim. [{input:shoot}] Fire. [{input:reload}] Reload. [{input:interact}] Interact. [{input:toggle_inventory}] Supplies. Avoid spending ammunition when you can take another route."

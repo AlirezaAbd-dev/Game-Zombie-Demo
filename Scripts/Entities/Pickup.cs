@@ -1,5 +1,6 @@
 using Godot;
 using TopDownDemo.Core;
+using TopDownDemo.Entities.Components;
 using TopDownDemo.Systems;
 using TopDownDemo.UI;
 
@@ -7,11 +8,25 @@ namespace TopDownDemo.Entities;
 
 public partial class Pickup : Area2D
 {
+    [Signal] public delegate void CollectedEventHandler();
+    [Signal] public delegate void AmmoRemainingChangedEventHandler(int remaining);
+    private bool _collected;
+    private int _ammoRoundsRemaining = -1;
+    private Label _ammoLabel;
+    private readonly PhysicsRayQueryParameters2D _collectionRay = new() { CollisionMask = 1, HitFromInside = true };
+    private readonly Godot.Collections.Array<Rid> _collectionExclusions = new();
+    public int RemainingAmmoRounds => _ammoRoundsRemaining >= 0 ? _ammoRoundsRemaining
+        : Item != null && Item.Type == ItemType.Ammo && float.IsFinite(Item.Value) && Item.Value > 0 && Item.Value < int.MaxValue
+            ? (int)Item.Value : 0;
     [Export] public ItemData Item { get; set; }
+    [Export] public string StoryFlagOnCollect { get; set; } = string.Empty;
 
     [ExportGroup("Nodes")]
     [Export] public Sprite2D Sprite { get; set; }
     [Export] public PointLight2D GlowLight { get; set; }
+    [Export] public CollisionShape2D PickupCollision { get; set; }
+    private Label _itemLabel;
+    private Player _collectionRequest;
 
     private float _bobTimer = 0.0f;
 
@@ -22,24 +37,47 @@ public partial class Pickup : Area2D
 
         Sprite ??= GetNodeOrNull<Sprite2D>("%Sprite2D");
         GlowLight ??= GetNodeOrNull<PointLight2D>("%GlowLight");
+        PickupCollision ??= GetNodeOrNull<CollisionShape2D>("%PickupCollision");
 
         UpdateVisuals();
-        BodyEntered += OnBodyEntered;
     }
 
     public void Setup(ItemData item)
     {
         Item = item;
+        _ammoRoundsRemaining = -1;
         UpdateVisuals();
+    }
+
+    public void RestoreAmmoRounds(int remaining)
+    {
+        _ammoRoundsRemaining = Mathf.Max(0,remaining);
+        if (Sprite != null && IsInsideTree()) UpdateAmmoLabel();
+    }
+
+    private void UpdateAmmoLabel()
+    {
+        if (Item?.Type != ItemType.Ammo || _ammoRoundsRemaining < 0) return;
+        if (_ammoLabel == null)
+        {
+            _ammoLabel = new Label { Text = "", Position = new Vector2(-100,-38), Size = new Vector2(200,24),
+                HorizontalAlignment = HorizontalAlignment.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+            AddChild(_ammoLabel);
+        }
+        _ammoLabel.Text = $"{RemainingAmmoRounds} ROUNDS LEFT";
     }
 
     public void UpdateVisuals()
     {
         if (Item == null || Sprite == null) return;
+        UpdateAmmoLabel();
 
         if (Item.Icon != null)
         {
             Sprite.Texture = Item.Icon;
+            float size = float.IsFinite(Item.WorldIconSize) ? Mathf.Clamp(Item.WorldIconSize,12,48) : 32;
+            int pixels = Mathf.Max(Item.Icon.GetWidth(),Item.Icon.GetHeight());
+            if (pixels > 0) Sprite.Scale = Vector2.One * (size / pixels);
         }
 
         if (GlowLight != null)
@@ -82,13 +120,12 @@ public partial class Pickup : Area2D
 
         if (Item.Type == ItemType.Key || Item.Type == ItemType.Document)
         {
-            var col = GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
-            if (col != null && col.Shape is CircleShape2D circle)
+            if (PickupCollision?.Shape is CircleShape2D circle)
             {
                 circle.Radius = 80.0f;
             }
 
-            if (GetNodeOrNull<Label>("ItemLabel") == null)
+            if (_itemLabel == null)
             {
                 var label = new Label
                 {
@@ -103,6 +140,7 @@ public partial class Pickup : Area2D
                     ? new Color(0.3f, 1.0f, 1.0f, 0.95f) 
                     : new Color(1.0f, 0.88f, 0.45f, 0.95f);
                 AddChild(label);
+                _itemLabel = label;
             }
         }
     }
@@ -110,7 +148,7 @@ public partial class Pickup : Area2D
     public override void _Process(double delta)
     {
         _bobTimer += (float)delta * 3.5f;
-        float offset = Mathf.Sin(_bobTimer) * 4.0f;
+        float offset = Mathf.Sin(_bobTimer) * 1.0f;
 
         if (Sprite != null)
         {
@@ -125,12 +163,25 @@ public partial class Pickup : Area2D
 
     public override void _PhysicsProcess(double delta)
     {
+        if (_collectionRequest != null)
+        {
+            var player = _collectionRequest;
+            _collectionRequest = null;
+            if (IsInstanceValid(player) && !player.IsDead && player.GlobalPosition.DistanceSquaredTo(GlobalPosition) <= 120 * 120)
+            {
+                if (!HasClearCollectionPath(player))
+                    HUDUI.Instance?.ShowFloatingNotification("ITEM IS OUT OF REACH",Colors.Orange);
+                else if (CollectByPlayer(player)) return;
+                else HUDUI.Instance?.ShowFloatingNotification(Item.Type == ItemType.Ammo
+                    ? "AMMUNITION RESERVE FULL" : "MAKE SPACE TO COLLECT THIS ITEM",Colors.Orange);
+            }
+        }
         var bodies = GetOverlappingBodies();
         for (int i = 0; i < bodies.Count; i++)
         {
             if (bodies[i] is Player player && IsInstanceValid(player) && !player.IsDead)
             {
-                if (CollectByPlayer(player))
+                if (HasClearCollectionPath(player) && CollectByPlayer(player))
                 {
                     return;
                 }
@@ -138,37 +189,67 @@ public partial class Pickup : Area2D
         }
     }
 
-    private void OnBodyEntered(Node2D body)
+    public bool RequestCollection(Player player)
     {
-        if (body is Player player)
-        {
-            CollectByPlayer(player);
-        }
+        if (_collected || IsQueuedForDeletion() || !IsInstanceValid(player) || player.IsDead
+            || Item == null || player.GlobalPosition.DistanceSquaredTo(GlobalPosition) > 120 * 120) return false;
+        _collectionRequest = player;
+        return true;
+    }
+
+    /// <summary>Physics-tick visibility shared by automatic collection, requests and prompts.</summary>
+    public bool HasClearCollectionPath(Player player)
+    {
+        if (!IsInstanceValid(player) || player.IsDead) return false;
+        var space = GetWorld2D()?.DirectSpaceState;
+        if (space == null) return false;
+        _collectionExclusions.Clear();
+        _collectionExclusions.Add(player.GetRid());
+        _collectionRay.Exclude = _collectionExclusions;
+        _collectionRay.From = GlobalPosition;
+        _collectionRay.To = player.GlobalPosition;
+        return space.IntersectRay(_collectionRay).Count == 0;
     }
 
     public bool CollectByPlayer(Player player)
     {
-        if (player == null || player.IsDead || Item == null) return false;
+        if (_collected || IsQueuedForDeletion() || player == null || player.IsDead || Item == null) return false;
 
         bool collected = false;
+        bool finished = true;
         bool isHealingItem = Item.Type == ItemType.Health || Item.Type == ItemType.Herb;
 
         // Priority 1: Store in inventory if there is free space or stack available
-        if (player.InventoryComponent != null && player.InventoryComponent.AddItem(Item))
+        if (Item.Type == ItemType.Ammo)
+        {
+            int accepted = player.InventoryComponent?.AddReserveAmmo(Item.Id,RemainingAmmoRounds) ?? 0;
+            if (accepted <= 0) return false;
+            _ammoRoundsRemaining = RemainingAmmoRounds - accepted;
+            EmitSignal(SignalName.AmmoRemainingChanged,_ammoRoundsRemaining);
+            finished = _ammoRoundsRemaining == 0;
+            collected = true;
+            UpdateAmmoLabel();
+            HUDUI.Instance?.ShowFloatingNotification($"+{accepted} ROUNDS: {Item.ItemName}",new Color(1,0.95f,0.3f));
+        }
+        else if (player.InventoryComponent != null && player.InventoryComponent.AddItem(Item))
         {
             collected = true;
             HUDUI.Instance?.ShowFloatingNotification($"+ ACQUIRED: {Item.ItemName}", new Color(1.0f, 0.95f, 0.3f, 1.0f));
         }
         // Priority 2: If inventory is full, but player has lost health and this item heals, consume on the spot
-        else if (isHealingItem && player.HealthComponent != null && player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
+        else if (isHealingItem)
         {
-            player.Heal(Item.Value);
-            collected = true;
-            HUDUI.Instance?.ShowHealNotification(Item.ItemName, Item.Value);
+            collected = InventoryComponent.TryApplyRestorative(Item,player);
         }
 
         if (collected)
         {
+            if (finished)
+            {
+                _collected = true;
+                if (!string.IsNullOrEmpty(StoryFlagOnCollect)) StoryDirector.Instance?.SetFlag(StoryFlagOnCollect);
+                EmitSignal(SignalName.Collected);
+            }
             try
             {
                 AudioManager.Instance?.PlaySound(SoundType.PickupCollect, GlobalPosition);
@@ -176,12 +257,12 @@ public partial class Pickup : Area2D
 
                 if (Item.Type == ItemType.Key)
                 {
-                    if (Item.Id == "keycard_substation")
+                    if (Item.Id == "keycard_substation" && StoryDirector.Instance?.IsCampaign != true)
                     {
                         StoryDirector.Instance?.EmitSignal(
                             StoryDirector.SignalName.ObjectiveUpdated,
                             "MISSION 1: RESTORE SECTOR POWER",
-                            "Keycard acquired! Go East to the Substation Door and press [E] to unlock."
+                            $"Keycard acquired! Go East to the Substation Door and press [{ControlBindings.Hint("interact")}] to unlock."
                         );
                         StoryDirector.Instance?.TriggerRadioComms(
                             "CMDR. REYES (HQ)",
@@ -228,7 +309,7 @@ public partial class Pickup : Area2D
             }
             finally
             {
-                QueueFree();
+                if (finished) QueueFree();
             }
             return true;
         }

@@ -14,6 +14,7 @@ public partial class The_Archivist : NPC
 
     public override void _Ready()
     {
+        _hasGivenJournal = StoryDirector.Instance?.HasFlag(StoryFlags.ARCHIVIST_JOURNAL_COLLECTED) == true;
         CharacterName = "The Archivist";
         PromptText = "LISTEN";
         CharacterColor = new Color(0.8f, 0.5f, 1.0f);

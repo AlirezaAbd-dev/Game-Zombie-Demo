@@ -62,10 +62,9 @@ public class ZombieChaseState : ZombieState
 
         Vector2 targetPos = _hasLineOfSight ? Zombie.TargetPlayer.GlobalPosition : Zombie.LastKnownPlayerPos;
         float distToTarget = Zombie.GlobalPosition.DistanceTo(targetPos);
-        float distToPlayer = Zombie.GlobalPosition.DistanceTo(Zombie.TargetPlayer.GlobalPosition);
 
         // Check if in attack range and has direct line of sight
-        if (_hasLineOfSight && distToPlayer <= Zombie.Stats.AttackRange)
+        if (_hasLineOfSight && Zombie.CanMeleeTarget())
         {
             Zombie.StateMachine.ChangeState(Zombie.AttackState);
             return;

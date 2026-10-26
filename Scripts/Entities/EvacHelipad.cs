@@ -10,6 +10,7 @@ public partial class EvacHelipad : Area2D
     [Export] public PointLight2D BeaconLight { get; set; }
     [Export] public Sprite2D PadSprite { get; set; }
     [Export] public InteractableComponent Interactable { get; set; }
+    [Export] public HelicopterExtractionController Extraction { get; set; }
 
     private float _beaconPulse = 0.0f;
 
@@ -27,9 +28,11 @@ public partial class EvacHelipad : Area2D
         if (StoryDirector.Instance != null)
         {
             StoryDirector.Instance.PhaseChanged += OnStoryPhaseChanged;
+            StoryDirector.Instance.FlagsChanged += UpdateBeaconState;
         }
 
         UpdateBeaconState();
+        if (Extraction != null) Extraction.StatusChanged += UpdateBeaconState;
     }
 
     private void OnStoryPhaseChanged(int phaseVal)
@@ -41,7 +44,10 @@ public partial class EvacHelipad : Area2D
     {
         var phase = StoryDirector.Instance?.CurrentPhase ?? StoryPhase.Act1_Blackout;
         bool readyForEvac = phase == StoryPhase.Act3_HelipadEvacuation || phase == StoryPhase.Act3_BossBattle ||
-                            (StoryDirector.Instance != null && (StoryDirector.Instance.CurrentAct == StoryAct.Act5_Extraction || StoryDirector.Instance.HasFlag(StoryFlags.UNIT9_DEFEATED)));
+                            (StoryDirector.Instance != null && StoryDirector.Instance.HasFlag(StoryFlags.UNIT9_DEFEATED));
+        if (StoryDirector.Instance?.IsCampaign == true)
+            readyForEvac = StoryDirector.Instance.HasFlag(StoryFlags.UNIT9_DEFEATED);
+        if (Extraction != null) readyForEvac = Extraction.CanBoard;
 
         if (Interactable != null)
         {
@@ -65,9 +71,13 @@ public partial class EvacHelipad : Area2D
 
     private void OnInteracted(Player player)
     {
+        if (Extraction != null) { Extraction.RequestBoard(player); return; }
+        if (StoryDirector.Instance?.IsCampaign == true && !StoryDirector.Instance.HasFlag(StoryFlags.UNIT9_DEFEATED)) return;
         AudioManager.Instance?.PlaySound(SoundType.RadioChime);
         if (StoryDirector.Instance != null && StoryDirector.Instance.CurrentAct == StoryAct.Act5_Extraction)
         {
+            if (SaveSystem.Instance?.Save(SaveSystem.Instance.CurrentSlot, player,
+                GetTree().CurrentScene.SceneFilePath, StoryAct.Act5_Extraction) != true) return;
             SceneTransitionManager.Instance?.TransitionToScene(
                 "res://Scenes/Credits.tscn",
                 "EXTRACTION CONFIRMED",
@@ -78,5 +88,13 @@ public partial class EvacHelipad : Area2D
         {
             StoryDirector.Instance?.TriggerMissionCompleted();
         }
+    }
+
+    public override void _ExitTree()
+    {
+        if (IsInstanceValid(Extraction)) Extraction.StatusChanged -= UpdateBeaconState;
+        if (StoryDirector.Instance == null) return;
+        StoryDirector.Instance.PhaseChanged -= OnStoryPhaseChanged;
+        StoryDirector.Instance.FlagsChanged -= UpdateBeaconState;
     }
 }

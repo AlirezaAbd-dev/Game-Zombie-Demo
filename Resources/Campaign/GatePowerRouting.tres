@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="PowerRoutingData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/PowerRoutingData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Instructions = "The replacement fuse supplies only two circuits. Consult the maintenance notice: keep bunker air circulation and the entrance motor online. Leave nonessential lighting isolated."
+RequiredMask = 3

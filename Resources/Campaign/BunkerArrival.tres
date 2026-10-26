@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "EXAMINE EVACUATION BOARD"
+CompletionFlag = "bunker_arrival_examined"
+Speaker = "SARA"
+Message = "The guards were called to the laboratory before the lockdown. Their duty credential should still be in the east barracks. The infirmary beyond it may have medical supplies."

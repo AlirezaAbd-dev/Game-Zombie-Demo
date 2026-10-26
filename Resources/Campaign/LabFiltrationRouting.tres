@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PowerRoutingData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/PowerRoutingData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Title = "ISOLATION C / AIR HANDLING"
+Instructions = "A living patient occupies the chamber. Supply filtered AIR INTAKE and EXHAUST. Keep the UV PURGE disconnected."
+Circuits = PackedStringArray("AIR INTAKE", "EXHAUST", "UV PURGE")
+RequiredMask = 3
+CompletionFlag = "lab_filtration_online"
+RestoresFacilityPower = false
+FailureMessage = "PATIENT SAFETY INTERLOCK: intake and exhaust required; UV purge must remain isolated."
+SuccessMessage = "Clean air is reaching Isolation C. Use the Level-3 card on its south door, then reach Leila inside the refuge."

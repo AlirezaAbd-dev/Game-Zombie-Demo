@@ -1,4 +1,3 @@
-using System;
 using Godot;
 using TopDownDemo.Core;
 using TopDownDemo.Entities;
@@ -8,89 +7,132 @@ namespace TopDownDemo.Systems;
 
 public partial class CampaignActDirector : Node
 {
+    public static CampaignActDirector Instance { get; private set; }
     [Export] public StoryAct CurrentAct { get; set; } = StoryAct.Act1_Arrival;
     [Export] public string SceneId { get; set; } = "act1_gate";
+    [Export] public int LayoutVersion { get; set; } = 1;
     [Export] public string ObjectiveTitle { get; set; } = "RECONNAISSANCE";
     [Export] public string ObjectiveSubtask { get; set; } = "Infiltrate Blacksite Foxtrot-7 perimeter";
     [Export] public string StartDialogueId { get; set; } = "act1_intro";
     [Export] public float StartDialogueDelay { get; set; } = 0.8f;
+    [Export] public Godot.Collections.Array<CampaignObjective> Objectives { get; set; } = new();
+    [Export] public Godot.Collections.Array<CampaignRoomData> Rooms { get; set; } = new();
+    [Export] public CanvasModulate AmbientLight { get; set; }
+    public CampaignObjective ActiveObjective { get; private set; }
+    private StoryDirector _story;
+    private Rect2? _playableBounds;
+
+    public override void _EnterTree()
+    {
+        Instance = this;
+        var saves = SaveSystem.EnsureInstance(this);
+        if (!saves.HasActiveSession) saves.CreateNewGame(0, DifficultyLevel.Survivor, saveImmediately: false);
+    }
 
     public override void _Ready()
     {
-        EnsureSystems();
+        foreach (var room in Rooms)
+            _playableBounds = _playableBounds.HasValue ? _playableBounds.Value.Merge(room.Bounds) : room.Bounds;
+        if (StealthSystem.Instance == null) AddChild(new StealthSystem { Name = "StealthSystem" });
+        if (DialogueManager.Instance == null) AddChild(new DialogueManager { Name = "DialogueManager" });
+        if (SceneTransitionManager.Instance == null) AddChild(new SceneTransitionManager { Name = "SceneTransitionManager" });
+        if (CutsceneDirector.Instance == null) AddChild(new CutsceneDirector { Name = "CutsceneDirector" });
+        CallDeferred(nameof(InitializeCampaign));
+        AddChild(new CampaignLootDirector { Name = "CampaignLootDirector" });
+        AddChild(new CampaignEnvironmentView { Name = "EnvironmentView", Director = this });
+    }
 
-        if (StoryDirector.Instance != null)
+    public Vector2 ConstrainPosition(Vector2 position)
+    {
+        if (!_playableBounds.HasValue) return position;
+        Rect2 bounds = _playableBounds.Value;
+        return position.Clamp(bounds.Position + Vector2.One * 48, bounds.End - Vector2.One * 48);
+    }
+
+    private void InitializeCampaign()
+    {
+        _story = StoryDirector.Instance;
+        if (_story == null)
         {
-            StoryDirector.Instance.CurrentAct = CurrentAct;
-            StoryDirector.Instance.EmitSignal(StoryDirector.SignalName.ObjectiveUpdated, ObjectiveTitle, ObjectiveSubtask);
+            GD.PushError("Campaign requires a StoryDirector in the level.");
+            return;
         }
-
-        // Play Act music
+        var player = GetTree().GetFirstNodeInGroup("player") as Player;
+        SaveSystem.Instance.ApplySaveDataToLoadedScene(player);
+        _story.CurrentAct = CurrentAct;
+        _story.FlagsChanged += RefreshObjectives;
+        RefreshObjectives();
         AudioManager.Instance?.PlaySceneMusic(SceneId);
-
-        // Apply difficulty scaling
         ApplyDifficultySettings();
 
-        // Trigger intro dialogue if specified
-        if (!string.IsNullOrEmpty(StartDialogueId))
+        string introFlag = "intro_seen_" + SceneId;
+        if (!string.IsNullOrEmpty(StartDialogueId) && !_story.HasFlag(introFlag))
         {
-            GetTree().CreateTimer(StartDialogueDelay).Timeout += () =>
+            var timer = GetTree().CreateTimer(StartDialogueDelay, processAlways: false);
+            timer.Timeout += () =>
             {
-                var seq = DialogueDatabase.Get(StartDialogueId);
-                if (seq != null && DialogueManager.Instance != null && !DialogueManager.Instance.IsDialogueActive)
-                {
-                    DialogueManager.Instance.StartDialogue(seq);
-                }
+                if (!GodotObject.IsInstanceValid(this) || !IsInsideTree()) return;
+                if (DialogueManager.Instance?.IsDialogueActive == false)
+                    DialogueManager.Instance.StartDialogue(DialogueDatabase.Get(StartDialogueId), _ => _story.SetFlag(introFlag));
             };
         }
     }
 
-    private void EnsureSystems()
+    private void RefreshObjectives()
     {
-        // Auto-instantiate singletons if missing from scene
-        if (SaveSystem.Instance == null)
+        ActiveObjective = null;
+        foreach (var objective in Objectives)
         {
-            AddChild(new SaveSystem { Name = "SaveSystem" });
+            if (!string.IsNullOrEmpty(objective.RequiredFlag) && !_story.HasFlag(objective.RequiredFlag)) continue;
+            if (!string.IsNullOrEmpty(objective.ExcludedFlag) && _story.HasFlag(objective.ExcludedFlag)) continue;
+            if (!_story.HasFlag(objective.CompletionFlag))
+            {
+                ActiveObjective = objective;
+                break;
+            }
         }
-        if (StealthSystem.Instance == null)
-        {
-            AddChild(new StealthSystem { Name = "StealthSystem" });
-        }
-        if (DialogueManager.Instance == null)
-        {
-            AddChild(new DialogueManager { Name = "DialogueManager" });
-        }
-        if (SceneTransitionManager.Instance == null)
-        {
-            AddChild(new SceneTransitionManager { Name = "SceneTransitionManager" });
-        }
-        if (CutsceneDirector.Instance == null)
-        {
-            AddChild(new CutsceneDirector { Name = "CutsceneDirector" });
-        }
+        _story.EmitSignal(StoryDirector.SignalName.ObjectiveUpdated,
+            ActiveObjective?.Title ?? ObjectiveTitle, ActiveObjective?.Instruction ?? ObjectiveSubtask);
+        if (AmbientLight != null)
+            AmbientLight.Color = _story.HasFlag(StoryFlags.FACILITY_POWER_RESTORED)
+                ? new Color(0.32f, 0.39f, 0.43f) : new Color(0.10f, 0.13f, 0.18f);
     }
 
     private void ApplyDifficultySettings()
     {
-        DifficultyLevel diff = StoryDirector.Instance?.Difficulty ?? SaveSystem.Instance?.ActiveSaveData?.Difficulty ?? DifficultyLevel.Survivor;
-
-        var zombies = GetTree().GetNodesInGroup("zombies");
-        foreach (var node in zombies)
+        DifficultyLevel difficulty = _story.Difficulty;
+        foreach (var node in GetTree().GetNodesInGroup("zombies"))
         {
-            if (node is Zombie zombie && zombie.Stats != null)
-            {
-                if (diff == DifficultyLevel.Nightmare)
-                {
-                    zombie.Stats.AttackDamage *= 1.35f;
-                    zombie.VisionRange *= 1.15f;
-                }
-                else if (diff == DifficultyLevel.Researcher)
-                {
-                    zombie.Stats.AttackDamage *= 1.8f;
-                    zombie.VisionRange *= 1.35f;
-                    zombie.ProximityHearRange *= 1.4f;
-                }
-            }
+            if (node is not Zombie zombie || zombie.Stats == null) continue;
+            // Keep shared authoring resources immutable; difficulty belongs to the actor.
+            float multiplier = difficulty == DifficultyLevel.Nightmare ? 1.35f
+                : difficulty == DifficultyLevel.Researcher ? 1.8f : 1.0f;
+            zombie.AttackDamageMultiplier = multiplier;
+            zombie.VisionRange *= difficulty == DifficultyLevel.Survivor ? 1.0f : 1.15f;
         }
+    }
+
+    public override void _UnhandledInput(InputEvent input)
+    {
+        if (input.IsActionPressed("restart") && GetTree().GetFirstNodeInGroup("player") is Player { IsDead: true })
+        {
+            RestartCheckpoint();
+            GetViewport().SetInputAsHandled();
+        }
+    }
+
+    public void RestartCheckpoint()
+    {
+        var saves = SaveSystem.Instance;
+        if (!saves.Load(saves.CurrentSlot)) return;
+        GetTree().Paused = false;
+        Input.MouseMode = Input.MouseModeEnum.Hidden;
+        SceneTransitionManager.Instance.TransitionToScene(saves.ActiveSaveData.CurrentScenePath, "CHECKPOINT", "Restoring your last saved progress");
+    }
+
+    public override void _ExitTree()
+    {
+        if (GodotObject.IsInstanceValid(_story)) _story.FlagsChanged -= RefreshObjectives;
+        if (Instance == this) Instance = null;
     }
 }

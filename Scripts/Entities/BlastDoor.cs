@@ -11,6 +11,7 @@ public partial class BlastDoor : StaticBody2D
 
     [Export] public string DoorId { get; set; } = "blast_door";
     [Export] public string RequiredItemId { get; set; } = string.Empty;
+    [Export] public string RequiredStoryFlag { get; set; } = string.Empty;
     [Export] public string LockedPromptText { get; set; } = string.Empty;
     [Export] public bool IsOpen { get; set; } = false;
     [Export] public bool OpenOnPowerRestored { get; set; } = false;
@@ -25,6 +26,7 @@ public partial class BlastDoor : StaticBody2D
     [Export] public InteractableComponent Interactable { get; set; }
 
     private Vector2 _closedPosition;
+    private Tween _motionTween;
 
     public override void _Ready()
     {
@@ -42,6 +44,7 @@ public partial class BlastDoor : StaticBody2D
 
         if (Interactable != null)
         {
+            Interactable.RequiredStoryFlag = RequiredStoryFlag;
             if (!string.IsNullOrEmpty(RequiredItemId))
             {
                 Interactable.RequiredItemId = RequiredItemId;
@@ -87,6 +90,7 @@ public partial class BlastDoor : StaticBody2D
     public void OpenDoor()
     {
         if (IsOpen) return;
+        if (!string.IsNullOrEmpty(RequiredStoryFlag) && StoryDirector.Instance?.HasFlag(RequiredStoryFlag) != true) return;
         IsOpen = true;
 
         if (CollisionShape != null)
@@ -111,7 +115,8 @@ public partial class BlastDoor : StaticBody2D
 
         if (DoorSprite != null)
         {
-            var tween = CreateTween();
+            _motionTween?.Kill();
+            var tween = _motionTween = CreateTween();
             tween.SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Quad);
             tween.TweenProperty(DoorSprite, "position", _closedPosition + SlideOffset, 0.85);
             tween.Parallel().TweenProperty(DoorSprite, "modulate:a", 0.45f, 0.85);
@@ -119,7 +124,7 @@ public partial class BlastDoor : StaticBody2D
 
         AudioManager.Instance?.PlaySound(SoundType.DoorOpen, GlobalPosition);
 
-        if (DoorId == "door_substation" || RequiredItemId == "keycard_substation")
+        if (StoryDirector.Instance?.IsCampaign != true && (DoorId == "door_substation" || RequiredItemId == "keycard_substation"))
         {
             StoryDirector.Instance?.EmitSignal(
                 StoryDirector.SignalName.ObjectiveUpdated,
@@ -138,6 +143,42 @@ public partial class BlastDoor : StaticBody2D
             Interactable.RequiredItemId = string.Empty;
         }
         OpenDoor();
+    }
+
+    public void RestoreOpen()
+    {
+        _motionTween?.Kill();
+        IsOpen = true;
+        if (Interactable != null) Interactable.IsActive = false;
+        UpdateVisualState(false);
+    }
+
+    public bool CanCloseSafely()
+    {
+        if (!IsOpen || CollisionShape?.Shape == null) return true;
+        var query = new PhysicsShapeQueryParameters2D
+        {
+            Shape = CollisionShape.Shape, Transform = CollisionShape.GlobalTransform,
+            CollisionMask = 3, Exclude = new Godot.Collections.Array<Rid> { GetRid() }
+        };
+        foreach (var hit in GetWorld2D().DirectSpaceState.IntersectShape(query, 32))
+            if (hit["collider"].AsGodotObject() is Player or Zombie or Boss_Unit9) return false;
+        return true;
+    }
+
+    public void RestoreClosed()
+    {
+        _motionTween?.Kill();
+        IsOpen = false;
+        if (CollisionShape != null) CollisionShape.SetDeferred(CollisionShape2D.PropertyName.Disabled, false);
+        if (LightOccluder != null) LightOccluder.Visible = true;
+        if (StatusLight != null) StatusLight.Color = Colors.OrangeRed;
+        if (Interactable != null) Interactable.IsActive = false;
+        if (DoorSprite != null)
+        {
+            DoorSprite.Position = _closedPosition;
+            DoorSprite.Modulate = new Color(DoorSprite.Modulate, 1);
+        }
     }
 
     private void UpdateVisualState(bool animate)

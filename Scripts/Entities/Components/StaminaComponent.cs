@@ -25,6 +25,7 @@ public partial class StaminaComponent : Node
 
     public bool TryConsume(float amount)
     {
+        if (!float.IsFinite(amount) || amount <= 0) return false;
         if (CurrentStamina < amount) return false;
 
         CurrentStamina -= amount;
@@ -39,11 +40,16 @@ public partial class StaminaComponent : Node
 
     public void Regenerate(float delta)
     {
-        if (CurrentStamina < MaxStamina)
-        {
-            CurrentStamina = Mathf.Min(MaxStamina, CurrentStamina + RegenRate * delta);
-            EmitSignal(SignalName.StaminaChanged, CurrentStamina, MaxStamina);
-        }
+        Restore(RegenRate * delta);
+    }
+
+    public float Restore(float amount)
+    {
+        if (!float.IsFinite(amount) || amount <= 0 || CurrentStamina >= MaxStamina) return 0;
+        float restored = Mathf.Min(amount, MaxStamina - CurrentStamina);
+        CurrentStamina += restored;
+        EmitSignal(SignalName.StaminaChanged, CurrentStamina, MaxStamina);
+        return restored;
     }
 
     public void SetCurrentStamina(float stamina)

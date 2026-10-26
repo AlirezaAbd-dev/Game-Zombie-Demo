@@ -7,8 +7,9 @@
 script = ExtResource("1_itemdata")
 Id = "ammo_rifle"
 ItemName = ".308 Rifle Ammo"
-Description = "Box of 10 high-caliber rifle cartridges."
+Description = "Four remaining high-caliber rifle cartridges."
 Type = 1
-Value = 10.0
+Value = 4.0
+LegacyAmmoRounds = 10
 MaxStack = 25
 Icon = ExtResource("2_texture")

@@ -1,0 +1,49 @@
+[gd_scene format=3]
+
+[sub_resource type="RectangleShape2D" id="body"]
+size = Vector2(168,76)
+
+[sub_resource type="OccluderPolygon2D" id="shadow"]
+polygon = PackedVector2Array(-84.0,-38.0,84.0,-38.0,84.0,38.0,-84.0,38.0)
+
+[node name="ServiceBunk" type="StaticBody2D" groups=["campaign_furniture"]]
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+
+[node name="Shadow" type="LightOccluder2D" parent="."]
+occluder = SubResource("shadow")
+
+[node name="Frame" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-84,-38,84,-38,84,38,-84,38)
+color = Color(0.10,0.13,0.12,1)
+
+[node name="Mattress" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-77,-31,77,-31,77,31,-77,31)
+color = Color(0.32,0.34,0.28,1)
+
+[node name="Blanket" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-35,-28,73,-28,73,28,-35,28)
+color = Color(0.19,0.27,0.24,1)
+
+[node name="Fold" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-32,-28,-20,-28,-20,28,-32,28)
+color = Color(0.25,0.32,0.28,1)
+
+[node name="Pillow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-70,-24,-41,-24,-41,24,-70,24)
+color = Color(0.46,0.46,0.37,1)
+
+[node name="PillowSeam" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-67,-20,-65,-20,-65,20,-67,20)
+color = Color(0.35,0.36,0.3,1)
+
+[node name="HeadRail" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-83,-37,-78,-37,-78,37,-83,37)
+color = Color(0.27,0.3,0.28,1)
+
+[node name="FootRail" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(78,-37,83,-37,83,37,78,37)
+color = Color(0.27,0.3,0.28,1)

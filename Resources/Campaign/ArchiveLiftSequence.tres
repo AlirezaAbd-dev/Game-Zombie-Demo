@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SequencePanelData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/SequencePanelData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Title = "SURFACE FREIGHT / STARTUP INTERLOCK"
+Instructions = "Hydraulic return is primed. PRESSURIZE the circuit before releasing the brake; enable drive last. An incorrect step resets the interlock."
+Steps = PackedStringArray("ENABLE DRIVE", "PRESSURIZE CIRCUIT", "RELEASE BRAKE")
+CorrectOrder = PackedInt32Array(1, 2, 0)
+CompletionFlag = "archive_lift_ready"
+FailureMessage = "UNSAFE STARTUP - BRAKE HELD / SEQUENCE RESET. PRESSURIZE, RELEASE BRAKE, ENABLE DRIVE."
+SuccessMessage = "Freight platform ready. Board through the east shelter bulkhead, save at the platform recorder, then operate the surface lift."

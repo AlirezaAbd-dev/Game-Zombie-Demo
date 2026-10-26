@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "security_grid_routed"
+Title = "ISOLATE THE SECURITY GRID"
+Instruction = "Use the relay panel. Keep scanners, lab lift and exhaust online; isolate cell release."
+Waypoint = Vector2(1450, 1250)

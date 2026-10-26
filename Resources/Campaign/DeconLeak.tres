@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "ISOLATE COOLANT LEAK"
+CompletionFlag = "decon_leak_isolated"
+Speaker = "SARA"
+Message = "The coolant leak is isolated. With exhaust online, the chamber can equalize safely. Stand at its centre panel and begin decontamination."

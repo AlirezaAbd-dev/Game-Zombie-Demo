@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "checkpoint_report_read"
+Title = "WHAT HAPPENED HERE?"
+Instruction = "Unlock the west security office and inspect the incident report."
+Waypoint = Vector2(300, 1350)

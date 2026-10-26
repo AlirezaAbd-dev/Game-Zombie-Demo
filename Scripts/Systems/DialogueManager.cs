@@ -20,6 +20,7 @@ public partial class DialogueManager : CanvasLayer
 
     [Signal]
     public delegate void DialogueEndedEventHandler(int lastChoiceIndex);
+    [Signal] public delegate void DialogueCancelledEventHandler();
 
     public bool IsDialogueActive { get; private set; } = false;
     public VBoxContainer ChoicesContainer => _choicesContainer;
@@ -36,12 +37,19 @@ public partial class DialogueManager : CanvasLayer
     private int _currentLineIndex = 0;
     private Action<int> _onCompleteCallback;
     private int _lastChosenIndex = -1;
+    private int _presentationId;
+    private string _timingScenePath = string.Empty;
+    private readonly System.Collections.Generic.Dictionary<string, bool> _choiceFlagOriginals = new();
 
     private float _typewriterTimer = 0.0f;
     private int _visibleCharacters = 0;
     private int _totalCharacters = 0;
     private bool _isTyping = false;
     private string _fullText = "";
+    private bool _previousPaused;
+    private bool _previousInputLock;
+    private Input.MouseModeEnum _previousMouseMode;
+    private Player _dialoguePlayer;
 
     private readonly Dictionary<string, Texture2D> _portraitCache = new();
 
@@ -49,6 +57,7 @@ public partial class DialogueManager : CanvasLayer
     {
         Instance = this;
         Layer = 100;
+        ProcessMode = ProcessModeEnum.Always;
     }
 
     public override void _Ready()
@@ -63,7 +72,7 @@ public partial class DialogueManager : CanvasLayer
         var rootControl = new Control
         {
             Name = "DialogueRoot",
-            MouseFilter = Control.MouseFilterEnum.Pass
+            MouseFilter = Control.MouseFilterEnum.Ignore
         };
         rootControl.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         AddChild(rootControl);
@@ -147,7 +156,7 @@ public partial class DialogueManager : CanvasLayer
 
         _promptLabel = new Label
         {
-            Text = "[E] / [SPACE] Continue  ▶",
+            Text = $"[{ControlBindings.Hint("interact")}] / [SPACE] Continue  ▶",
             HorizontalAlignment = HorizontalAlignment.Right
         };
         _promptLabel.AddThemeFontSizeOverride("font_size", 13);
@@ -157,6 +166,7 @@ public partial class DialogueManager : CanvasLayer
 
     public void StartDialogue(DialogueSequence sequence, Action<int> onComplete = null)
     {
+        if (IsDialogueActive) return;
         if (sequence == null || sequence.Lines.Count == 0)
         {
             onComplete?.Invoke(-1);
@@ -167,13 +177,21 @@ public partial class DialogueManager : CanvasLayer
         _currentLineIndex = 0;
         _onCompleteCallback = onComplete;
         _lastChosenIndex = -1;
+        _timingScenePath = CampaignActDirector.Instance != null ? GetTree().CurrentScene.SceneFilePath : string.Empty;
+        _choiceFlagOriginals.Clear();
         IsDialogueActive = true;
 
-        Player player = GetTree().GetFirstNodeInGroup("player") as Player;
-        if (player != null && GodotObject.IsInstanceValid(player))
+        _previousPaused = GetTree().Paused;
+        _previousMouseMode = Input.MouseMode;
+        _dialoguePlayer = GetTree().GetFirstNodeInGroup("player") as Player;
+        if (GodotObject.IsInstanceValid(_dialoguePlayer))
         {
-            player.IsInputLocked = true;
+            _previousInputLock = _dialoguePlayer.IsInputLocked;
+            _dialoguePlayer.IsInputLocked = true;
+            _dialoguePlayer.Velocity = Vector2.Zero;
         }
+        GetTree().Paused = true;
+        Input.MouseMode = Input.MouseModeEnum.Visible;
 
         _dialogueBox.Visible = true;
         EmitSignal(SignalName.DialogueStarted);
@@ -182,6 +200,7 @@ public partial class DialogueManager : CanvasLayer
 
     private void DisplayCurrentLine()
     {
+        _presentationId++;
         if (_currentSequence == null || _currentLineIndex >= _currentSequence.Lines.Count)
         {
             EndDialogue();
@@ -213,6 +232,7 @@ public partial class DialogueManager : CanvasLayer
         _isTyping = true;
         _typewriterTimer = 0.0f;
         _promptLabel.Visible = false;
+        _promptLabel.Text = $"[{ControlBindings.Hint("interact")}] / [SPACE] Continue  ▶";
 
         // Play typewriter chirp sound
         AudioManager.Instance?.PlaySound(SoundType.RadioChime);
@@ -251,6 +271,7 @@ public partial class DialogueManager : CanvasLayer
     public override void _Process(double delta)
     {
         if (!IsDialogueActive) return;
+        if (!_previousPaused) CampaignTiming.Record(_timingScenePath,(float)delta,dialogue:true);
 
         if (_isTyping)
         {
@@ -294,6 +315,7 @@ public partial class DialogueManager : CanvasLayer
                 }
 
                 int choiceIndex = i;
+                int presentation = _presentationId;
 
                 var btn = new Button
                 {
@@ -341,7 +363,10 @@ public partial class DialogueManager : CanvasLayer
                 btn.AddThemeStyleboxOverride("hover", styleHover);
                 btn.AddThemeStyleboxOverride("focus", styleHover);
 
-                btn.Pressed += () => OnChoiceSelected(choiceIndex, choice);
+                btn.Pressed += () =>
+                {
+                    if (IsDialogueActive && presentation == _presentationId) OnChoiceSelected(choiceIndex, choice);
+                };
                 _choicesContainer.AddChild(btn);
             }
 
@@ -349,6 +374,11 @@ public partial class DialogueManager : CanvasLayer
             if (_choicesContainer.GetChildCount() > 0)
             {
                 ((Button)_choicesContainer.GetChild(0)).GrabFocus();
+            }
+            else
+            {
+                _choicesContainer.Visible = false;
+                _promptLabel.Visible = true;
             }
         }
         else
@@ -360,11 +390,13 @@ public partial class DialogueManager : CanvasLayer
     private void OnChoiceSelected(int index, DialogueChoiceResource choice)
     {
         _lastChosenIndex = index;
+        ChangeChoiceFlag(choice.ClearStoryFlag, false);
+        foreach (string flag in choice.ClearStoryFlags) ChangeChoiceFlag(flag, false);
 
         // Apply story flag if specified
         if (!string.IsNullOrEmpty(choice.SetStoryFlag) && StoryDirector.Instance != null)
         {
-            StoryDirector.Instance.SetFlag(choice.SetStoryFlag);
+            ChangeChoiceFlag(choice.SetStoryFlag, true);
             GD.Print($"[DialogueManager] Story flag set: {choice.SetStoryFlag}");
         }
 
@@ -382,76 +414,110 @@ public partial class DialogueManager : CanvasLayer
         }
     }
 
-    public override void _UnhandledInput(InputEvent @event)
+    private void ChangeChoiceFlag(string flag, bool enabled)
+    {
+        var story = StoryDirector.Instance;
+        if (story == null || string.IsNullOrWhiteSpace(flag)) return;
+        _choiceFlagOriginals.TryAdd(flag, story.HasFlag(flag));
+        if (enabled) story.SetFlag(flag); else story.RemoveFlag(flag);
+    }
+
+    public override void _Input(InputEvent @event)
     {
         if (!IsDialogueActive) return;
+
+        if (@event.IsEcho())
+        {
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        // Choice shortcuts belong to the conversation even when the same key is
+        // assigned to Interact or Dash during normal gameplay.
+        if (_choicesContainer.Visible && @event is InputEventKey number && number.Pressed)
+        {
+            int choiceIndex = number.Keycode switch
+            {
+                Key.Key1 => 0, Key.Key2 => 1, Key.Key3 => 2, Key.Key4 => 3, _ => -1
+            };
+            if (choiceIndex >= 0 && choiceIndex < _choicesContainer.GetChildCount())
+            {
+                GetViewport().SetInputAsHandled();
+                _choicesContainer.GetChild<Button>(choiceIndex).EmitSignal(BaseButton.SignalName.Pressed);
+                return;
+            }
+        }
 
         if (@event.IsActionPressed("interact") || @event.IsActionPressed("dash") ||
             (@event is InputEventKey key && key.Pressed && (key.Keycode == Key.Space || key.Keycode == Key.Enter)))
         {
             if (_isTyping)
             {
-                // Instantly complete typewriter
                 _isTyping = false;
                 _visibleCharacters = _totalCharacters;
                 _dialogueText.Text = _fullText;
                 OnLineFinishedTyping();
                 GetViewport().SetInputAsHandled();
             }
-            else if (_choicesContainer.Visible && _choicesContainer.GetChildCount() > 0)
+            else if (!_choicesContainer.Visible)
             {
-                // Wait for player to choose a button
-            }
-            else
-            {
-                // Advance to next line
-                var curLine = _currentSequence?.Lines != null && _currentLineIndex < _currentSequence.Lines.Count ? _currentSequence.Lines[_currentLineIndex] : null;
-                if (curLine != null && curLine.NextLineIndex >= 0)
-                {
-                    _currentLineIndex = curLine.NextLineIndex;
-                }
-                else
-                {
-                    _currentLineIndex++;
-                }
+                var line = _currentSequence.Lines[_currentLineIndex];
+                _currentLineIndex = line.NextLineIndex >= 0 ? line.NextLineIndex : _currentLineIndex + 1;
+                GetViewport().SetInputAsHandled();
                 DisplayCurrentLine();
-                GetViewport().SetInputAsHandled();
             }
+            // Visible choices retain GUI keyboard/gamepad focus and mouse input.
         }
-        else if (@event is InputEventKey numKey && numKey.Pressed && _choicesContainer.Visible)
-        {
-            // Allow 1, 2, 3 hotkeys to pick options
-            int pressedNum = numKey.Keycode switch
-            {
-                Key.Key1 => 0,
-                Key.Key2 => 1,
-                Key.Key3 => 2,
-                Key.Key4 => 3,
-                _ => -1
-            };
-
-            if (pressedNum >= 0 && pressedNum < _choicesContainer.GetChildCount())
-            {
-                var btn = _choicesContainer.GetChild<Button>(pressedNum);
-                btn.EmitSignal("pressed");
-                GetViewport().SetInputAsHandled();
-            }
-        }
+        // Other always-processing menus must not replace this conversation's pause.
+        if (IsDialogueActive && (@event.IsActionPressed("toggle_inventory")
+            || @event.IsActionPressed("toggle_map") || @event.IsActionPressed("pause_game")
+            || @event.IsActionPressed("restart")))
+            GetViewport().SetInputAsHandled();
     }
 
     public void EndDialogue()
     {
-        HideDialogue();
-        Player player = GetTree().GetFirstNodeInGroup("player") as Player;
-        if (player != null && GodotObject.IsInstanceValid(player))
-        {
-            player.IsInputLocked = false;
-        }
-
-        EmitSignal(SignalName.DialogueEnded, _lastChosenIndex);
-        _onCompleteCallback?.Invoke(_lastChosenIndex);
+        if (!IsDialogueActive) return;
+        _presentationId++;
+        _choiceFlagOriginals.Clear();
+        var callback = _onCompleteCallback;
         _onCompleteCallback = null;
         _currentSequence = null;
+        HideDialogue();
+        ReleaseGameplay();
+        EmitSignal(SignalName.DialogueEnded, _lastChosenIndex);
+        callback?.Invoke(_lastChosenIndex);
+    }
+
+    public void CancelDialogue()
+    {
+        if (!IsDialogueActive) return;
+        _presentationId++;
+        var story = StoryDirector.Instance;
+        if (story != null)
+            foreach (var original in _choiceFlagOriginals)
+                if (original.Value) story.SetFlag(original.Key); else story.RemoveFlag(original.Key);
+        _choiceFlagOriginals.Clear();
+        HideDialogue();
+        _onCompleteCallback = null;
+        _currentSequence = null;
+        ReleaseGameplay();
+        EmitSignal(SignalName.DialogueCancelled);
+    }
+
+    private void ReleaseGameplay()
+    {
+        if (GodotObject.IsInstanceValid(_dialoguePlayer)) _dialoguePlayer.IsInputLocked = _previousInputLock;
+        _dialoguePlayer = null;
+        ControlBindings.ReleaseGameplayActions();
+        GetTree().Paused = _previousPaused;
+        Input.MouseMode = _previousMouseMode;
+    }
+
+    public override void _ExitTree()
+    {
+        CancelDialogue();
+        if (_instance == this) _instance = null;
     }
 
     private void HideDialogue()

@@ -146,6 +146,16 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
 text = "DEBRIEFING / CREDITS"
 
+[node name="BtnSettings" type="Button" parent="CenterContainer/VBox/ButtonContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_btn_hover")
+text = "SETTINGS & CONTROLS"
+
 [node name="BtnQuit" type="Button" parent="CenterContainer/VBox/ButtonContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)

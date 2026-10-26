@@ -18,6 +18,7 @@ public partial class SceneTransitionManager : CanvasLayer
     private Label _subtitleLabel;
     private Control _titleContainer;
     private bool _isTransitioning = false;
+    public bool IsTransitioning => _isTransitioning;
 
     public override void _EnterTree()
     {
@@ -29,6 +30,7 @@ public partial class SceneTransitionManager : CanvasLayer
 
         Instance = this;
         Layer = 120; // High layer above all HUD and dialogue
+        ProcessMode = ProcessModeEnum.Always;
 
         var tree = GetTree();
         if (tree?.Root != null && GetParent() != tree.Root)
@@ -92,19 +94,16 @@ public partial class SceneTransitionManager : CanvasLayer
 
     public void TransitionToScene(string scenePath, string title = "", string subtitle = "", float duration = 0.5f, Action onSceneReady = null)
     {
-        if (_isTransitioning) return;
+        if (_isTransitioning || !IsInsideTree()) return;
+        var tree = GetTree();
+        DialogueManager.Instance?.CancelDialogue();
+        Engine.TimeScale = 1.0;
+        GetTree().Paused = true;
         _isTransitioning = true;
 
         if (_fadeRect == null || !GodotObject.IsInstanceValid(_fadeRect))
         {
             BuildOverlayUI();
-        }
-
-        var tree = GetTree();
-        if (tree == null)
-        {
-            _isTransitioning = false;
-            return;
         }
 
         _fadeRect.MouseFilter = Control.MouseFilterEnum.Stop;
@@ -134,6 +133,8 @@ public partial class SceneTransitionManager : CanvasLayer
                     _fadeRect.MouseFilter = Control.MouseFilterEnum.Ignore;
                 }
                 _isTransitioning = false;
+                ControlBindings.ReleaseGameplayActions();
+                tree.Paused = false;
                 return;
             }
 
@@ -161,11 +162,15 @@ public partial class SceneTransitionManager : CanvasLayer
                             _fadeRect.MouseFilter = Control.MouseFilterEnum.Ignore;
                         }
                         _isTransitioning = false;
+                        ControlBindings.ReleaseGameplayActions();
+                        tree.Paused = false;
                     }));
                 }
                 else
                 {
                     _isTransitioning = false;
+                    ControlBindings.ReleaseGameplayActions();
+                    tree.Paused = false;
                 }
             }).CallDeferred();
         }));

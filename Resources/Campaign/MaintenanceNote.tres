@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Prompt = "READ MAINTENANCE NOTICE"
+CompletionFlag = "maintenance_note_read"
+Speaker = "MAINTENANCE NOTICE"
+Message = "AUXILIARY LOAD LIMIT: two circuits only. Ventilation must remain on for bunker access. The gate motor is essential. Floodlights are disconnected during an emergency."

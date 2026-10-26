@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "EXAMINE ISOLATION TRANSFER NOTES"
+CompletionFlag = "leila_note_found"
+Speaker = "TRIAGE RECORD"
+Message = "Researcher Leila Mohammadi is sealed in Isolation C. The clean-air filter failed. Contact her through the observation intercom before entering the research wing."

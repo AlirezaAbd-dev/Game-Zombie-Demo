@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Prompt = "INSTALL AUXILIARY FUSE"
+RequiredItemId = "auxiliary_fuse"
+CompletionFlag = "auxiliary_fuse_installed"
+LockedMessage = "SPARE FUSE REQUIRED - EAST MAINTENANCE CAGE"
+Speaker = "SARA"
+Message = "The auxiliary fuse is seated. I need to route the restored supply at the relay panel, west of this room."

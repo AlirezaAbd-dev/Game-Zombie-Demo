@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "AUTHORIZE ARCHIVE DESCENT"
+RequiredFlag = "research_downloaded"
+RequiredItemId = "research_drive"
+LockedMessage = "RECOVER THE RESEARCH DRIVE FROM THE CORE"
+CompletionFlag = "lab_exit_authorized"
+Speaker = "DR. SADEGHI"
+Message = "The lower archive is open. Keep the drive with you. There are things in those records I should have told you."

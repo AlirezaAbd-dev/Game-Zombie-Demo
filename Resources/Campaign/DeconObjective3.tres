@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "decon_cycle_complete"
+Title = "CLEAR THE AIRLOCK"
+Instruction = "Clear infected, stand at the centre panel and complete the decontamination cycle."
+Waypoint = Vector2(700, 1400)

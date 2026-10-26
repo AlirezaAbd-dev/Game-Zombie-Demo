@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "unit9_defeated"
+Title = "BREAK CONTAINMENT"
+Instruction = "Neutralize Unit-9. Use the coolant ring and valve to conserve ammunition."
+Waypoint = Vector2(950, 1200)

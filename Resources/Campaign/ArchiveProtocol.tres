@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "AUTHENTICATE THE RESEARCH DRIVE"
+RequiredFlag = "archive_index_read"
+RequiredItemId = "research_drive"
+CompletionFlag = "outbreak_protocol_revealed"
+LockedMessage = "READ THE PAPER INDEX AND BRING THE RESEARCH DRIVE"
+Speaker = "SARA"
+Message = "These are release orders. The exposure trials were authorized before the alarm. Sadeghi is in the north shelter. I need his explanation before I can leave."

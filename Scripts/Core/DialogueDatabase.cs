@@ -127,13 +127,15 @@ public static class DialogueDatabase
         act3ChoiceLine.Choices.Add(new DialogueChoiceResource
         {
             ChoiceText = "Tell me where the keycard is. We are not leaving anyone behind.",
-            SetStoryFlag = StoryFlags.LEILA_RESCUED,
+            SetStoryFlag = StoryFlags.LEILA_RESCUE_ACCEPTED,
+            ClearStoryFlag = StoryFlags.LEILA_ABANDONED,
             NextLineIndex = 3
         });
         act3ChoiceLine.Choices.Add(new DialogueChoiceResource
         {
             ChoiceText = "She's outside mission parameters. We secure the core first.",
             SetStoryFlag = StoryFlags.LEILA_ABANDONED,
+            ClearStoryFlag = StoryFlags.LEILA_RESCUE_ACCEPTED,
             NextLineIndex = 4
         });
         act3Leila.Lines.Add(act3ChoiceLine);
@@ -143,7 +145,7 @@ public static class DialogueDatabase
         {
             Speaker = "DR. SADEGHI",
             PortraitKey = "sadeghi",
-            Text = "Good. I knew your conscience wouldn't let you leave her. The Level-3 Biolab Keycard is in the security lockbox in the eastern archive.",
+            Text = "The Level-3 card is on the preparation bench in the south plant. Find a replacement filter, install it, then route clean air through her isolation chamber. Keep the UV purge off.",
             NextLineIndex = 5
         });
 
@@ -152,7 +154,7 @@ public static class DialogueDatabase
         {
             Speaker = "DR. SADEGHI",
             PortraitKey = "sadeghi",
-            Text = "...Understood. (Silence) If that's what orders dictate... God have mercy on us.",
+            Text = "Then use the east service lock. Release the pressure before opening its drain valve. It leads to the research core, but Leila cannot reach it from her sealed chamber.",
             NextLineIndex = 5
         });
 
@@ -163,6 +165,27 @@ public static class DialogueDatabase
             Text = "Moving out to the archive sector.",
         });
         _sequences["act3_leila"] = act3Leila;
+
+        var leilaRescue = new DialogueSequence { SequenceId = "lab_leila_rescue" };
+        leilaRescue.Lines.Add(new DialogueLineResource
+        {
+            Speaker = "LEILA", PortraitKey = "leila",
+            Text = "I thought the air would run out. The transfer orders... they knew the subjects were infected before they sent us down here."
+        });
+        leilaRescue.Lines.Add(new DialogueLineResource
+        {
+            Speaker = "SARA", PortraitKey = "sara",
+            Text = "Your refuge has clean air now. Stay behind the inner seal. I'll open the extraction route from the archives. Give me your access to the research core."
+        });
+        _sequences["lab_leila_rescue"] = leilaRescue;
+
+        var archivist = new DialogueSequence { SequenceId = "lab_archivist" };
+        archivist.Lines.Add(new DialogueLineResource
+        {
+            Speaker = "THE ARCHIVIST", PortraitKey = "sadeghi",
+            Text = "Sadeghi wasn't the only one giving orders. Take my journal. Compare the transfer dates with Ghorbani's files in the lower vault. Someone planned this containment failure."
+        });
+        _sequences["lab_archivist"] = archivist;
 
         // Act 4: Sadeghi Betrayal Revelation
         var act4Betrayal = new DialogueSequence { SequenceId = "act4_betrayal" };
@@ -189,19 +212,22 @@ public static class DialogueDatabase
         {
             ChoiceText = "I'm not your executioner. Head to the extraction helipad.",
             SetStoryFlag = StoryFlags.SADEGHI_TRUSTED,
+            ClearStoryFlags = new[] { StoryFlags.SADEGHI_DISTRUSTED, StoryFlags.SECRET_CONSPIRACY_UNLOCKED },
             NextLineIndex = 3
         });
         act4ChoiceLine.Choices.Add(new DialogueChoiceResource
         {
             ChoiceText = "You orchestrated a massacre. You stay right here.",
             SetStoryFlag = StoryFlags.SADEGHI_DISTRUSTED,
+            ClearStoryFlags = new[] { StoryFlags.SADEGHI_TRUSTED, StoryFlags.SECRET_CONSPIRACY_UNLOCKED },
             NextLineIndex = 4
         });
         act4ChoiceLine.Choices.Add(new DialogueChoiceResource
         {
             ChoiceText = "I found Ghorbani's secret orders. I know you were coerced. (Secret Ending)",
             SetStoryFlag = StoryFlags.SECRET_CONSPIRACY_UNLOCKED,
-            RequiredFlag = StoryFlags.GHORBANI_FILES_FOUND,
+            ClearStoryFlags = new[] { StoryFlags.SADEGHI_TRUSTED, StoryFlags.SADEGHI_DISTRUSTED },
+            RequiredFlag = "archive_correlated_evidence",
             NextLineIndex = 5
         });
         act4Betrayal.Lines.Add(act4ChoiceLine);

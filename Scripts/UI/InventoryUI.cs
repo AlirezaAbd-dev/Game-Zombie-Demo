@@ -19,6 +19,8 @@ public partial class InventoryUI : Control
     [Export] public Button CombineButton { get; set; }
     [Export] public Button CloseButton { get; set; }
     [Export] public Label HintLabel { get; set; }
+    [Export] public ItemList MissionItemList { get; set; }
+    private readonly System.Collections.Generic.List<ItemData> _missionItems = new();
 
     private Player _player;
     private int _selectedSlotIndex = -1;
@@ -43,6 +45,9 @@ public partial class InventoryUI : Control
         CombineButton ??= GetNodeOrNull<Button>("%CombineButton");
         CloseButton ??= GetNodeOrNull<Button>("%CloseButton");
         HintLabel ??= GetNodeOrNull<Label>("%HintLabel");
+        MissionItemList ??= GetNodeOrNull<ItemList>("%MissionItemList");
+        if (MissionItemList != null) MissionItemList.ItemSelected += SelectMissionItem;
+        if (ItemDescLabel != null) ItemDescLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
 
         if (UseButton != null) UseButton.Pressed += OnUsePressed;
         if (CombineButton != null) CombineButton.Pressed += OnCombinePressed;
@@ -117,7 +122,7 @@ public partial class InventoryUI : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed("toggle_inventory") || (@event is InputEventKey key && key.Pressed && !key.Echo && key.Keycode == Key.Tab))
+        if (@event.IsActionPressed("toggle_inventory") && !@event.IsEcho())
         {
             ToggleInventory();
             GetViewport().SetInputAsHandled();
@@ -126,12 +131,15 @@ public partial class InventoryUI : Control
 
     public void ToggleInventory()
     {
+        if (!Visible && GetTree().Paused) return;
         Visible = !Visible;
+        if (!Visible) ControlBindings.ReleaseGameplayActions();
         GetTree().Paused = Visible;
         Input.MouseMode = Visible ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
 
         if (Visible)
         {
+            if (CloseButton != null) CloseButton.Text = $"CLOSE ({ControlBindings.Hint("toggle_inventory")})";
             _combiningSourceIndex = -1;
             RefreshSlots();
             SelectSlot(0);
@@ -142,6 +150,13 @@ public partial class InventoryUI : Control
     private void RefreshSlots()
     {
         if (_player?.InventoryComponent == null) return;
+        _missionItems.Clear();
+        MissionItemList?.Clear();
+        foreach (var entry in _player.InventoryComponent.MissionItems.Values)
+        {
+            _missionItems.Add(entry.Item);
+            MissionItemList?.AddItem(entry.Item.ItemName);
+        }
         var slots = _player.InventoryComponent.Slots;
 
         for (int i = 0; i < InventoryComponent.MaxSlots && i < slots.Count; i++)
@@ -161,6 +176,18 @@ public partial class InventoryUI : Control
         }
 
         UpdateEcgMonitor();
+    }
+
+    private void SelectMissionItem(long index)
+    {
+        if (index < 0 || index >= _missionItems.Count) return;
+        _selectedSlotIndex = -1;
+        _combiningSourceIndex = -1;
+        var item = _missionItems[(int)index];
+        if (ItemNameLabel != null) ItemNameLabel.Text = item.ItemName.ToUpper();
+        if (ItemDescLabel != null) ItemDescLabel.Text = item.Description;
+        if (UseButton != null) UseButton.Visible = false;
+        if (CombineButton != null) CombineButton.Visible = false;
     }
 
     private void SelectSlot(int index)
@@ -210,7 +237,7 @@ public partial class InventoryUI : Control
             // Complete combination
             bool success = _player?.InventoryComponent?.CombineSlots(_combiningSourceIndex, index) ?? false;
             _combiningSourceIndex = -1;
-            if (HintLabel != null) HintLabel.Text = success ? "ITEMS COMBINED SUCCESSFULLY!" : "CANNOT COMBINE THESE ITEMS.";
+            if (HintLabel != null) HintLabel.Text = success ? "ITEMS COMBINED SUCCESSFULLY!" : "CHECK INGREDIENTS AND MAKE ROOM FOR THE RESULT.";
             RefreshSlots();
             SelectSlot(index);
             return;
@@ -262,7 +289,7 @@ public partial class InventoryUI : Control
     {
         if (_selectedSlotIndex < 0) return;
         _combiningSourceIndex = _selectedSlotIndex;
-        if (HintLabel != null) HintLabel.Text = "SELECT TARGET ITEM TO COMBINE WITH...";
+        if (HintLabel != null) HintLabel.Text = "SELECT A TARGET ITEM, OR THIS STACK AGAIN TO USE TWO.";
     }
 
     public override void _Process(double delta)

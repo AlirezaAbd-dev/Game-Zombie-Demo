@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "decon_leak_isolated"
+Title = "A FAILED PRESSURE SEAL"
+Instruction = "Isolate the coolant leak in the east maintenance bay."
+Waypoint = Vector2(1170, 1450)

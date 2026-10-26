@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "RELEASE SERVICE-LOCK PRESSURE"
+RequiredFlag = "leila_abandoned"
+LockedMessage = "SELECT THE SERVICE BYPASS AT THE OBSERVATION INTERCOM"
+CompletionFlag = "lab_pressure_released"
+Speaker = "SARA"
+Message = "Pressure equalized. The drain valve at the far end of the lock can be opened safely."

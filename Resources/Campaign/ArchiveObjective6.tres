@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "archive_lift_ready"
+Title = "SAFE STARTUP"
+Instruction = "At the shelter panel: pressurize, release brake, then enable drive."
+Waypoint = Vector2(1700, 650)

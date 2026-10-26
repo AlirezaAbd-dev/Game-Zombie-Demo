@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "READ CHECKPOINT INCIDENT REPORT"
+RequiredItemId = "guard_credential"
+LockedMessage = "GUARD CREDENTIAL REQUIRED - SEARCH THE BARRACKS"
+CompletionFlag = "checkpoint_report_read"
+Speaker = "SECURITY REPORT"
+Message = "03:06 - Transfer authorization revoked. To reboot checkpoint clearance, power SECURITY SCANNERS, LAB LIFT, and EXHAUST. Keep CELL RELEASE isolated. Signed transfer orders are held in the northern records office."

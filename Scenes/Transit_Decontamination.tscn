@@ -1,0 +1,1059 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="e1"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="e2"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="e3"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="e4"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="e5"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="e6"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropLocker.tscn" id="e7"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="e8"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="e9"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="e10"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="e11"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="e12"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/WorldStateComponent.cs" id="e13"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/CampaignInteraction.cs" id="e14"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="e15"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="e16"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/PowerRoutingPanel.cs" id="e17"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="e18"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="e20"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_desk.png" id="e21"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/generator.png" id="e22"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_hazard_barrel.png" id="e23"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="e24"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Bandage.tres" id="e25"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Keycard_Substation.tres" id="e26"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AuxiliaryFuse.tres" id="e27"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="e28"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoShotgun.tres" id="e29"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconExhaust.tres" id="e30"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconLeak.tres" id="e31"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconRecorder.tres" id="e32"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconPlacard.tres" id="e33"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/GatePowerRouting.tres" id="e34"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconObjective1.tres" id="e35"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconObjective2.tres" id="e36"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconObjective3.tres" id="e37"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconObjective4.tres" id="e38"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/EnemyActivationComponent.cs" id="e39"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/AirlockCycleController.cs" id="e40"]
+
+[ext_resource type="Script" path="res://Scripts/UI/AirlockStatusUI.cs" id="e41"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconCycle.tres" id="e42"]
+
+[ext_resource type="Script" path="res://Scripts/Core/AirlockCycleData.cs" id="e43"]
+
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Walker.tres" id="e44"]
+
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Runner.tres" id="e45"]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="e46"]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignRoomData.cs" id="e47"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconRoom1.tres" id="e48"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconRoom2.tres" id="e49"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconRoom3.tres" id="e50"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconRoom4.tres" id="e51"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/DeconRoom5.tres" id="e52"]
+
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/CeramicMaterial.tres" id="surface_Ceramic"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/ClinicalMaterial.tres" id="surface_Clinical"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/ConcreteMaterial.tres" id="surface_Concrete"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/SteelMaterial.tres" id="surface_Steel"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="dressing_Barrel"]
+
+[sub_resource type="CircleShape2D" id="interaction_range"]
+radius = 90.0
+
+[sub_resource type="RectangleShape2D" id="exit_shape"]
+size = Vector2(240, 100)
+
+[sub_resource type="RectangleShape2D" id="shape_South"]
+size = Vector2(1060, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_South"]
+polygon = PackedVector2Array(-530.0, -30.0, 530.0, -30.0, 530.0, 30.0, -530.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_EntryWest"]
+size = Vector2(60, 660)
+
+[sub_resource type="OccluderPolygon2D" id="occ_EntryWest"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+
+[sub_resource type="RectangleShape2D" id="shape_EntryEast"]
+size = Vector2(60, 660)
+
+[sub_resource type="OccluderPolygon2D" id="occ_EntryEast"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+
+[sub_resource type="RectangleShape2D" id="shape_EntryTopWest"]
+size = Vector2(300, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_EntryTopWest"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_EntryTopEast"]
+size = Vector2(300, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_EntryTopEast"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_ChamberWestNorth"]
+size = Vector2(60, 540)
+
+[sub_resource type="OccluderPolygon2D" id="occ_ChamberWestNorth"]
+polygon = PackedVector2Array(-30.0, -270.0, 30.0, -270.0, 30.0, 270.0, -30.0, 270.0)
+
+[sub_resource type="RectangleShape2D" id="shape_ChamberWestSouth"]
+size = Vector2(60, 340)
+
+[sub_resource type="OccluderPolygon2D" id="occ_ChamberWestSouth"]
+polygon = PackedVector2Array(-30.0, -170.0, 30.0, -170.0, 30.0, 170.0, -30.0, 170.0)
+
+[sub_resource type="RectangleShape2D" id="shape_ChamberEastNorth"]
+size = Vector2(60, 540)
+
+[sub_resource type="OccluderPolygon2D" id="occ_ChamberEastNorth"]
+polygon = PackedVector2Array(-30.0, -270.0, 30.0, -270.0, 30.0, 270.0, -30.0, 270.0)
+
+[sub_resource type="RectangleShape2D" id="shape_ChamberEastSouth"]
+size = Vector2(60, 340)
+
+[sub_resource type="OccluderPolygon2D" id="occ_ChamberEastSouth"]
+polygon = PackedVector2Array(-30.0, -170.0, 30.0, -170.0, 30.0, 170.0, -30.0, 170.0)
+
+[sub_resource type="RectangleShape2D" id="shape_UtilityWest"]
+size = Vector2(60, 660)
+
+[sub_resource type="OccluderPolygon2D" id="occ_UtilityWest"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+
+[sub_resource type="RectangleShape2D" id="shape_UtilityNorth"]
+size = Vector2(500, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_UtilityNorth"]
+polygon = PackedVector2Array(-250.0, -30.0, 250.0, -30.0, 250.0, 30.0, -250.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_UtilitySouth"]
+size = Vector2(500, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_UtilitySouth"]
+polygon = PackedVector2Array(-250.0, -30.0, 250.0, -30.0, 250.0, 30.0, -250.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_MaintenanceEast"]
+size = Vector2(60, 660)
+
+[sub_resource type="OccluderPolygon2D" id="occ_MaintenanceEast"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+
+[sub_resource type="RectangleShape2D" id="shape_MaintenanceNorth"]
+size = Vector2(500, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_MaintenanceNorth"]
+polygon = PackedVector2Array(-250.0, -30.0, 250.0, -30.0, 250.0, 30.0, -250.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_MaintenanceSouth"]
+size = Vector2(500, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_MaintenanceSouth"]
+polygon = PackedVector2Array(-250.0, -30.0, 250.0, -30.0, 250.0, 30.0, -250.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_AccessSouthWest"]
+size = Vector2(300, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_AccessSouthWest"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_AccessSouthEast"]
+size = Vector2(300, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_AccessSouthEast"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_AccessWest"]
+size = Vector2(60, 660)
+
+[sub_resource type="OccluderPolygon2D" id="occ_AccessWest"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+
+[sub_resource type="RectangleShape2D" id="shape_AccessEast"]
+size = Vector2(60, 660)
+
+[sub_resource type="OccluderPolygon2D" id="occ_AccessEast"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+
+[sub_resource type="RectangleShape2D" id="shape_AccessNorth"]
+size = Vector2(1060, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_AccessNorth"]
+polygon = PackedVector2Array(-530.0, -30.0, 530.0, -30.0, 530.0, 30.0, -530.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="chamber_volume"]
+size = Vector2(400,1100)
+
+[sub_resource type="RectangleShape2D" id="stand_volume"]
+size = Vector2(240,700)
+
+[node name="Transit_Decontamination" type="Node2D"]
+
+
+[node name="CampaignActDirector" type="Node" parent="." node_paths=PackedStringArray("AmbientLight")]
+script = ExtResource("e9")
+CurrentAct = 2
+LayoutVersion = 2
+SceneId = "transit_decontamination"
+StartDialogueId = ""
+ObjectiveTitle = "BIOCONTAINMENT TRANSFER"
+ObjectiveSubtask = "Complete the airlock and use the north access panel."
+AmbientLight = NodePath("../AmbientLight")
+Objectives = Array[ExtResource("e46")]([ExtResource("e35"), ExtResource("e36"), ExtResource("e37"), ExtResource("e38")])
+Rooms = Array[ExtResource("e47")]([ExtResource("e48"), ExtResource("e49"), ExtResource("e50"), ExtResource("e51"), ExtResource("e52")])
+
+[node name="StoryDirector" type="Node" parent="."]
+script = ExtResource("e10")
+IsCampaign = true
+
+[node name="AudioManager" type="Node" parent="."]
+script = ExtResource("e11")
+
+[node name="ProjectilePool" type="Node" parent="."]
+script = ExtResource("e12")
+BulletScene = ExtResource("e18")
+
+[node name="AmbientLight" type="CanvasModulate" parent="."]
+color = Color(0.18, 0.23, 0.26, 1)
+
+[node name="Floor1" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Ceramic")
+offset_left = 200.0
+offset_top = 1900.0
+offset_right = 1200.0
+offset_bottom = 2500.0
+mouse_filter = 2
+
+[node name="Sign1" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 230.0
+offset_top = 1935.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 14
+text = "TRANSFER CHECKPOINT"
+mouse_filter = 2
+
+[node name="Lamp1" type="PointLight2D" parent="."]
+position = Vector2(700, 2200)
+texture = ExtResource("e20")
+texture_scale = 1.6
+energy = 0.8
+color = Color(0.35, 0.75, 0.8, 1)
+
+[node name="Floor2" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Clinical")
+offset_left = 500.0
+offset_top = 800.0
+offset_right = 900.0
+offset_bottom = 1900.0
+mouse_filter = 2
+
+[node name="Sign2" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 530.0
+offset_top = 835.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 14
+text = "PRESSURE CHAMBER"
+mouse_filter = 2
+
+[node name="Lamp2" type="PointLight2D" parent="."]
+position = Vector2(700, 1350)
+texture = ExtResource("e20")
+texture_scale = 1.6
+energy = 0.8
+color = Color(0.35, 0.75, 0.8, 1)
+
+[node name="Floor3" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 0.0
+offset_top = 1100.0
+offset_right = 500.0
+offset_bottom = 1700.0
+mouse_filter = 2
+
+[node name="Sign3" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 30.0
+offset_top = 1135.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 14
+text = "EXHAUST UTILITY"
+mouse_filter = 2
+
+[node name="Lamp3" type="PointLight2D" parent="."]
+position = Vector2(250, 1400)
+texture = ExtResource("e20")
+texture_scale = 1.6
+energy = 0.8
+color = Color(0.35, 0.75, 0.8, 1)
+
+[node name="Floor4" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Concrete")
+offset_left = 900.0
+offset_top = 1100.0
+offset_right = 1400.0
+offset_bottom = 1700.0
+mouse_filter = 2
+
+[node name="Sign4" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 930.0
+offset_top = 1135.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 14
+text = "COOLANT MAINTENANCE"
+mouse_filter = 2
+
+[node name="Lamp4" type="PointLight2D" parent="."]
+position = Vector2(1150, 1400)
+texture = ExtResource("e20")
+texture_scale = 1.6
+energy = 0.8
+color = Color(0.35, 0.75, 0.8, 1)
+
+[node name="Floor5" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Clinical")
+offset_left = 200.0
+offset_top = 200.0
+offset_right = 1200.0
+offset_bottom = 800.0
+mouse_filter = 2
+
+[node name="Sign5" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 230.0
+offset_top = 235.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 14
+text = "BIOCONTAINMENT ACCESS"
+mouse_filter = 2
+
+[node name="Lamp5" type="PointLight2D" parent="."]
+position = Vector2(700, 500)
+texture = ExtResource("e20")
+texture_scale = 1.6
+energy = 0.8
+color = Color(0.35, 0.75, 0.8, 1)
+
+[node name="South" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(700, 2530)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="South"]
+shape = SubResource("shape_South")
+
+[node name="Surface" type="Polygon2D" parent="South"]
+polygon = PackedVector2Array(-530.0, -30.0, 530.0, -30.0, 530.0, 30.0, -530.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="South"]
+occluder = SubResource("occ_South")
+
+[node name="EntryWest" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(170, 2200)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="EntryWest"]
+shape = SubResource("shape_EntryWest")
+
+[node name="Surface" type="Polygon2D" parent="EntryWest"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="EntryWest"]
+occluder = SubResource("occ_EntryWest")
+
+[node name="EntryEast" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1230, 2200)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="EntryEast"]
+shape = SubResource("shape_EntryEast")
+
+[node name="Surface" type="Polygon2D" parent="EntryEast"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="EntryEast"]
+occluder = SubResource("occ_EntryEast")
+
+[node name="EntryTopWest" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(350, 1900)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="EntryTopWest"]
+shape = SubResource("shape_EntryTopWest")
+
+[node name="Surface" type="Polygon2D" parent="EntryTopWest"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="EntryTopWest"]
+occluder = SubResource("occ_EntryTopWest")
+
+[node name="EntryTopEast" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1050, 1900)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="EntryTopEast"]
+shape = SubResource("shape_EntryTopEast")
+
+[node name="Surface" type="Polygon2D" parent="EntryTopEast"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="EntryTopEast"]
+occluder = SubResource("occ_EntryTopEast")
+
+[node name="ChamberWestNorth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(470, 1070)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="ChamberWestNorth"]
+shape = SubResource("shape_ChamberWestNorth")
+
+[node name="Surface" type="Polygon2D" parent="ChamberWestNorth"]
+polygon = PackedVector2Array(-30.0, -270.0, 30.0, -270.0, 30.0, 270.0, -30.0, 270.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="ChamberWestNorth"]
+occluder = SubResource("occ_ChamberWestNorth")
+
+[node name="ChamberWestSouth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(470, 1730)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="ChamberWestSouth"]
+shape = SubResource("shape_ChamberWestSouth")
+
+[node name="Surface" type="Polygon2D" parent="ChamberWestSouth"]
+polygon = PackedVector2Array(-30.0, -170.0, 30.0, -170.0, 30.0, 170.0, -30.0, 170.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="ChamberWestSouth"]
+occluder = SubResource("occ_ChamberWestSouth")
+
+[node name="ChamberEastNorth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(930, 1070)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="ChamberEastNorth"]
+shape = SubResource("shape_ChamberEastNorth")
+
+[node name="Surface" type="Polygon2D" parent="ChamberEastNorth"]
+polygon = PackedVector2Array(-30.0, -270.0, 30.0, -270.0, 30.0, 270.0, -30.0, 270.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="ChamberEastNorth"]
+occluder = SubResource("occ_ChamberEastNorth")
+
+[node name="ChamberEastSouth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(930, 1730)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="ChamberEastSouth"]
+shape = SubResource("shape_ChamberEastSouth")
+
+[node name="Surface" type="Polygon2D" parent="ChamberEastSouth"]
+polygon = PackedVector2Array(-30.0, -170.0, 30.0, -170.0, 30.0, 170.0, -30.0, 170.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="ChamberEastSouth"]
+occluder = SubResource("occ_ChamberEastSouth")
+
+[node name="UtilityWest" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(-30, 1400)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="UtilityWest"]
+shape = SubResource("shape_UtilityWest")
+
+[node name="Surface" type="Polygon2D" parent="UtilityWest"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="UtilityWest"]
+occluder = SubResource("occ_UtilityWest")
+
+[node name="UtilityNorth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(220, 1070)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="UtilityNorth"]
+shape = SubResource("shape_UtilityNorth")
+
+[node name="Surface" type="Polygon2D" parent="UtilityNorth"]
+polygon = PackedVector2Array(-250.0, -30.0, 250.0, -30.0, 250.0, 30.0, -250.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="UtilityNorth"]
+occluder = SubResource("occ_UtilityNorth")
+
+[node name="UtilitySouth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(220, 1730)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="UtilitySouth"]
+shape = SubResource("shape_UtilitySouth")
+
+[node name="Surface" type="Polygon2D" parent="UtilitySouth"]
+polygon = PackedVector2Array(-250.0, -30.0, 250.0, -30.0, 250.0, 30.0, -250.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="UtilitySouth"]
+occluder = SubResource("occ_UtilitySouth")
+
+[node name="MaintenanceEast" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1430, 1400)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="MaintenanceEast"]
+shape = SubResource("shape_MaintenanceEast")
+
+[node name="Surface" type="Polygon2D" parent="MaintenanceEast"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="MaintenanceEast"]
+occluder = SubResource("occ_MaintenanceEast")
+
+[node name="MaintenanceNorth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1180, 1070)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="MaintenanceNorth"]
+shape = SubResource("shape_MaintenanceNorth")
+
+[node name="Surface" type="Polygon2D" parent="MaintenanceNorth"]
+polygon = PackedVector2Array(-250.0, -30.0, 250.0, -30.0, 250.0, 30.0, -250.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="MaintenanceNorth"]
+occluder = SubResource("occ_MaintenanceNorth")
+
+[node name="MaintenanceSouth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1180, 1730)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="MaintenanceSouth"]
+shape = SubResource("shape_MaintenanceSouth")
+
+[node name="Surface" type="Polygon2D" parent="MaintenanceSouth"]
+polygon = PackedVector2Array(-250.0, -30.0, 250.0, -30.0, 250.0, 30.0, -250.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="MaintenanceSouth"]
+occluder = SubResource("occ_MaintenanceSouth")
+
+[node name="AccessSouthWest" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(350, 800)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="AccessSouthWest"]
+shape = SubResource("shape_AccessSouthWest")
+
+[node name="Surface" type="Polygon2D" parent="AccessSouthWest"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="AccessSouthWest"]
+occluder = SubResource("occ_AccessSouthWest")
+
+[node name="AccessSouthEast" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1050, 800)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="AccessSouthEast"]
+shape = SubResource("shape_AccessSouthEast")
+
+[node name="Surface" type="Polygon2D" parent="AccessSouthEast"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="AccessSouthEast"]
+occluder = SubResource("occ_AccessSouthEast")
+
+[node name="AccessWest" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(170, 500)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="AccessWest"]
+shape = SubResource("shape_AccessWest")
+
+[node name="Surface" type="Polygon2D" parent="AccessWest"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="AccessWest"]
+occluder = SubResource("occ_AccessWest")
+
+[node name="AccessEast" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1230, 500)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="AccessEast"]
+shape = SubResource("shape_AccessEast")
+
+[node name="Surface" type="Polygon2D" parent="AccessEast"]
+polygon = PackedVector2Array(-30.0, -330.0, 30.0, -330.0, 30.0, 330.0, -30.0, 330.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="AccessEast"]
+occluder = SubResource("occ_AccessEast")
+
+[node name="AccessNorth" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(700, 170)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="AccessNorth"]
+shape = SubResource("shape_AccessNorth")
+
+[node name="Surface" type="Polygon2D" parent="AccessNorth"]
+polygon = PackedVector2Array(-530.0, -30.0, 530.0, -30.0, 530.0, 30.0, -530.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="AccessNorth"]
+occluder = SubResource("occ_AccessNorth")
+
+[node name="Stripe800_0" type="Polygon2D" parent="."]
+position = Vector2(500, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_1" type="Polygon2D" parent="."]
+position = Vector2(540, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_2" type="Polygon2D" parent="."]
+position = Vector2(580, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_3" type="Polygon2D" parent="."]
+position = Vector2(620, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_4" type="Polygon2D" parent="."]
+position = Vector2(660, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_5" type="Polygon2D" parent="."]
+position = Vector2(700, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_6" type="Polygon2D" parent="."]
+position = Vector2(740, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_7" type="Polygon2D" parent="."]
+position = Vector2(780, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_8" type="Polygon2D" parent="."]
+position = Vector2(820, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe800_9" type="Polygon2D" parent="."]
+position = Vector2(860, 800)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_0" type="Polygon2D" parent="."]
+position = Vector2(500, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_1" type="Polygon2D" parent="."]
+position = Vector2(540, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_2" type="Polygon2D" parent="."]
+position = Vector2(580, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_3" type="Polygon2D" parent="."]
+position = Vector2(620, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_4" type="Polygon2D" parent="."]
+position = Vector2(660, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_5" type="Polygon2D" parent="."]
+position = Vector2(700, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_6" type="Polygon2D" parent="."]
+position = Vector2(740, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_7" type="Polygon2D" parent="."]
+position = Vector2(780, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_8" type="Polygon2D" parent="."]
+position = Vector2(820, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="Stripe1900_9" type="Polygon2D" parent="."]
+position = Vector2(860, 1900)
+polygon = PackedVector2Array(0,-30,20,-30,40,30,20,30)
+color = Color(0.72,0.54,0.12,0.8)
+
+[node name="OuterDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(700, 1900)
+rotation = 0
+scale = Vector2(4.17, 0.5)
+DoorId = "OuterDoor"
+RequiredStoryFlag = "decon_automatic_door"
+LockedPromptText = "AUTOMATIC AIRLOCK - USE THE CENTRE CONTROL"
+SlideOffset = Vector2(110,0)
+
+[node name="InnerDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(700, 800)
+rotation = 0
+scale = Vector2(4.17, 0.5)
+DoorId = "InnerDoor"
+RequiredStoryFlag = "decon_automatic_door"
+LockedPromptText = "AUTOMATIC AIRLOCK - USE THE CENTRE CONTROL"
+SlideOffset = Vector2(110,0)
+
+[node name="WestServiceDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(500, 1450)
+rotation = 1.570796
+scale = Vector2(2.29, 0.5)
+DoorId = "WestServiceDoor"
+RequiredStoryFlag = "decon_automatic_door"
+LockedPromptText = "AUTOMATIC AIRLOCK - USE THE CENTRE CONTROL"
+SlideOffset = Vector2(110,0)
+
+[node name="EastServiceDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(900, 1450)
+rotation = 1.570796
+scale = Vector2(2.29, 0.5)
+DoorId = "EastServiceDoor"
+RequiredStoryFlag = "decon_automatic_door"
+LockedPromptText = "AUTOMATIC AIRLOCK - USE THE CENTRE CONTROL"
+SlideOffset = Vector2(110,0)
+
+[node name="ExhaustBreaker" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(240, 1450)
+script = ExtResource("e14")
+Data = ExtResource("e30")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="ExhaustBreaker"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="ExhaustBreaker/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="ExhaustBreaker"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="ExhaustBreaker"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="CoolantValve" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1170, 1450)
+script = ExtResource("e14")
+Data = ExtResource("e31")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="CoolantValve"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="CoolantValve/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="CoolantValve"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="CoolantValve"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="EntryRecorder" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(400, 2230)
+script = ExtResource("e14")
+Data = ExtResource("e32")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="EntryRecorder"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="EntryRecorder/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="EntryRecorder"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="EntryRecorder"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="SafetyPlacard" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(950, 2130)
+script = ExtResource("e14")
+Data = ExtResource("e33")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="SafetyPlacard"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="SafetyPlacard/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="SafetyPlacard"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="SafetyPlacard"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="EntryLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(300, 2390)
+
+[node name="UtilityDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(200, 1200)
+
+[node name="MaintenanceBarrel" parent="." instance=ExtResource("e8")]
+position = Vector2(1250, 1630)
+
+[node name="ExhaustPipe" type="Line2D" parent="."]
+points = PackedVector2Array(80,1150,80,1550,400,1550)
+width = 18.0
+default_color = Color(0.18,0.44,0.53,1)
+
+[node name="CoolantPipe" type="Line2D" parent="."]
+points = PackedVector2Array(1350,1150,1350,1500,1100,1500)
+width = 16.0
+default_color = Color(0.55,0.36,0.13,1)
+
+[node name="ChamberVolume" type="Area2D" parent="."]
+position = Vector2(700,1350)
+collision_layer = 0
+collision_mask = 3
+
+[node name="Shape" type="CollisionShape2D" parent="ChamberVolume"]
+shape = SubResource("chamber_volume")
+
+[node name="SafeStandZone" type="Area2D" parent="."]
+position = Vector2(700,1400)
+collision_layer = 0
+collision_mask = 1
+
+[node name="Shape" type="CollisionShape2D" parent="SafeStandZone"]
+shape = SubResource("stand_volume")
+
+[node name="CycleConsole" type="Node2D" parent="."]
+position = Vector2(700,1400)
+
+[node name="Sprite" type="Sprite2D" parent="CycleConsole"]
+texture = ExtResource("e21")
+modulate = Color(0.35,0.9,0.85,1)
+
+[node name="Controls" type="Area2D" parent="CycleConsole"]
+script = ExtResource("e15")
+PromptText = "SEAL CHAMBER / BEGIN DECONTAMINATION"
+
+[node name="Range" type="CollisionShape2D" parent="CycleConsole/Controls"]
+shape = SubResource("interaction_range")
+
+[node name="AirlockController" type="Node" parent="." node_paths=PackedStringArray("OuterDoor", "InnerDoor", "ServiceDoors", "ChamberVolume", "SafeStandZone", "Controls")]
+script = ExtResource("e40")
+Data = ExtResource("e42")
+OuterDoor = NodePath("../OuterDoor")
+InnerDoor = NodePath("../InnerDoor")
+ServiceDoors = Array[NodePath]([NodePath("../WestServiceDoor"), NodePath("../EastServiceDoor")])
+ChamberVolume = NodePath("../ChamberVolume")
+SafeStandZone = NodePath("../SafeStandZone")
+Controls = NodePath("../CycleConsole/Controls")
+
+[node name="AirlockStatus" type="CanvasLayer" parent="." node_paths=PackedStringArray("Controller")]
+script = ExtResource("e41")
+Controller = NodePath("../AirlockController")
+
+[node name="EntryAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(1000, 2350)
+Item = ExtResource("e24")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="EntryAmmo"]
+script = ExtResource("e13")
+StableId = "EntryAmmo"
+
+[node name="UtilityBandage" parent="." instance=ExtResource("e4")]
+position = Vector2(300, 1600)
+Item = ExtResource("e25")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="UtilityBandage"]
+script = ExtResource("e13")
+StableId = "UtilityBandage"
+
+[node name="ChamberWalker" parent="." instance=ExtResource("e3")]
+position = Vector2(700,1100)
+Stats = ExtResource("e44")
+
+[node name="WorldState" type="Node" parent="ChamberWalker"]
+script = ExtResource("e13")
+StableId = "ChamberWalker"
+
+[node name="Activation" type="Node" parent="ChamberWalker"]
+script = ExtResource("e39")
+ActivationFlag = "decon_exhaust_online"
+
+[node name="MaintenanceRunner" parent="." instance=ExtResource("e3")]
+position = Vector2(1200,1580)
+Stats = ExtResource("e45")
+
+[node name="WorldState" type="Node" parent="MaintenanceRunner"]
+script = ExtResource("e13")
+StableId = "MaintenanceRunner"
+
+[node name="LabAccess" type="Area2D" parent="." node_paths=PackedStringArray("ExitInteractable")]
+position = Vector2(700,400)
+script = ExtResource("e16")
+TargetScenePath = "res://Scenes/Act3_Lab.tscn"
+RequiredStoryFlag = "decon_cycle_complete"
+DepartureFlag = "decon_transfer_finished"
+LockedMessage = "DECONTAMINATION REQUIRED - COMPLETE THE AIRLOCK CYCLE"
+RequireInteraction = true
+ExitInteractable = NodePath("Interactable")
+ActTitle = "ACT 3: BIOCONTAINMENT"
+Subtitle = "Transfer verified / Isolation Wing"
+TargetAct = 3
+
+[node name="Range" type="CollisionShape2D" parent="LabAccess"]
+shape = SubResource("exit_shape")
+
+[node name="Interactable" type="Area2D" parent="LabAccess"]
+script = ExtResource("e15")
+PromptText = "ENTER BIOCONTAINMENT [E]"
+
+[node name="Range" type="CollisionShape2D" parent="LabAccess/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="AccessPanel" type="Sprite2D" parent="LabAccess"]
+texture = ExtResource("e21")
+modulate = Color(0.3,0.85,0.65,1)
+
+[node name="Player" parent="." instance=ExtResource("e1")]
+position = Vector2(700,2350)
+
+[node name="GameUI" parent="." instance=ExtResource("e2")]
+
+[node name="Dressing_01_Barrel" parent="." instance=ExtResource("dressing_Barrel")]
+position = Vector2(110,1200)
+
+[node name="Dressing_02_Barrel" parent="." instance=ExtResource("dressing_Barrel")]
+position = Vector2(128,1560)

@@ -31,7 +31,6 @@ public partial class PlayerInteractionComponent : Area2D
         if (interactable != null && !_nearbyInteractables.Contains(interactable))
         {
             _nearbyInteractables.Add(interactable);
-            UpdateNearestInteractable();
         }
     }
 
@@ -46,11 +45,10 @@ public partial class PlayerInteractionComponent : Area2D
                 _currentFocus = null;
                 EmitSignal(SignalName.FocusedInteractableChanged, string.Empty, false);
             }
-            UpdateNearestInteractable();
         }
     }
 
-    public override void _Process(double delta)
+    public override void _PhysicsProcess(double delta)
     {
         UpdateNearestInteractable();
     }
@@ -60,7 +58,6 @@ public partial class PlayerInteractionComponent : Area2D
         if (area is InteractableComponent interactable && !_nearbyInteractables.Contains(interactable))
         {
             _nearbyInteractables.Add(interactable);
-            UpdateNearestInteractable();
         }
     }
 
@@ -75,13 +72,12 @@ public partial class PlayerInteractionComponent : Area2D
                 _currentFocus = null;
                 EmitSignal(SignalName.FocusedInteractableChanged, string.Empty, false);
             }
-            UpdateNearestInteractable();
         }
     }
 
-    private void UpdateNearestInteractable()
+    private void UpdateNearestInteractable(bool includePickupVisibility = true)
     {
-        if (_player == null) return;
+        if (!IsInsideTree() || !IsInstanceValid(_player) || !_player.IsInsideTree()) return;
 
         // Clean dead / inactive nodes
         _nearbyInteractables.RemoveAll(i => !IsInstanceValid(i) || !i.IsInsideTree());
@@ -125,7 +121,7 @@ public partial class PlayerInteractionComponent : Area2D
 
         // 3. If no door/terminal interactable is in range, check for nearby pickups
         Pickup bestPickup = null;
-        if (bestCandidate == null)
+        if (bestCandidate == null && includePickupVisibility)
         {
             var pickups = GetTree()?.GetNodesInGroup("pickups");
             if (pickups != null)
@@ -136,7 +132,7 @@ public partial class PlayerInteractionComponent : Area2D
                     if (pickups[i] is Pickup p && IsInstanceValid(p) && p.Item != null)
                     {
                         float distSq = playerPos.DistanceSquaredTo(p.GlobalPosition);
-                        if (distSq < minPickupDistSq)
+                        if (distSq < minPickupDistSq && !p.IsQueuedForDeletion() && p.HasClearCollectionPath(_player))
                         {
                             minPickupDistSq = distSq;
                             bestPickup = p;
@@ -221,14 +217,12 @@ public partial class PlayerInteractionComponent : Area2D
 
             if (closest != null)
             {
-                bool success = closest.CollectByPlayer(_player);
-                UpdateNearestInteractable();
-                return success;
+                return closest.RequestCollection(_player);
             }
         }
 
         // 3. Proximity fallback interact with nearest interactable
-        UpdateNearestInteractable();
+        UpdateNearestInteractable(includePickupVisibility: false);
         if (_currentFocus != null && IsInstanceValid(_currentFocus))
         {
             return _currentFocus.TryInteract(_player);

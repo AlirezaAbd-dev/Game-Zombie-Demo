@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1"]
+[ext_resource type="Texture2D" path="res://Assets/textures/rifle.png" id="2"]
+[ext_resource type="Resource" path="res://Resources/Weapons/Rifle.tres" id="3"]
+[resource]
+script = ExtResource("1")
+Id = "weapon_rifle"
+ItemName = ".308 Hunting Rifle"
+Description = "A bolt-action rifle secured with the command archive. Loaded with five cartridges. Unlocks weapon slot 3."
+Type = 6
+Value = 0.0
+MaxStack = 1
+Icon = ExtResource("2")
+GrantedWeapon = ExtResource("3")
+WorldIconSize = 48.0

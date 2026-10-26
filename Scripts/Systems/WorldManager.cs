@@ -225,6 +225,9 @@ public partial class WorldManager : Node2D
 
     public static Vector2 ClampToPlayableBounds(Vector2 pos)
     {
+        // Authored campaign levels enforce their own boundaries with physics walls.
+        if (GodotObject.IsInstanceValid(CampaignActDirector.Instance))
+            return CampaignActDirector.Instance.ConstrainPosition(pos);
         if (IsInsidePlayableArea(pos))
             return pos;
 
@@ -389,7 +392,7 @@ public partial class WorldManager : Node2D
     {
         if (@event.IsActionPressed("quit"))
         {
-            GetTree().Quit();
+            ApplicationExit.Request(GetTree());
         }
         else if (@event.IsActionPressed("restart"))
         {

@@ -322,6 +322,7 @@ public partial class PadlockPuzzleUI : Control
     {
         if (!Visible || _isClosing) return;
         _isClosing = true;
+        ControlBindings.ReleaseGameplayActions();
 
         if (_player != null)
         {

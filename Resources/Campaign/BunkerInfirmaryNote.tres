@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "READ TRIAGE NOTE"
+CompletionFlag = "triage_note_read"
+Speaker = "TRIAGE NOTE"
+Message = "Patients developed sound sensitivity before turning violent. We moved the spare ammunition north into the armory. Stop firing if you can escape through the service route."

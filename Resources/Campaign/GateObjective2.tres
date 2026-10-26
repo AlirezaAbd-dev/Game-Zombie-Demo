@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+CompletionFlag = "service_key_acquired"
+Title = "MAINTENANCE ACCESS"
+Instruction = "Collect the maintenance credential from the gatehouse desk."
+Waypoint = Vector2(650, 1300)

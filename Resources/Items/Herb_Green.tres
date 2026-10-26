@@ -11,6 +11,7 @@ Description = "Indigenous restorative medicinal herb. Restores 35 HP. Combine wi
 Type = 4
 Value = 35.0
 MaxStack = 5
+WorldIconSize = 24.0
 Icon = ExtResource("2_texture")
 CombineWithId = "herb_green"
 CombineResultId = "herb_green_double"

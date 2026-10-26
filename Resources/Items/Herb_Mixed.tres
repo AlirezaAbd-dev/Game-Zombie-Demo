@@ -10,5 +10,6 @@ ItemName = "Mixed Herb (G+B)"
 Description = "Compound botanical mixture. Restores 60 HP and fully restores Stamina to maximum."
 Type = 4
 Value = 60.0
+StaminaRestore = 100.0
 MaxStack = 3
 Icon = ExtResource("2_texture")

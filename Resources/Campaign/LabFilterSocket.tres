@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "INSTALL STERILE FILTER CARTRIDGE"
+RequiredFlag = "leila_rescue_accepted"
+RequiredItemId = "lab_filter_cartridge"
+LockedMessage = "COMMIT TO THE RESCUE AND FIND A STERILE FILTER"
+CompletionFlag = "lab_filter_installed"
+Speaker = "SARA"
+Message = "The replacement is seated. The observation panel can route intake and exhaust now. The UV purge must stay off while Leila is inside."

@@ -7,8 +7,9 @@
 script = ExtResource("1_itemdata")
 Id = "ammo_shotgun"
 ItemName = "12G Shotgun Shells"
-Description = "Box of 12 shotgun shells."
+Description = "A field pack containing 6 shotgun shells."
 Type = 1
-Value = 12.0
+Value = 6.0
+LegacyAmmoRounds = 12
 MaxStack = 36
 Icon = ExtResource("2_texture")

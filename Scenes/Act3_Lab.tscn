@@ -1,152 +1,1453 @@
-[gd_scene format=3 uid="uid://act3lab003"]
+[gd_scene format=3]
 
-[ext_resource type="Shader" path="res://Assets/shaders/floor_grid.gdshader" id="1_floor_sh"]
-[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="2_ui"]
-[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="3_player"]
-[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="4_zombie"]
-[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="5_pickup"]
-[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="6_blast_door"]
-[ext_resource type="PackedScene" path="res://Prefabs/WallLab.tscn" id="7_wall_lab"]
-[ext_resource type="PackedScene" path="res://Prefabs/MapBoundary.tscn" id="8_map_bound"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropCryoTube.tscn" id="9_cryo"]
-[ext_resource type="PackedScene" path="res://Prefabs/PropGurney.tscn" id="10_gurney"]
-[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="11_act_director"]
-[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="12_audio_mgr"]
-[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="13_story_dir"]
-[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="14_proj_pool"]
-[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="15_bullet"]
-[ext_resource type="Resource" path="res://Resources/Items/Biolab_Keycard.tres" id="16_keycard"]
-[ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="17_green_herb"]
-[ext_resource type="Resource" path="res://Resources/Items/Herb_Blue.tres" id="18_blue_herb"]
-[ext_resource type="Script" path="res://Scripts/Entities/The_Archivist.cs" id="19_archivist_script"]
-[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="20_trans_trigger"]
-[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="21_light"]
+[ext_resource type="PackedScene" path="res://Prefabs/Player.tscn" id="e1"]
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_lab_floor"]
-shader = ExtResource("1_floor_sh")
-shader_parameter/base_color = Color(0.04, 0.08, 0.06, 1)
-shader_parameter/line_color = Color(0.08, 0.18, 0.12, 1)
-shader_parameter/dot_color = Color(0.15, 0.35, 0.22, 1)
-shader_parameter/tile_size = 96.0
-shader_parameter/line_thickness = 2.0
+[ext_resource type="PackedScene" path="res://Prefabs/GameUI.tscn" id="e2"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_transition"]
-size = Vector2(180, 60)
+[ext_resource type="PackedScene" path="res://Prefabs/Zombie.tscn" id="e3"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Pickup.tscn" id="e4"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/BlastDoor.tscn" id="e5"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropDesk.tscn" id="e6"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropLocker.tscn" id="e7"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropHazardBarrel.tscn" id="e8"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/CampaignActDirector.cs" id="e9"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/StoryDirector.cs" id="e10"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/AudioManager.cs" id="e11"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/ProjectilePool.cs" id="e12"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/WorldStateComponent.cs" id="e13"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/CampaignInteraction.cs" id="e14"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="e15"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/ActTransitionTrigger.cs" id="e16"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/PowerRoutingPanel.cs" id="e17"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/Bullet.tscn" id="e18"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="e20"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_desk.png" id="e21"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/generator.png" id="e22"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/prop_hazard_barrel.png" id="e23"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoPack.tres" id="e24"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Bandage.tres" id="e25"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Biolab_Keycard.tres" id="e26"]
+
+[ext_resource type="Resource" path="res://Resources/Items/LabFilterCartridge.tres" id="e27"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Green.tres" id="e28"]
+
+[ext_resource type="Resource" path="res://Resources/Items/Herb_Blue.tres" id="e29"]
+
+[ext_resource type="Resource" path="res://Resources/Items/AmmoShotgun.tres" id="e30"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabTriageNotes.tres" id="e31"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabIntercom.tres" id="e32"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabFilterSocket.tres" id="e33"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabPressureValve.tres" id="e34"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabDrainValve.tres" id="e35"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRescueLeila.tres" id="e36"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabResearchTerminal.tres" id="e37"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabArchiveAuthorization.tres" id="e38"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabFieldRecorder.tres" id="e39"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabArchivist.tres" id="e40"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabFiltrationRouting.tres" id="e41"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective1.tres" id="e42"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective2.tres" id="e43"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective3.tres" id="e44"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective4.tres" id="e45"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective5.tres" id="e46"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective6.tres" id="e47"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective7.tres" id="e48"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective8.tres" id="e49"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective9.tres" id="e50"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective10.tres" id="e51"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabObjective11.tres" id="e52"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/EnemyActivationComponent.cs" id="e53"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropGurney.tscn" id="e54"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropCryoTube.tscn" id="e55"]
+
+[ext_resource type="Texture2D" path="res://Assets/textures/topdown_character.png" id="e56"]
+
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Walker.tres" id="e57"]
+
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Runner.tres" id="e58"]
+
+[ext_resource type="Resource" path="res://Resources/Enemies/Zombie_Brute.tres" id="e59"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRoom1.tres" id="e60"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRoom2.tres" id="e61"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRoom3.tres" id="e62"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRoom4.tres" id="e63"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRoom5.tres" id="e64"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRoom6.tres" id="e65"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRoom7.tres" id="e66"]
+
+[ext_resource type="Resource" path="res://Resources/Campaign/LabRoom8.tres" id="e67"]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="e68"]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignRoomData.cs" id="e69"]
+
+[ext_resource type="Script" path="res://Scripts/Systems/LabCampaignRules.cs" id="lab_rules"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/InteractableComponent.cs" id="exit_interaction"]
+
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/ClinicalMaterial.tres" id="surface_Clinical"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/ConcreteMaterial.tres" id="surface_Concrete"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/SteelMaterial.tres" id="surface_Steel"]
+
+[ext_resource type="PackedScene" path="res://Prefabs/PropCryoTube.tscn" id="dressing_Cryo"]
+[ext_resource type="PackedScene" path="res://Prefabs/PropGurney.tscn" id="dressing_Gurney"]
+[ext_resource type="PackedScene" path="res://Prefabs/ArchiveRack.tscn" id="dressing_Rack"]
+
+[sub_resource type="CircleShape2D" id="interaction_range"]
+radius = 90.0
+
+[sub_resource type="RectangleShape2D" id="exit_shape"]
+size = Vector2(240, 100)
+
+[sub_resource type="RectangleShape2D" id="shape_WestBoundary"]
+size = Vector2(80, 3080)
+
+[sub_resource type="OccluderPolygon2D" id="occ_WestBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+
+[sub_resource type="RectangleShape2D" id="shape_EastBoundary"]
+size = Vector2(80, 3080)
+
+[sub_resource type="OccluderPolygon2D" id="occ_EastBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+
+[sub_resource type="RectangleShape2D" id="shape_SouthBoundary"]
+size = Vector2(3080, 80)
+
+[sub_resource type="OccluderPolygon2D" id="occ_SouthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+
+[sub_resource type="RectangleShape2D" id="shape_NorthBoundary"]
+size = Vector2(3080, 80)
+
+[sub_resource type="OccluderPolygon2D" id="occ_NorthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition1000_0"]
+size = Vector2(64, 1390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition1000_0"]
+polygon = PackedVector2Array(-32.0, -695.0, 32.0, -695.0, 32.0, 695.0, -32.0, 695.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition1000_1610"]
+size = Vector2(64, 780)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition1000_1610"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition1000_2610"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition1000_2610"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition2000_0"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition2000_0"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition2000_610"]
+size = Vector2(64, 780)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition2000_610"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Partition2000_1610"]
+size = Vector2(64, 390)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Partition2000_1610"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall1000_0"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall1000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall1000_1"]
+size = Vector2(780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall1000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall1000_2"]
+size = Vector2(780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall1000_2"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall1000_end"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall1000_end"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall2000_0"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall2000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall2000_1"]
+size = Vector2(780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall2000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall2000_2"]
+size = Vector2(780, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall2000_2"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_Crosswall2000_end"]
+size = Vector2(390, 64)
+
+[sub_resource type="OccluderPolygon2D" id="occ_Crosswall2000_end"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+
+[sub_resource type="RectangleShape2D" id="shape_PlantFilterCage"]
+size = Vector2(350, 50)
+
+[sub_resource type="OccluderPolygon2D" id="occ_PlantFilterCage"]
+polygon = PackedVector2Array(-175.0, -25.0, 175.0, -25.0, 175.0, 25.0, -175.0, 25.0)
+
+[sub_resource type="RectangleShape2D" id="shape_ServiceDebris"]
+size = Vector2(300, 60)
+
+[sub_resource type="OccluderPolygon2D" id="occ_ServiceDebris"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+
+[sub_resource type="RectangleShape2D" id="shape_ObservationScreen"]
+size = Vector2(60, 250)
+
+[sub_resource type="OccluderPolygon2D" id="occ_ObservationScreen"]
+polygon = PackedVector2Array(-30.0, -125.0, 30.0, -125.0, 30.0, 125.0, -30.0, 125.0)
+
+[sub_resource type="CircleShape2D" id="exit_interaction_shape"]
+radius = 90.0
 
 [node name="Act3_Lab" type="Node2D"]
 
-[node name="CampaignActDirector" type="Node" parent="."]
-script = ExtResource("11_act_director")
+
+[node name="CampaignActDirector" type="Node" parent="." node_paths=PackedStringArray("AmbientLight")]
+script = ExtResource("e9")
 CurrentAct = 3
+LayoutVersion = 3
 SceneId = "act3_lab"
-ObjectiveTitle = "BIOCONTAINMENT WING"
-ObjectiveSubtask = "Locate Leila at Blast Door C & uncover archive secrets"
-StartDialogueId = "act3_leila"
-StartDialogueDelay = 0.8
+ObjectiveTitle = "DESCEND TO THE ARCHIVES"
+ObjectiveSubtask = "Save at the archive recorder, then take the north lift."
+StartDialogueId = ""
+AmbientLight = NodePath("../AmbientLight")
+Objectives = Array[ExtResource("e68")]([ExtResource("e42"), ExtResource("e43"), ExtResource("e44"), ExtResource("e45"), ExtResource("e46"), ExtResource("e47"), ExtResource("e48"), ExtResource("e49"), ExtResource("e50"), ExtResource("e51"), ExtResource("e52")])
+Rooms = Array[ExtResource("e69")]([ExtResource("e60"), ExtResource("e61"), ExtResource("e62"), ExtResource("e63"), ExtResource("e64"), ExtResource("e65"), ExtResource("e66"), ExtResource("e67")])
 
 [node name="StoryDirector" type="Node" parent="."]
-script = ExtResource("13_story_dir")
+script = ExtResource("e10")
+IsCampaign = true
 
 [node name="AudioManager" type="Node" parent="."]
-script = ExtResource("12_audio_mgr")
+script = ExtResource("e11")
 
 [node name="ProjectilePool" type="Node" parent="."]
-script = ExtResource("14_proj_pool")
-BulletScene = ExtResource("15_bullet")
+script = ExtResource("e12")
+BulletScene = ExtResource("e18")
 
-[node name="CanvasModulate" type="CanvasModulate" parent="."]
-color = Color(0.03, 0.06, 0.05, 1)
+[node name="LabCampaignRules" type="Node" parent="."]
+script = ExtResource("lab_rules")
 
-[node name="SterileGreenLight" type="PointLight2D" parent="."]
-position = Vector2(600, 480)
-color = Color(0.2, 0.95, 0.5, 1)
-energy = 1.4
-texture = ExtResource("21_light")
-texture_scale = 3.2
+[node name="AmbientLight" type="CanvasModulate" parent="."]
+color = Color(0.10, 0.16, 0.15, 1)
 
-[node name="Floor" type="ColorRect" parent="."]
-material = SubResource("ShaderMaterial_lab_floor")
-offset_left = -300.0
-offset_top = -600.0
-offset_right = 1500.0
-offset_bottom = 1200.0
+[node name="Room1" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 0.0
+offset_top = 2000.0
+offset_right = 1000.0
+offset_bottom = 3000.0
+mouse_filter = 2
 
-[node name="MapBoundary" parent="." instance=ExtResource("8_map_bound")]
+[node name="RoomSign1" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 2100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "LIFT ARRIVAL"
+mouse_filter = 2
 
-[node name="GameUI" parent="." instance=ExtResource("2_ui")]
+[node name="Fixture1" type="PointLight2D" parent="."]
+position = Vector2(500, 2500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.3, 0.8, 0.55, 1)
 
-[node name="Player" parent="." instance=ExtResource("3_player")]
-position = Vector2(600, 950)
+[node name="Room2" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Concrete")
+offset_left = 1000.0
+offset_top = 2000.0
+offset_right = 3000.0
+offset_bottom = 3000.0
+mouse_filter = 2
 
-[node name="Cryo1" parent="." instance=ExtResource("9_cryo")]
-position = Vector2(300, 700)
+[node name="RoomSign2" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 1100.0
+offset_top = 2100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "AIR PLANT / PREPARATION"
+mouse_filter = 2
 
-[node name="Cryo2" parent="." instance=ExtResource("9_cryo")]
-position = Vector2(900, 700)
+[node name="Fixture2" type="PointLight2D" parent="."]
+position = Vector2(2000, 2500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.3, 0.8, 0.55, 1)
 
-[node name="Gurney1" parent="." instance=ExtResource("10_gurney")]
-position = Vector2(400, 500)
+[node name="Room3" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Clinical")
+offset_left = 0.0
+offset_top = 1000.0
+offset_right = 1000.0
+offset_bottom = 2000.0
+mouse_filter = 2
 
-[node name="Gurney2" parent="." instance=ExtResource("10_gurney")]
-position = Vector2(800, 500)
+[node name="RoomSign3" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "TRIAGE"
+mouse_filter = 2
 
-[node name="TheArchivistNPC" type="CharacterBody2D" parent="."]
-position = Vector2(850, 320)
-script = ExtResource("19_archivist_script")
+[node name="Fixture3" type="PointLight2D" parent="."]
+position = Vector2(500, 1500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.3, 0.8, 0.55, 1)
 
-[node name="BiolabKeycardPickup" parent="." instance=ExtResource("5_pickup")]
-position = Vector2(350, 420)
-Item = ExtResource("16_keycard")
+[node name="Room4" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Clinical")
+offset_left = 1000.0
+offset_top = 1000.0
+offset_right = 2000.0
+offset_bottom = 2000.0
+mouse_filter = 2
 
-[node name="GreenHerbPickup" parent="." instance=ExtResource("5_pickup")]
-position = Vector2(750, 800)
-Item = ExtResource("17_green_herb")
+[node name="RoomSign4" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 1100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "OBSERVATION"
+mouse_filter = 2
 
-[node name="BlueHerbPickup" parent="." instance=ExtResource("5_pickup")]
-position = Vector2(450, 800)
-Item = ExtResource("18_blue_herb")
+[node name="Fixture4" type="PointLight2D" parent="."]
+position = Vector2(1500, 1500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.3, 0.8, 0.55, 1)
 
-[node name="LeilaBlastDoor" parent="." instance=ExtResource("6_blast_door")]
-position = Vector2(600, 200)
-DoorId = "blast_door_c"
+[node name="Room5" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 2000.0
+offset_top = 1000.0
+offset_right = 3000.0
+offset_bottom = 2000.0
+mouse_filter = 2
+
+[node name="RoomSign5" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 2100.0
+offset_top = 1100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "SERVICE LOCK"
+mouse_filter = 2
+
+[node name="Fixture5" type="PointLight2D" parent="."]
+position = Vector2(2500, 1500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.3, 0.8, 0.55, 1)
+
+[node name="Room6" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Steel")
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 1000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="RoomSign6" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "ARCHIVE LIFT"
+mouse_filter = 2
+
+[node name="Fixture6" type="PointLight2D" parent="."]
+position = Vector2(500, 500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.3, 0.8, 0.55, 1)
+
+[node name="Room7" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Clinical")
+offset_left = 1000.0
+offset_top = 0.0
+offset_right = 2000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="RoomSign7" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 1100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "ISOLATION C"
+mouse_filter = 2
+
+[node name="Fixture7" type="PointLight2D" parent="."]
+position = Vector2(1500, 500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.3, 0.8, 0.55, 1)
+
+[node name="Room8" type="ColorRect" parent="." groups=["campaign_floor"]]
+z_index = -10
+material = ExtResource("surface_Clinical")
+offset_left = 2000.0
+offset_top = 0.0
+offset_right = 3000.0
+offset_bottom = 1000.0
+mouse_filter = 2
+
+[node name="RoomSign8" type="Label" parent="." groups=["campaign_room_label"]]
+visible = false
+offset_left = 2100.0
+offset_top = 100.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 20
+text = "RESEARCH CORE"
+mouse_filter = 2
+
+[node name="Fixture8" type="PointLight2D" parent="."]
+position = Vector2(2500, 500)
+texture = ExtResource("e20")
+texture_scale = 1.8
+energy = 0.5
+color = Color(0.3, 0.8, 0.55, 1)
+
+[node name="WestBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(-40, 1500)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="WestBoundary"]
+shape = SubResource("shape_WestBoundary")
+
+[node name="Surface" type="Polygon2D" parent="WestBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="WestBoundary"]
+occluder = SubResource("occ_WestBoundary")
+
+[node name="EastBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(3040, 1500)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="EastBoundary"]
+shape = SubResource("shape_EastBoundary")
+
+[node name="Surface" type="Polygon2D" parent="EastBoundary"]
+polygon = PackedVector2Array(-40.0, -1540.0, 40.0, -1540.0, 40.0, 1540.0, -40.0, 1540.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="EastBoundary"]
+occluder = SubResource("occ_EastBoundary")
+
+[node name="SouthBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1500, 3040)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="SouthBoundary"]
+shape = SubResource("shape_SouthBoundary")
+
+[node name="Surface" type="Polygon2D" parent="SouthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="SouthBoundary"]
+occluder = SubResource("occ_SouthBoundary")
+
+[node name="NorthBoundary" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1500, -40)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="NorthBoundary"]
+shape = SubResource("shape_NorthBoundary")
+
+[node name="Surface" type="Polygon2D" parent="NorthBoundary"]
+polygon = PackedVector2Array(-1540.0, -40.0, 1540.0, -40.0, 1540.0, 40.0, -1540.0, 40.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="NorthBoundary"]
+occluder = SubResource("occ_NorthBoundary")
+
+[node name="Partition1000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 695.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition1000_0"]
+shape = SubResource("shape_Partition1000_0")
+
+[node name="Surface" type="Polygon2D" parent="Partition1000_0"]
+polygon = PackedVector2Array(-32.0, -695.0, 32.0, -695.0, 32.0, 695.0, -32.0, 695.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition1000_0"]
+occluder = SubResource("occ_Partition1000_0")
+
+[node name="Partition1000_1610" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 2000.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition1000_1610"]
+shape = SubResource("shape_Partition1000_1610")
+
+[node name="Surface" type="Polygon2D" parent="Partition1000_1610"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition1000_1610"]
+occluder = SubResource("occ_Partition1000_1610")
+
+[node name="Partition1000_2610" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000, 2805.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition1000_2610"]
+shape = SubResource("shape_Partition1000_2610")
+
+[node name="Surface" type="Polygon2D" parent="Partition1000_2610"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition1000_2610"]
+occluder = SubResource("occ_Partition1000_2610")
+
+[node name="Partition2000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 195.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition2000_0"]
+shape = SubResource("shape_Partition2000_0")
+
+[node name="Surface" type="Polygon2D" parent="Partition2000_0"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition2000_0"]
+occluder = SubResource("occ_Partition2000_0")
+
+[node name="Partition2000_610" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 1000.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition2000_610"]
+shape = SubResource("shape_Partition2000_610")
+
+[node name="Surface" type="Polygon2D" parent="Partition2000_610"]
+polygon = PackedVector2Array(-32.0, -390.0, 32.0, -390.0, 32.0, 390.0, -32.0, 390.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition2000_610"]
+occluder = SubResource("occ_Partition2000_610")
+
+[node name="Partition2000_1610" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000, 1805.0)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Partition2000_1610"]
+shape = SubResource("shape_Partition2000_1610")
+
+[node name="Surface" type="Polygon2D" parent="Partition2000_1610"]
+polygon = PackedVector2Array(-32.0, -195.0, 32.0, -195.0, 32.0, 195.0, -32.0, 195.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Partition2000_1610"]
+occluder = SubResource("occ_Partition2000_1610")
+
+[node name="Crosswall1000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(195.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall1000_0"]
+shape = SubResource("shape_Crosswall1000_0")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall1000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall1000_0"]
+occluder = SubResource("occ_Crosswall1000_0")
+
+[node name="Crosswall1000_1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall1000_1"]
+shape = SubResource("shape_Crosswall1000_1")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall1000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall1000_1"]
+occluder = SubResource("occ_Crosswall1000_1")
+
+[node name="Crosswall1000_2" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall1000_2"]
+shape = SubResource("shape_Crosswall1000_2")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall1000_2"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall1000_2"]
+occluder = SubResource("occ_Crosswall1000_2")
+
+[node name="Crosswall1000_end" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2805.0, 1000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall1000_end"]
+shape = SubResource("shape_Crosswall1000_end")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall1000_end"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall1000_end"]
+occluder = SubResource("occ_Crosswall1000_end")
+
+[node name="Crosswall2000_0" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(195.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall2000_0"]
+shape = SubResource("shape_Crosswall2000_0")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall2000_0"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall2000_0"]
+occluder = SubResource("occ_Crosswall2000_0")
+
+[node name="Crosswall2000_1" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1000.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall2000_1"]
+shape = SubResource("shape_Crosswall2000_1")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall2000_1"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall2000_1"]
+occluder = SubResource("occ_Crosswall2000_1")
+
+[node name="Crosswall2000_2" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2000.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall2000_2"]
+shape = SubResource("shape_Crosswall2000_2")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall2000_2"]
+polygon = PackedVector2Array(-390.0, -32.0, 390.0, -32.0, 390.0, 32.0, -390.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall2000_2"]
+occluder = SubResource("occ_Crosswall2000_2")
+
+[node name="Crosswall2000_end" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2805.0, 2000)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="Crosswall2000_end"]
+shape = SubResource("shape_Crosswall2000_end")
+
+[node name="Surface" type="Polygon2D" parent="Crosswall2000_end"]
+polygon = PackedVector2Array(-195.0, -32.0, 195.0, -32.0, 195.0, 32.0, -195.0, 32.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="Crosswall2000_end"]
+occluder = SubResource("occ_Crosswall2000_end")
+
+[node name="IsolationSouthDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(1500, 1000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "IsolationSouthDoor"
+RequiredStoryFlag = "lab_filtration_online"
 RequiredItemId = "biolab_keycard"
-LockedPromptText = "LOCKED - LEVEL 3 BIOLAB KEYCARD REQUIRED"
-SlideOffset = Vector2(180, 0)
+LockedPromptText = "ISOLATION LOCKED - CLEAN AIR AND LEVEL-3 CARD REQUIRED"
+SlideOffset = Vector2(100, 0)
 
-[node name="ZombieLab1" parent="." instance=ExtResource("4_zombie")]
-position = Vector2(520, 680)
+[node name="WorldState" type="Node" parent="IsolationSouthDoor"]
+script = ExtResource("e13")
+StableId = "IsolationSouthDoor"
 
-[node name="ZombieLab2" parent="." instance=ExtResource("4_zombie")]
-position = Vector2(680, 620)
+[node name="CoreRefugeDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(2000, 500)
+rotation = 1.570796
+scale = Vector2(2.1, 1.0)
+DoorId = "CoreRefugeDoor"
+RequiredStoryFlag = "leila_rescued"
+RequiredItemId = ""
+LockedPromptText = "LEILA MUST BE SECURED BEFORE CORE ACCESS"
+SlideOffset = Vector2(100, 0)
 
-[node name="ZombieLab3" parent="." instance=ExtResource("4_zombie")]
-position = Vector2(600, 380)
+[node name="WorldState" type="Node" parent="CoreRefugeDoor"]
+script = ExtResource("e13")
+StableId = "CoreRefugeDoor"
 
-[node name="Act4Trigger" type="Area2D" parent="."]
-position = Vector2(600, 50)
-script = ExtResource("20_trans_trigger")
+[node name="ServiceWestDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(2000, 1500)
+rotation = 1.570796
+scale = Vector2(2.1, 1.0)
+DoorId = "ServiceWestDoor"
+RequiredStoryFlag = "leila_abandoned"
+RequiredItemId = ""
+LockedPromptText = "SELECT THE SERVICE BYPASS AT THE INTERCOM"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="ServiceWestDoor"]
+script = ExtResource("e13")
+StableId = "ServiceWestDoor"
+
+[node name="ServiceSouthDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(2500, 2000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "ServiceSouthDoor"
+RequiredStoryFlag = "leila_abandoned"
+RequiredItemId = ""
+LockedPromptText = "SELECT THE SERVICE BYPASS AT THE INTERCOM"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="ServiceSouthDoor"]
+script = ExtResource("e13")
+StableId = "ServiceSouthDoor"
+
+[node name="CoreServiceDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(2500, 1000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "CoreServiceDoor"
+RequiredStoryFlag = "lab_service_lock_drained"
+RequiredItemId = ""
+LockedPromptText = "RELEASE PRESSURE AND DRAIN THE SERVICE LOCK"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="CoreServiceDoor"]
+script = ExtResource("e13")
+StableId = "CoreServiceDoor"
+
+[node name="ArchiveLiftDoor" parent="." instance=ExtResource("e5")]
+position = Vector2(500, 1000)
+rotation = 0
+scale = Vector2(2.1, 1.0)
+DoorId = "ArchiveLiftDoor"
+RequiredStoryFlag = "research_downloaded"
+RequiredItemId = ""
+LockedPromptText = "RESEARCH DRIVE REQUIRED FOR ARCHIVE ACCESS"
+SlideOffset = Vector2(100, 0)
+
+[node name="WorldState" type="Node" parent="ArchiveLiftDoor"]
+script = ExtResource("e13")
+StableId = "ArchiveLiftDoor"
+
+[node name="EntryLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(180, 2750)
+
+[node name="TriageDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(400, 1450)
+
+[node name="TriageGurney" parent="." instance=ExtResource("e54")]
+position = Vector2(750, 1700)
+
+[node name="PrepDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(1600, 2450)
+
+[node name="PrepLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(1250, 2800)
+
+[node name="PlantCryo1" parent="." instance=ExtResource("e55")]
+position = Vector2(2300, 2350)
+
+[node name="PlantCryo2" parent="." instance=ExtResource("e55")]
+position = Vector2(2300, 2700)
+
+[node name="ObservationDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(1600, 1650)
+
+[node name="ServiceGurney" parent="." instance=ExtResource("e54")]
+position = Vector2(2500, 1450)
+
+[node name="CoreCryo1" parent="." instance=ExtResource("e55")]
+position = Vector2(2300, 650)
+
+[node name="CoreCryo2" parent="." instance=ExtResource("e55")]
+position = Vector2(2700, 650)
+
+[node name="ArchiveDesk" parent="." instance=ExtResource("e6")]
+position = Vector2(300, 500)
+
+[node name="ArchiveLocker" parent="." instance=ExtResource("e7")]
+position = Vector2(180, 700)
+
+[node name="RefugeGurney" parent="." instance=ExtResource("e54")]
+position = Vector2(1700, 650)
+
+[node name="PlantFilterCage" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2700, 2350)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="PlantFilterCage"]
+shape = SubResource("shape_PlantFilterCage")
+
+[node name="Surface" type="Polygon2D" parent="PlantFilterCage"]
+polygon = PackedVector2Array(-175.0, -25.0, 175.0, -25.0, 175.0, 25.0, -175.0, 25.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="PlantFilterCage"]
+occluder = SubResource("occ_PlantFilterCage")
+
+[node name="ServiceDebris" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(2350, 1700)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="ServiceDebris"]
+shape = SubResource("shape_ServiceDebris")
+
+[node name="Surface" type="Polygon2D" parent="ServiceDebris"]
+polygon = PackedVector2Array(-150.0, -30.0, 150.0, -30.0, 150.0, 30.0, -150.0, 30.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="ServiceDebris"]
+occluder = SubResource("occ_ServiceDebris")
+
+[node name="ObservationScreen" type="StaticBody2D" parent="." groups=["campaign_walls"]]
+position = Vector2(1250, 1700)
+collision_layer = 1
+collision_mask = 3
+
+[node name="Collision" type="CollisionShape2D" parent="ObservationScreen"]
+shape = SubResource("shape_ObservationScreen")
+
+[node name="Surface" type="Polygon2D" parent="ObservationScreen"]
+polygon = PackedVector2Array(-30.0, -125.0, 30.0, -125.0, 30.0, 125.0, -30.0, 125.0)
+color = Color(0.13, 0.19, 0.23, 1)
+
+[node name="Shadow" type="LightOccluder2D" parent="ObservationScreen"]
+occluder = SubResource("occ_ObservationScreen")
+
+[node name="TriageNotes" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(300, 1350)
+script = ExtResource("e14")
+Data = ExtResource("e31")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="TriageNotes"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="TriageNotes/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="TriageNotes"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="TriageNotes"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="ObservationIntercom" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1400, 1500)
+script = ExtResource("e14")
+Data = ExtResource("e32")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="ObservationIntercom"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="ObservationIntercom/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="ObservationIntercom"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="ObservationIntercom"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="FilterSocket" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1300, 2300)
+script = ExtResource("e14")
+Data = ExtResource("e33")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="FilterSocket"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="FilterSocket/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="FilterSocket"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="FilterSocket"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="PressureValve" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(2300, 1600)
+script = ExtResource("e14")
+Data = ExtResource("e34")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="PressureValve"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="PressureValve/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="PressureValve"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="PressureValve"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="DrainValve" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(2700, 1200)
+script = ExtResource("e14")
+Data = ExtResource("e35")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="DrainValve"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="DrainValve/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="DrainValve"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="DrainValve"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="LeilaRefuge" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1500, 300)
+script = ExtResource("e14")
+Data = ExtResource("e36")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="LeilaRefuge"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="LeilaRefuge/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="LeilaRefuge"]
+texture = ExtResource("e56")
+scale = Vector2(3, 3)
+modulate = Color(0.55, 0.95, 0.75, 1)
+
+[node name="Indicator" type="PointLight2D" parent="LeilaRefuge"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="ResearchTerminal" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(2500, 250)
+script = ExtResource("e14")
+Data = ExtResource("e37")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="ResearchTerminal"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="ResearchTerminal/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="ResearchTerminal"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="ResearchTerminal"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="ArchiveConsole" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(400, 300)
+script = ExtResource("e14")
+Data = ExtResource("e38")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="ArchiveConsole"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="ArchiveConsole/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="ArchiveConsole"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="ArchiveConsole"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="EntryRecorder" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(220, 2500)
+script = ExtResource("e14")
+Data = ExtResource("e39")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="EntryRecorder"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="EntryRecorder/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="EntryRecorder"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="EntryRecorder"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="ArchiveRecorder" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(220, 700)
+script = ExtResource("e14")
+Data = ExtResource("e39")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="ArchiveRecorder"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="ArchiveRecorder/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="ArchiveRecorder"]
+texture = ExtResource("e21")
+modulate = Color(0.6, 0.85, 0.9, 1)
+
+[node name="Indicator" type="PointLight2D" parent="ArchiveRecorder"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="Archivist" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(750, 500)
+script = ExtResource("e14")
+Data = ExtResource("e40")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="Archivist"]
+script = ExtResource("e15")
+
+[node name="Range" type="CollisionShape2D" parent="Archivist/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="Archivist"]
+texture = ExtResource("e56")
+scale = Vector2(3, 3)
+modulate = Color(0.75, 0.65, 0.95, 1)
+
+[node name="Indicator" type="PointLight2D" parent="Archivist"]
+texture = ExtResource("e20")
+texture_scale = 0.65
+energy = 0.8
+color = Color(0.2, 0.8, 0.75, 1)
+
+[node name="FiltrationPanel" type="Node2D" parent="." node_paths=PackedStringArray("Interactable")]
+position = Vector2(1700, 1250)
+script = ExtResource("e17")
+Data = ExtResource("e41")
+Interactable = NodePath("Interactable")
+
+[node name="Interactable" type="Area2D" parent="FiltrationPanel"]
+script = ExtResource("e15")
+PromptText = "ROUTE CLEAN AIR TO ISOLATION C"
+RequiredStoryFlag = "lab_filter_installed"
+LockedPromptText = "INSTALL THE STERILE CARTRIDGE IN THE SOUTH AIR PLANT"
+
+[node name="Range" type="CollisionShape2D" parent="FiltrationPanel/Interactable"]
+shape = SubResource("interaction_range")
+
+[node name="Console" type="Sprite2D" parent="FiltrationPanel"]
+texture = ExtResource("e21")
+modulate = Color(0.4, 0.9, 0.7, 1)
+
+[node name="BiolabKeycardPickup" parent="." instance=ExtResource("e4")]
+position = Vector2(1600, 2600)
+Item = ExtResource("e26")
+StoryFlagOnCollect = "biolab_keycard_found"
+
+[node name="WorldState" type="Node" parent="BiolabKeycardPickup"]
+script = ExtResource("e13")
+StableId = "BiolabKeycardPickup"
+
+[node name="FilterCartridge" parent="." instance=ExtResource("e4")]
+position = Vector2(2700, 2500)
+Item = ExtResource("e27")
+StoryFlagOnCollect = "lab_filter_found"
+
+[node name="WorldState" type="Node" parent="FilterCartridge"]
+script = ExtResource("e13")
+StableId = "FilterCartridge"
+
+[node name="TriageHerb" parent="." instance=ExtResource("e4")]
+position = Vector2(650, 1300)
+Item = ExtResource("e28")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="TriageHerb"]
+script = ExtResource("e13")
+StableId = "TriageHerb"
+
+[node name="TriageBlueHerb" parent="." instance=ExtResource("e4")]
+position = Vector2(750, 1300)
+Item = ExtResource("e29")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="TriageBlueHerb"]
+script = ExtResource("e13")
+StableId = "TriageBlueHerb"
+
+[node name="EntryAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(650, 2700)
+Item = ExtResource("e24")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="EntryAmmo"]
+script = ExtResource("e13")
+StableId = "EntryAmmo"
+
+[node name="PlantAmmo" parent="." instance=ExtResource("e4")]
+position = Vector2(1900, 2800)
+Item = ExtResource("e24")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="PlantAmmo"]
+script = ExtResource("e13")
+StableId = "PlantAmmo"
+
+[node name="ServiceBandage" parent="." instance=ExtResource("e4")]
+position = Vector2(2800, 1800)
+Item = ExtResource("e25")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="ServiceBandage"]
+script = ExtResource("e13")
+StableId = "ServiceBandage"
+
+[node name="CoreShells" parent="." instance=ExtResource("e4")]
+position = Vector2(2800, 400)
+Item = ExtResource("e30")
+StoryFlagOnCollect = ""
+
+[node name="WorldState" type="Node" parent="CoreShells"]
+script = ExtResource("e13")
+StableId = "CoreShells"
+
+[node name="TriageInfected" parent="." instance=ExtResource("e3")]
+position = Vector2(650, 1750)
+Stats = ExtResource("e57")
+
+[node name="WorldState" type="Node" parent="TriageInfected"]
+script = ExtResource("e13")
+StableId = "TriageInfected"
+
+[node name="PlantInfected" parent="." instance=ExtResource("e3")]
+position = Vector2(1850, 2500)
+Stats = ExtResource("e57")
+
+[node name="WorldState" type="Node" parent="PlantInfected"]
+script = ExtResource("e13")
+StableId = "PlantInfected"
+
+[node name="FilterBrute" parent="." instance=ExtResource("e3")]
+position = Vector2(2700, 2750)
+Stats = ExtResource("e59")
+
+[node name="WorldState" type="Node" parent="FilterBrute"]
+script = ExtResource("e13")
+StableId = "FilterBrute"
+
+[node name="ObservationInfected" parent="." instance=ExtResource("e3")]
+position = Vector2(1650, 1850)
+Stats = ExtResource("e57")
+
+[node name="WorldState" type="Node" parent="ObservationInfected"]
+script = ExtResource("e13")
+StableId = "ObservationInfected"
+
+[node name="ServiceRunner" parent="." instance=ExtResource("e3")]
+position = Vector2(2700, 1700)
+Stats = ExtResource("e58")
+
+[node name="WorldState" type="Node" parent="ServiceRunner"]
+script = ExtResource("e13")
+StableId = "ServiceRunner"
+
+[node name="CoreInfected" parent="." instance=ExtResource("e3")]
+position = Vector2(2500, 700)
+Stats = ExtResource("e57")
+
+[node name="WorldState" type="Node" parent="CoreInfected"]
+script = ExtResource("e13")
+StableId = "CoreInfected"
+
+[node name="PlantReturnRunner" parent="." instance=ExtResource("e3")]
+position = Vector2(2100, 2600)
+Stats = ExtResource("e58")
+
+[node name="WorldState" type="Node" parent="PlantReturnRunner"]
+script = ExtResource("e13")
+StableId = "PlantReturnRunner"
+
+[node name="Activation" type="Node" parent="PlantReturnRunner"]
+script = ExtResource("e53")
+ActivationFlag = "research_downloaded"
+
+[node name="TriageReturnRunner" parent="." instance=ExtResource("e3")]
+position = Vector2(700, 1700)
+Stats = ExtResource("e58")
+
+[node name="WorldState" type="Node" parent="TriageReturnRunner"]
+script = ExtResource("e13")
+StableId = "TriageReturnRunner"
+
+[node name="Activation" type="Node" parent="TriageReturnRunner"]
+script = ExtResource("e53")
+ActivationFlag = "research_downloaded"
+
+[node name="LeilaSign" type="Label" parent="."]
+offset_left = 1250.0
+offset_top = 190.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "LEILA / CLEAN-AIR REFUGE"
+mouse_filter = 2
+
+[node name="ResearchSign" type="Label" parent="."]
+offset_left = 2220.0
+offset_top = 160.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "BIOCONTAINMENT TELEMETRY"
+mouse_filter = 2
+
+[node name="FilterSign" type="Label" parent="."]
+offset_left = 2500.0
+offset_top = 2400.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "SEALED FILTER STORAGE"
+mouse_filter = 2
+
+[node name="ArchiveRecorderSign" type="Label" parent="."]
+offset_left = 100.0
+offset_top = 800.0
+theme_override_colors/font_color = Color(0.47, 0.69, 0.72, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "SAVE BEFORE DESCENDING"
+mouse_filter = 2
+
+[node name="ArchiveExit" type="Area2D" parent="." node_paths=PackedStringArray("ExitInteractable")]
+position = Vector2(500, 100)
+script = ExtResource("e16")
+RequireInteraction = true
+ExitInteractable = NodePath("ExitInteraction")
 TargetScenePath = "res://Scenes/Act4_SubBasement.tscn"
-ActTitle = "ACT 4: THE DESCENT"
-Subtitle = "Sub-Basement & Sadeghi's Private Research Vault"
+RequiredStoryFlag = "lab_exit_authorized"
+LockedMessage = "AUTHORIZE DESCENT WITH THE RESEARCH DRIVE"
+ActTitle = "ACT 4: THE ORIGINAL ORDERS"
+Subtitle = "Sub-Basement Archives / Foxtrot-7"
 TargetAct = 4
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Act4Trigger"]
-shape = SubResource("RectangleShape2D_transition")
+[node name="Range" type="CollisionShape2D" parent="ArchiveExit"]
+shape = SubResource("exit_shape")
 
-[node name="WallLabL1" parent="." instance=ExtResource("7_wall_lab")]
-position = Vector2(200, 350)
+[node name="Player" parent="." instance=ExtResource("e1")]
+position = Vector2(500, 2800)
 
-[node name="WallLabL2" parent="." instance=ExtResource("7_wall_lab")]
-position = Vector2(200, 650)
+[node name="GameUI" parent="." instance=ExtResource("e2")]
 
-[node name="WallLabL3" parent="." instance=ExtResource("7_wall_lab")]
-position = Vector2(200, 950)
+[node name="ExitInteraction" type="Area2D" parent="ArchiveExit"]
+script = ExtResource("exit_interaction")
+PromptText = "TAKE THE ARCHIVE LIFT"
 
-[node name="WallLabR1" parent="." instance=ExtResource("7_wall_lab")]
-position = Vector2(1000, 350)
+[node name="Range" type="CollisionShape2D" parent="ArchiveExit/ExitInteraction"]
+shape = SubResource("exit_interaction_shape")
 
-[node name="WallLabR2" parent="." instance=ExtResource("7_wall_lab")]
-position = Vector2(1000, 650)
+[node name="Dressing_01_Gurney" parent="." instance=ExtResource("dressing_Gurney")]
+position = Vector2(220,1250)
 
-[node name="WallLabR3" parent="." instance=ExtResource("7_wall_lab")]
-position = Vector2(1000, 950)
+[node name="Dressing_02_Gurney" parent="." instance=ExtResource("dressing_Gurney")]
+position = Vector2(220,1700)
+
+[node name="Dressing_03_Gurney" parent="." instance=ExtResource("dressing_Gurney")]
+position = Vector2(750,1150)
+
+[node name="Dressing_04_Cryo" parent="." instance=ExtResource("dressing_Cryo")]
+position = Vector2(1200,1250)
+
+[node name="GreenGlow" parent="Dressing_04_Cryo"]
+energy = 0.35
+
+[node name="Dressing_05_Cryo" parent="." instance=ExtResource("dressing_Cryo")]
+position = Vector2(1800,1250)
+
+[node name="GreenGlow" parent="Dressing_05_Cryo"]
+energy = 0.35
+
+[node name="Dressing_06_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(2800,2200)
+
+[node name="Dressing_07_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(2150,150)
+
+[node name="Dressing_08_Rack" parent="." instance=ExtResource("dressing_Rack")]
+position = Vector2(2850,150)

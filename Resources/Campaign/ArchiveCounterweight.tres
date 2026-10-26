@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "RELEASE FREIGHT COUNTERWEIGHT LOCK"
+RequiredFlag = "sadeghi_confronted"
+CompletionFlag = "archive_counterweight_released"
+LockedMessage = "CONFRONT SADEGHI BEFORE PREPARING THE SURFACE LIFT"
+Speaker = "SARA"
+Message = "The maintenance lock is released. The east hydraulic pump can now prime the lift circuit."

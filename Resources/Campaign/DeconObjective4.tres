@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignObjective" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignObjective.cs" id="1"]
+[resource]
+script = ExtResource("1")
+CompletionFlag = "decon_transfer_finished"
+Title = "ENTER BIOCONTAINMENT"
+Instruction = "Use the north access panel [{input:interact}] to enter the laboratory."
+Waypoint = Vector2(700, 400)

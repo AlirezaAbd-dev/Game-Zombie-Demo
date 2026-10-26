@@ -8,6 +8,8 @@ public partial class DialogueChoiceResource : Resource
 {
     [Export] public string ChoiceText { get; set; } = string.Empty;
     [Export] public string SetStoryFlag { get; set; } = string.Empty;
+    [Export] public string ClearStoryFlag { get; set; } = string.Empty;
+    [Export] public string[] ClearStoryFlags { get; set; } = System.Array.Empty<string>();
     [Export] public string RequiredFlag { get; set; } = string.Empty;
     [Export] public int NextLineIndex { get; set; } = -1;
 }

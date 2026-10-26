@@ -7,8 +7,9 @@
 script = ExtResource("1_itemdata")
 Id = "ammo_handgun"
 ItemName = "9mm Ammo Box"
-Description = "Contains 30 handgun rounds."
+Description = "A partly used ammunition box containing 12 handgun rounds."
 Type = 1
-Value = 30.0
+Value = 12.0
+LegacyAmmoRounds = 30
 MaxStack = 90
 Icon = ExtResource("2_texture")

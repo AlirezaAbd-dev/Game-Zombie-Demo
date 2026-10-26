@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="CampaignRoomData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignRoomData.cs" id="1"]
+[ext_resource type="Resource" path="res://Resources/Environment/Carpet.tres" id="visual"]
+[resource]
+script = ExtResource("1")
+Title = "COMMAND OFFICE"
+Bounds = Rect2(0, 0, 1000, 1000)
+VisualProfile = ExtResource("visual")
+AreaCode = "F7 / A-07"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+
+[resource]
+script = ExtResource("1")
+Prompt = "READ SECURITY LOG"
+CompletionFlag = "gate_log_read"
+Speaker = "SECURITY LOG"
+Message = "02:14 - Main power severed. Take the maintenance credential from the gatehouse desk. A spare fuse is stored in the east maintenance cage. Keep ventilation and the gate motor online; isolate the floodlights."

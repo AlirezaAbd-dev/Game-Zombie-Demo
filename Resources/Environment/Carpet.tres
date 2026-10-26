@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RoomVisualProfile" load_steps=3 format=3]
+[ext_resource type="Script" path="res://Scripts/Core/RoomVisualProfile.cs" id="1"]
+[ext_resource type="ShaderMaterial" path="res://Resources/Environment/CarpetMaterial.tres" id="2"]
+[resource]
+script = ExtResource("1")
+FloorMaterial = ExtResource("2")
+Markings = 4
+PaintColor = Color(0.51, 0.45, 0.32, 0.7)
+WallColor = Color(0.22, 0.23, 0.2, 1)
+Department = "RECORDS"

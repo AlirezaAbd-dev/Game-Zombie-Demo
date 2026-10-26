@@ -30,6 +30,7 @@ public partial class InventoryComponent : Node
 
     [Signal]
     public delegate void InventoryUpdatedEventHandler();
+    [Signal] public delegate void WeaponSelectionDeniedEventHandler(string weaponName);
 
     [Export] public Godot.Collections.Array<WeaponData> Weapons { get; set; } = new();
 
@@ -42,9 +43,13 @@ public partial class InventoryComponent : Node
     public bool IsReloading { get; private set; } = false;
     private float _reloadTimer = 0.0f;
 
-    private readonly Dictionary<string, int> _magAmmo = new();
-    private readonly Dictionary<string, int> _reserveAmmo = new();
-    private readonly Dictionary<string, int> _items = new();
+    private readonly Dictionary<string, int> _magAmmo = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, int> _reserveAmmo = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, int> _items = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, InventorySlot> _missionItems = new(StringComparer.OrdinalIgnoreCase);
+    private readonly HashSet<string> _unlockedWeaponIds = new(StringComparer.OrdinalIgnoreCase);
+    public IReadOnlyCollection<string> UnlockedWeaponIds => _unlockedWeaponIds;
+    public IReadOnlyDictionary<string, InventorySlot> MissionItems => _missionItems;
 
     public int CurrentAmmo => CurrentWeapon != null ? _magAmmo.GetValueOrDefault(CurrentWeapon.WeaponId, 0) : 0;
     public int CurrentReserve => CurrentWeapon != null ? _reserveAmmo.GetValueOrDefault(CurrentWeapon.AmmoId, 0) : 0;
@@ -57,6 +62,10 @@ public partial class InventoryComponent : Node
         }
 
         InitializeDefaultWeapons();
+        var session = SaveSystem.Instance;
+        SetUnlockedWeapons(session?.HasActiveSession == true ? session.ActiveSaveData.UnlockedWeaponIds : null);
+        if (session?.HasActiveSession == true)
+            SetAmmoState(session.ActiveSaveData.MagAmmo,session.ActiveSaveData.ReserveAmmo,session.ActiveSaveData.EquippedWeaponIndex);
 
         if (CurrentWeapon != null)
         {
@@ -104,6 +113,11 @@ public partial class InventoryComponent : Node
     {
         if (Weapons == null || index < 0 || index >= Weapons.Count || index == CurrentWeaponIndex)
             return;
+        if (!IsWeaponUnlocked(Weapons[index].WeaponId))
+        {
+            EmitSignal(SignalName.WeaponSelectionDenied,Weapons[index].WeaponName);
+            return;
+        }
 
         IsReloading = false;
         CurrentWeaponIndex = index;
@@ -115,15 +129,59 @@ public partial class InventoryComponent : Node
     public void NextWeapon()
     {
         if (Weapons == null || Weapons.Count <= 1) return;
-        int next = (CurrentWeaponIndex + 1) % Weapons.Count;
-        SelectWeapon(next);
+        CycleWeapon(1);
     }
 
     public void PreviousWeapon()
     {
         if (Weapons == null || Weapons.Count <= 1) return;
-        int prev = (CurrentWeaponIndex - 1 + Weapons.Count) % Weapons.Count;
-        SelectWeapon(prev);
+        CycleWeapon(-1);
+    }
+
+    private void CycleWeapon(int direction)
+    {
+        for (int step = 1; step < Weapons.Count; step++)
+        {
+            int index = (CurrentWeaponIndex + direction * step + Weapons.Count) % Weapons.Count;
+            if (IsWeaponUnlocked(Weapons[index].WeaponId)) { SelectWeapon(index); return; }
+        }
+    }
+
+    public bool IsWeaponUnlocked(string id) => !string.IsNullOrWhiteSpace(id) && _unlockedWeaponIds.Contains(id);
+
+    public void SetUnlockedWeapons(IEnumerable<string> ids)
+    {
+        IsReloading = false;
+        var requested = ids == null ? null : new HashSet<string>(ids,StringComparer.OrdinalIgnoreCase);
+        _unlockedWeaponIds.Clear();
+        foreach (var weapon in Weapons)
+        {
+            if (weapon == null) continue;
+            if (requested == null || requested.Contains(weapon.WeaponId)) _unlockedWeaponIds.Add(weapon.WeaponId);
+        }
+        if (_unlockedWeaponIds.Count == 0 && Weapons.Count > 0) _unlockedWeaponIds.Add(Weapons[0].WeaponId);
+        if (CurrentWeapon == null || !IsWeaponUnlocked(CurrentWeapon.WeaponId))
+            for (int i = 0; i < Weapons.Count; i++)
+                if (IsWeaponUnlocked(Weapons[i].WeaponId)) { CurrentWeaponIndex = i; break; }
+        if (CurrentWeapon != null)
+        {
+            EmitSignal(SignalName.WeaponChanged,CurrentWeapon);
+            EmitSignal(SignalName.AmmoChanged,CurrentAmmo,CurrentReserve,IsReloading);
+        }
+        EmitSignal(SignalName.InventoryUpdated);
+    }
+
+    public bool AcquireWeapon(string id)
+    {
+        foreach (var weapon in Weapons)
+        {
+            if (weapon == null || !string.Equals(weapon.WeaponId,id,StringComparison.OrdinalIgnoreCase)) continue;
+            if (!_unlockedWeaponIds.Add(weapon.WeaponId)) return false;
+            _magAmmo[weapon.WeaponId] = Mathf.Max(_magAmmo.GetValueOrDefault(weapon.WeaponId,0),weapon.MagCapacity);
+            EmitSignal(SignalName.InventoryUpdated);
+            return true;
+        }
+        return false;
     }
 
     public void UpdateReload(float delta)
@@ -174,61 +232,84 @@ public partial class InventoryComponent : Node
         return true;
     }
 
-    public void AddReserveAmmo(string ammoId, int amount)
+    public int AddReserveAmmo(string ammoId, int amount)
     {
-        int max = CurrentWeapon != null && CurrentWeapon.AmmoId == ammoId ? CurrentWeapon.MaxReserve : 99;
+        if (amount <= 0 || string.IsNullOrWhiteSpace(ammoId)) return 0;
+        int max = GetMaxReserve(ammoId);
         int current = _reserveAmmo.GetValueOrDefault(ammoId, 0);
-        _reserveAmmo[ammoId] = Mathf.Min(max, current + amount);
+        int accepted = (int)Math.Min(amount,Math.Max(0,(long)max - current));
+        if (accepted == 0) return 0;
+        _reserveAmmo[ammoId] = current + accepted;
 
-        if (CurrentWeapon != null && CurrentWeapon.AmmoId == ammoId)
+        if (CurrentWeapon != null && string.Equals(CurrentWeapon.AmmoId,ammoId,StringComparison.OrdinalIgnoreCase))
         {
             EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, IsReloading);
         }
+        return accepted;
+    }
+
+    private int GetMaxReserve(string ammoId)
+    {
+        foreach (var weapon in Weapons)
+            if (weapon != null && string.Equals(weapon.AmmoId,ammoId,StringComparison.OrdinalIgnoreCase)) return weapon.MaxReserve;
+        return 0;
     }
 
     public bool AddItem(ItemData item, int amount = 1)
     {
-        if (item == null) return false;
+        if (item == null || amount <= 0 || string.IsNullOrWhiteSpace(item.Id)) return false;
+        if (item.Type == ItemType.Weapon)
+            return amount == 1 && item.GrantedWeapon != null && (AcquireWeapon(item.GrantedWeapon.WeaponId) || IsWeaponUnlocked(item.GrantedWeapon.WeaponId));
 
-        if (item.Type == ItemType.Ammo)
+        // Mission items cannot be blocked by the consumable inventory capacity.
+        if (item.Type == ItemType.Key || item.Type == ItemType.Document)
         {
-            AddReserveAmmo(item.Id, (int)item.Value * amount);
+            _items[item.Id] = _items.GetValueOrDefault(item.Id, 0) + amount;
+            _missionItems[item.Id] = new InventorySlot { Item = item, Count = _items[item.Id] };
+            EmitSignal(SignalName.ItemAdded, item.Id, _items[item.Id]);
+            EmitSignal(SignalName.InventoryUpdated);
             return true;
         }
 
-        // Stacking into existing slot
-        for (int i = 0; i < Slots.Count; i++)
+        if (item.Type == ItemType.Ammo)
         {
-            if (Slots[i].Item != null && Slots[i].Item.Id == item.Id && Slots[i].Count < item.MaxStack)
-            {
-                int canAdd = Mathf.Min(amount, item.MaxStack - Slots[i].Count);
-                Slots[i].Count += canAdd;
-                amount -= canAdd;
-
-                _items[item.Id] = _items.GetValueOrDefault(item.Id, 0) + canAdd;
-                EmitSignal(SignalName.ItemAdded, item.Id, _items[item.Id]);
-                EmitSignal(SignalName.InventoryUpdated);
-
-                if (amount <= 0) return true;
-            }
+            if (!float.IsFinite(item.Value) || item.Value < 1 || item.Value >= int.MaxValue) return false;
+            long rounds = (long)(int)item.Value * amount;
+            long ammoCapacity = (long)GetMaxReserve(item.Id) - _reserveAmmo.GetValueOrDefault(item.Id,0);
+            if (rounds > ammoCapacity) return false;
+            AddReserveAmmo(item.Id,(int)rounds);
+            return true;
         }
 
-        // Place into first empty slot
-        for (int i = 0; i < Slots.Count; i++)
+        if (item.MaxStack <= 0) return false;
+        long capacity = 0;
+        foreach (var slot in Slots)
+            if (slot.Item == null) capacity += item.MaxStack;
+            else if (string.Equals(slot.Item.Id,item.Id,StringComparison.OrdinalIgnoreCase))
+                capacity += Mathf.Max(0,item.MaxStack - slot.Count);
+        // Reject the whole operation before changing any stack.
+        if (capacity < amount) return false;
+        int added = amount;
+        foreach (var slot in Slots)
         {
-            if (Slots[i].Item == null)
+            if (slot.Item != null && string.Equals(slot.Item.Id,item.Id,StringComparison.OrdinalIgnoreCase))
             {
-                Slots[i].Item = item;
-                Slots[i].Count = amount;
-
-                _items[item.Id] = _items.GetValueOrDefault(item.Id, 0) + amount;
-                EmitSignal(SignalName.ItemAdded, item.Id, _items[item.Id]);
-                EmitSignal(SignalName.InventoryUpdated);
-                return true;
+                int count = Mathf.Min(amount,Mathf.Max(0,item.MaxStack - slot.Count));
+                slot.Count += count; amount -= count;
             }
+            if (amount == 0) break;
         }
-
-        return false; // Inventory full
+        foreach (var slot in Slots)
+        {
+            if (amount == 0) break;
+            if (slot.Item != null) continue;
+            int count = Mathf.Min(amount,item.MaxStack);
+            slot.Item = item; slot.Count = count; amount -= count;
+        }
+        _items[item.Id] = _items.GetValueOrDefault(item.Id,0) + added;
+        EmitSignal(SignalName.ItemAdded,item.Id,_items[item.Id]);
+        EmitSignal(SignalName.InventoryUpdated);
+        return true;
     }
 
     public bool HasItem(string itemId)
@@ -258,17 +339,22 @@ public partial class InventoryComponent : Node
 
     public bool ConsumeItem(string itemId, int amount = 1)
     {
-        if (!HasItem(itemId) || _items[itemId] < amount) return false;
+        if (amount <= 0 || string.IsNullOrWhiteSpace(itemId) || !_items.TryGetValue(itemId,out int count) || count < amount) return false;
 
         _items[itemId] -= amount;
         if (_items[itemId] <= 0)
         {
             _items.Remove(itemId);
         }
+        if (_missionItems.TryGetValue(itemId, out var missionItem))
+        {
+            missionItem.Count -= amount;
+            if (missionItem.Count <= 0) _missionItems.Remove(itemId);
+        }
 
         for (int i = 0; i < Slots.Count; i++)
         {
-            if (Slots[i].Item != null && Slots[i].Item.Id == itemId)
+            if (Slots[i].Item != null && string.Equals(Slots[i].Item.Id,itemId,StringComparison.OrdinalIgnoreCase))
             {
                 int take = Mathf.Min(amount, Slots[i].Count);
                 Slots[i].Count -= take;
@@ -291,7 +377,7 @@ public partial class InventoryComponent : Node
 
     public bool UseSlot(int slotIndex, Player player)
     {
-        if (slotIndex < 0 || slotIndex >= Slots.Count || Slots[slotIndex].Item == null || player == null)
+        if (slotIndex < 0 || slotIndex >= Slots.Count || Slots[slotIndex].Item == null || player == null || player.IsDead)
             return false;
 
         var item = Slots[slotIndex].Item;
@@ -299,24 +385,7 @@ public partial class InventoryComponent : Node
 
         if (item.Type == ItemType.Health || item.Type == ItemType.Herb)
         {
-            if (player.HealthComponent != null && player.HealthComponent.CurrentHealth < player.HealthComponent.MaxHealth)
-            {
-                player.Heal(item.Value);
-                if (item.Id == "herb_mixed")
-                {
-                    player.StaminaComponent?.Regenerate(100.0f);
-                }
-                used = true;
-                HUDUI.Instance?.ShowHealNotification(item.ItemName, item.Value);
-                AudioManager.Instance?.PlaySound(SoundType.MedicalHeal, player.GlobalPosition);
-            }
-            else if (item.Id == "herb_blue" || item.Id == "herb_mixed")
-            {
-                player.StaminaComponent?.Regenerate(item.Value);
-                used = true;
-                HUDUI.Instance?.ShowHealNotification(item.ItemName, 0, "STAMINA FULLY RESTORED");
-                AudioManager.Instance?.PlaySound(SoundType.MedicalHeal, player.GlobalPosition);
-            }
+            used = TryApplyRestorative(item,player);
         }
         else if (item.Type == ItemType.Booster)
         {
@@ -392,6 +461,20 @@ public partial class InventoryComponent : Node
         return false;
     }
 
+    public static bool TryApplyRestorative(ItemData item, Player player)
+    {
+        if (item == null || player == null || player.IsDead
+            || (item.Type != ItemType.Health && item.Type != ItemType.Herb)) return false;
+        float hp = player.HealthComponent == null ? 0
+            : Mathf.Min(Mathf.Max(0,item.Value),player.HealthComponent.MaxHealth - player.HealthComponent.CurrentHealth);
+        float stamina = player.StaminaComponent?.Restore(item.StaminaRestore) ?? 0;
+        if (hp <= 0 && stamina <= 0) return false;
+        if (hp > 0) player.Heal(hp);
+        else AudioManager.Instance?.PlaySound(SoundType.MedicalHeal,player.GlobalPosition);
+        HUDUI.Instance?.ShowHealNotification(item.ItemName,hp,stamina > 0 ? $"+{stamina:0} STAMINA" : "");
+        return true;
+    }
+
     public bool QuickHeal(Player player)
     {
         if (player == null || player.IsDead || player.HealthComponent == null)
@@ -413,7 +496,7 @@ public partial class InventoryComponent : Node
             var item = Slots[i].Item;
             if (item == null) continue;
 
-            if (item.Type == ItemType.Health || item.Type == ItemType.Herb)
+            if ((item.Type == ItemType.Health || item.Type == ItemType.Herb) && item.Value > 0)
             {
                 float diff = Mathf.Abs(missingHp - item.Value);
                 if (diff < bestFitDifference)
@@ -434,7 +517,8 @@ public partial class InventoryComponent : Node
 
     public bool CombineSlots(int slotA, int slotB)
     {
-        if (slotA < 0 || slotA >= Slots.Count || slotB < 0 || slotB >= Slots.Count || slotA == slotB)
+        if (slotA < 0 || slotA >= Slots.Count || slotB < 0 || slotB >= Slots.Count
+            || (slotA == slotB && Slots[slotA].Count < 2))
             return false;
 
         var itemA = Slots[slotA].Item;
@@ -473,9 +557,19 @@ public partial class InventoryComponent : Node
             var resultItem = GD.Load<ItemData>(resultPath);
             if (resultItem != null)
             {
-                ConsumeItem(itemA.Id, 1);
-                ConsumeItem(itemB.Id, 1);
-                AddItem(resultItem, 1);
+                int capacity = 0;
+                for (int i = 0; i < Slots.Count; i++)
+                {
+                    int remaining = Slots[i].Count - (i == slotA ? 1 : 0) - (i == slotB ? 1 : 0);
+                    if (Slots[i].Item == null || remaining <= 0) capacity += resultItem.MaxStack;
+                    else if (Slots[i].Item.Id == resultItem.Id) capacity += Mathf.Max(0,resultItem.MaxStack - remaining);
+                }
+                if (capacity < 1 || resultItem.MaxStack <= 0) return false;
+                RemoveCraftIngredient(slotA);
+                RemoveCraftIngredient(slotB);
+                AddItem(resultItem,1); // Capacity has been checked after consuming the selected units.
+                EmitSignal(SignalName.ItemRemoved,itemA.Id,_items.GetValueOrDefault(itemA.Id,0));
+                EmitSignal(SignalName.ItemRemoved,itemB.Id,_items.GetValueOrDefault(itemB.Id,0));
                 AudioManager.Instance?.PlaySound(SoundType.PickupCollect);
                 return true;
             }
@@ -484,12 +578,25 @@ public partial class InventoryComponent : Node
         return false;
     }
 
+    private void RemoveCraftIngredient(int index)
+    {
+        var slot = Slots[index];
+        string id = slot.Item.Id;
+        slot.Count--;
+        if (slot.Count == 0) slot.Item = null;
+        _items[id]--;
+        if (_items[id] == 0) _items.Remove(id);
+    }
+
     public IReadOnlyList<InventorySlot> GetSlots() => Slots;
     public IReadOnlyDictionary<string, int> GetMagAmmo() => _magAmmo;
     public IReadOnlyDictionary<string, int> GetReserveAmmo() => _reserveAmmo;
 
     public void SetAmmoState(Dictionary<string, int> magAmmo, Dictionary<string, int> reserveAmmo, int weaponIndex = 0)
     {
+        IsReloading = false;
+        _magAmmo.Clear();
+        _reserveAmmo.Clear();
         if (magAmmo != null)
         {
             foreach (var kvp in magAmmo)
@@ -504,7 +611,16 @@ public partial class InventoryComponent : Node
                 _reserveAmmo[kvp.Key] = kvp.Value;
             }
         }
-        if (weaponIndex >= 0 && weaponIndex < Weapons.Count)
+        foreach (var weapon in Weapons)
+        {
+            if (weapon == null) continue;
+            int savedMagazine = Mathf.Max(0,_magAmmo.GetValueOrDefault(weapon.WeaponId,0));
+            long reserve = (long)Mathf.Max(0,_reserveAmmo.GetValueOrDefault(weapon.AmmoId,0))
+                + Mathf.Max(0,savedMagazine - weapon.MagCapacity);
+            _magAmmo[weapon.WeaponId] = Mathf.Min(savedMagazine,weapon.MagCapacity);
+            _reserveAmmo[weapon.AmmoId] = (int)Math.Min(reserve,weapon.MaxReserve);
+        }
+        if (weaponIndex >= 0 && weaponIndex < Weapons.Count && IsWeaponUnlocked(Weapons[weaponIndex].WeaponId))
         {
             CurrentWeaponIndex = weaponIndex;
         }
@@ -524,6 +640,7 @@ public partial class InventoryComponent : Node
             Slots[i].Count = 0;
         }
         _items.Clear();
+        _missionItems.Clear();
         EmitSignal(SignalName.InventoryUpdated);
     }
 }

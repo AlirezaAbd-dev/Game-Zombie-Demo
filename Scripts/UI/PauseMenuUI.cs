@@ -14,6 +14,8 @@ public partial class PauseMenuUI : Control
     [Export] public Button RestartButton { get; set; }
     [Export] public Button MainMenuButton { get; set; }
     [Export] public Button QuitButton { get; set; }
+    public Button SettingsButton { get; private set; }
+    public SettingsUI SettingsMenu { get; private set; }
 
     [ExportGroup("External Menus")]
     [Export] public InventoryUI InventoryMenu { get; set; }
@@ -34,6 +36,8 @@ public partial class PauseMenuUI : Control
         RestartButton ??= GetNodeOrNull<Button>("%RestartButton");
         MainMenuButton ??= GetNodeOrNull<Button>("%MainMenuButton");
         QuitButton ??= GetNodeOrNull<Button>("%QuitButton");
+        if (ResumeButton == null) BuildMenu();
+        SettingsButton ??= AddButton(ResumeButton.GetParent(), "SettingsButton", "SETTINGS & CONTROLS");
 
         InventoryMenu ??= GetParent()?.GetNodeOrNull<InventoryUI>("%InventoryUI");
         MapMenu ??= GetParent()?.GetNodeOrNull<MiniMapUI>("%MiniMapUI");
@@ -44,6 +48,9 @@ public partial class PauseMenuUI : Control
             Visible = false
         };
         AddChild(_saveSlotUI);
+        SettingsMenu = new SettingsUI { Name = "SettingsUI" };
+        AddChild(SettingsMenu);
+        SettingsButton.Pressed += SettingsMenu.Open;
 
         if (ResumeButton != null) ResumeButton.Pressed += TogglePause;
         if (SaveButton != null) SaveButton.Pressed += OnSavePressed;
@@ -57,7 +64,7 @@ public partial class PauseMenuUI : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event.IsActionPressed("ui_cancel") || (@event is InputEventKey key && key.Pressed && !key.Echo && (key.Keycode == Key.Escape || key.Keycode == Key.P)))
+        if ((@event.IsActionPressed("ui_cancel") || @event.IsActionPressed("pause_game")) && !@event.IsEcho())
         {
             // If inventory or map is open, close them first
             if (InventoryMenu != null && InventoryMenu.Visible)
@@ -81,20 +88,58 @@ public partial class PauseMenuUI : Control
 
     public void TogglePause()
     {
+        if (SettingsMenu.Visible || _saveSlotUI.Visible) return;
+        if (!Visible && GetTree().Paused) return;
         Visible = !Visible;
+        if (!Visible) ControlBindings.ReleaseGameplayActions();
         GetTree().Paused = Visible;
         Input.MouseMode = Visible ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Hidden;
+        if (Visible) ResumeButton?.GrabFocus();
+    }
+
+    private void BuildMenu()
+    {
+        var background = new ColorRect { Color = new Color(0.02f, 0.03f, 0.05f, 0.94f) };
+        background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        AddChild(background);
+        var center = new CenterContainer();
+        center.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
+        AddChild(center);
+        var rows = new VBoxContainer { CustomMinimumSize = new Vector2(370, 0) };
+        rows.AddThemeConstantOverride("separation", 8);
+        center.AddChild(rows);
+        var title = new Label { Text = "MISSION PAUSED", HorizontalAlignment = HorizontalAlignment.Center };
+        title.AddThemeFontSizeOverride("font_size", 28);
+        rows.AddChild(title);
+        ResumeButton = AddButton(rows, "ResumeButton", "RESUME [ESC]");
+        SaveButton = AddButton(rows, "SaveButton", "SAVE CHECKPOINT");
+        LoadButton = AddButton(rows, "LoadButton", "LOAD CHECKPOINT");
+        InventoryButton = AddButton(rows, "InventoryButton", "INVENTORY");
+        MapButton = AddButton(rows, "MapButton", "TACTICAL MAP");
+        SettingsButton = AddButton(rows, "SettingsButton", "SETTINGS & CONTROLS");
+        RestartButton = AddButton(rows, "RestartButton", "RESTART CHECKPOINT");
+        MainMenuButton = AddButton(rows, "MainMenuButton", "MAIN MENU");
+        QuitButton = AddButton(rows, "QuitButton", "QUIT GAME");
+    }
+
+    private static Button AddButton(Node parent, string id, string text)
+    {
+        var button = new Button { Name = id, Text = text, CustomMinimumSize = new Vector2(0, 40) };
+        parent.AddChild(button);
+        return button;
     }
 
     private void OnInventoryPressed()
     {
         Visible = false;
+        GetTree().Paused = false;
         InventoryMenu?.ToggleInventory();
     }
 
     private void OnMapPressed()
     {
         Visible = false;
+        GetTree().Paused = false;
         MapMenu?.ToggleFullscreenMap();
     }
 
@@ -102,7 +147,8 @@ public partial class PauseMenuUI : Control
     {
         GetTree().Paused = false;
         Input.MouseMode = Input.MouseModeEnum.Hidden;
-        GetTree().ReloadCurrentScene();
+        if (CampaignActDirector.Instance != null) CampaignActDirector.Instance.RestartCheckpoint();
+        else GetTree().ReloadCurrentScene();
     }
 
     private void OnSavePressed()
@@ -138,6 +184,6 @@ public partial class PauseMenuUI : Control
 
     private void OnQuitPressed()
     {
-        GetTree().Quit();
+        ApplicationExit.Request(GetTree());
     }
 }

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "INSTALL STARTER BATTERY / RESTORE BACKUP"
+RequiredFlag = "silo_briefing_read"
+RequiredItemId = "evac_battery"
+CompletionFlag = "silo_backup_online"
+LockedMessage = "READ THE EMERGENCY PROCEDURE AND RECOVER THE STARTER BATTERY"
+Speaker = "SARA"
+Message = "Backup supply stable. The coolant system and roof beacon have power. I can release the silo access shutter from preparation when I am ready."

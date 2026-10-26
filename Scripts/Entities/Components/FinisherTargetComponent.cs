@@ -84,7 +84,7 @@ public partial class FinisherTargetComponent : Node2D
         _promptLabel = new Label
         {
             Name = "PromptLabel",
-            Text = "[F] FINISH",
+            Text = $"[{ControlBindings.Hint("finisher")}] FINISH",
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
             Position = new Vector2(-60, -11),
@@ -220,8 +220,8 @@ public partial class FinisherTargetComponent : Node2D
                 if (_promptLabel != null)
                 {
                     _promptLabel.Text = _zombie.Stats?.TypeName == "Specimen Zero"
-                        ? "[F] POWER STRIKE"
-                        : "[F] KICK / FINISH";
+                        ? $"[{ControlBindings.Hint("finisher")}] POWER STRIKE"
+                        : $"[{ControlBindings.Hint("finisher")}] KICK / FINISH";
                 }
 
                 if (!_hasPlayedPromptChime)

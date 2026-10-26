@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CampaignInteractionData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/CampaignInteractionData.cs" id="1"]
+[resource]
+script = ExtResource("1")
+Prompt = "READ QUARTERMASTER NOTICE"
+CompletionFlag = "armory_notice_read"
+Speaker = "QUARTERMASTER"
+Message = "The armory is sealed. The duty medic took the mechanical key to the infirmary. A loaded pump shotgun and reserve supplies remain inside. Recovering them is optional; the service corridor remains clear of the barracks barricades."

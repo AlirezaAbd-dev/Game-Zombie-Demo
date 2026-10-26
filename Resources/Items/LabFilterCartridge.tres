@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+[ext_resource type="Script" path="res://Scripts/Core/ItemData.cs" id="1"]
+[ext_resource type="Texture2D" path="res://Assets/textures/keycard.png" id="2"]
+[resource]
+script = ExtResource("1")
+Id = "lab_filter_cartridge"
+ItemName = "Sterile Filter Cartridge"
+Description = "A sealed replacement cartridge for the isolation wing's south air plant. Install before routing clean air to Leila."
+Type = 2
+MaxStack = 1
+Icon = ExtResource("2")
