@@ -270,24 +270,11 @@ public partial class AudioManager : Node
     private static AudioStream LoadMusicStream(string resPath)
     {
         AudioStream stream = null;
-
-        if (resPath.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase))
-        {
-            try
-            {
-                stream = AudioStreamOggVorbis.LoadFromFile(resPath);
-            }
-            catch { }
-        }
-
-        if (stream == null)
-        {
-            try
-            {
-                stream = GD.Load<AudioStream>(resPath);
-            }
-            catch { }
-        }
+        // Exported games contain imported/remapped streams, not necessarily the raw Ogg source.
+        if (ResourceLoader.Exists(resPath))
+            stream = GD.Load<AudioStream>(resPath);
+        else if (resPath.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase) && FileAccess.FileExists(resPath))
+            stream = AudioStreamOggVorbis.LoadFromFile(resPath);
 
         if (stream is AudioStreamOggVorbis ogg)
         {

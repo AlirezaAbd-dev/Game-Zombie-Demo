@@ -51,14 +51,16 @@ public partial class SettingsSmokeTest : Node
             await Capture("settings");
             Find<CheckButton>(settings,"Fullscreen").ButtonPressed = true;
             Find<CheckButton>(settings,"VSync").ButtonPressed = false;
+            await WaitForWindowMode(true);
             Check(PlayerSettings.Current.Fullscreen && !PlayerSettings.Current.VSync
                 && (DisplayServer.GetName() == "headless" || DisplayServer.WindowGetMode() == DisplayServer.WindowMode.Fullscreen),
                 "display preferences preview on the game window");
             await KeyPress(Key.Escape);
             Check(!settings.Visible && PlayerSettings.Current.MusicVolume == 1,"escape cancels preview and returns to main menu");
+            await WaitForWindowMode(false);
             Check(!PlayerSettings.Current.Fullscreen && PlayerSettings.Current.VSync
                 && (DisplayServer.GetName() == "headless" || DisplayServer.WindowGetMode() == DisplayServer.WindowMode.Windowed),
-                "cancel restores preceding window and VSync preferences");
+                "cancel restores preceding window and VSync preferences (actual mode: " + DisplayServer.WindowGetMode() + ")");
             settings.Open();
             Find<HSlider>(settings,"CameraShake").Value = 0;
             Find<CheckButton>(settings,"CameraLookAhead").ButtonPressed = false;
@@ -143,6 +145,16 @@ public partial class SettingsSmokeTest : Node
         catch (Exception error) { GD.PushError("SETTINGS SMOKE FAIL: " + error); Tree.Quit(1); }
     }
 
+    private async Task WaitForWindowMode(bool fullscreen)
+    {
+        if (DisplayServer.GetName() == "headless") return;
+        for (int attempt = 0; attempt < 40; attempt++)
+        {
+            var mode = DisplayServer.WindowGetMode();
+            if ((mode is DisplayServer.WindowMode.Fullscreen or DisplayServer.WindowMode.ExclusiveFullscreen) == fullscreen) return;
+            await ToSignal(Tree.CreateTimer(0.025), SceneTreeTimer.SignalName.Timeout);
+        }
+    }
     private async Task KeyPress(Key code)
     {
         Input.ParseInputEvent(new InputEventKey { Keycode = code, PhysicalKeycode = code, Pressed = true });

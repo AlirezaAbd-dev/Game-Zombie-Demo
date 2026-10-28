@@ -264,6 +264,8 @@ Infected enter and remain in melee while their authored attack area reaches the 
 
 `SceneTimings` records active simulation and dialogue seconds separately for each chapter/transfer. `DialoguePlaytimeSeconds` supplies the dialogue portion of the save-card time. Player menus and time spent dead do not advance these clocks. Gameplay cooldowns continue using the simulation clock. Loading an earlier checkpoint rolls back unsaved timing with the rest of progress. Older saves cannot reconstruct a historic chapter breakdown. These counters support a fresh-run pacing study; scripted regression runs do not establish the 55–70 minute first-playthrough target.
 
+A separate fresh-game opening baseline is available at `res://Scenes/Tests/FreshGatePlaytest.tscn` (or `-- --qa-suite=FreshGate` in the QA executable). It uses normal Survivor stats, live enemies, real movement/fire/reload/heal/interaction inputs and the actual power-panel UI, without invulnerability, speed changes, direct damage, injected inventory or mission-flag shortcuts. It assumes prior route/puzzle knowledge, ideal aim, conservative shot-clearance checks, 16 characters/second for reading, and the available camera-shake/look-ahead comfort options disabled. Its JSON result is saved under the isolated profile's `user://fresh-gate-result.json`. On 2026-10-28 the source baseline reached the bunker in about 58 seconds before departure fade, with five kills, 22 shots, 100 health and 32 remaining handgun rounds. The packaged QA executable also completed that route in about 57 seconds (five kills, 19 shots, 100 health and 35 remaining rounds; generated loot and firing timing can vary). This is a known-route lower bound for one chapter; it highlights the need for further content/pacing work and does not validate an hour of first-time play.
+
 Run all source-tree checks after restoring the project's .NET dependencies:
 
 ```bash
@@ -319,14 +321,39 @@ godot --headless --path . --export-release Linux
 godot --headless --path . --export-release "Linux QA"
 ```
 
-These require the matching [Godot 4.7.2 .NET export templates](https://godotengine.org/download/archive/4.7.2-stable/). Once available, the QA executable can run the same test scenes with isolated XDG directories. A QA resource pack alone does not prove a standalone export works.
+These require the matching [Godot 4.7.2 .NET export templates](https://godotengine.org/download/archive/4.7.2-stable/). Install them normally, or use the helper below to fetch only the two Linux x86_64 templates from the official archive using HTTP byte ranges. It checks the archive version and ZIP CRC, records SHA-256 hashes, and keeps the template depot within the ignored build profile:
+
+```bash
+python3 Scripts/Systems/Tests/fetch_linux_templates.py
+XDG_DATA_HOME="$PWD/builds/export-profile/data" \
+XDG_CONFIG_HOME="$PWD/builds/export-profile/config" \
+XDG_CACHE_HOME="$PWD/builds/export-profile/cache" \
+  godot --headless --path . --export-release "Linux QA"
+# Repeat the same environment with --export-release Linux for the player build.
+```
+
+Release templates reject command-line scene-path overrides. QA builds dispatch the bounded `-- --qa-suite=Settings` suite list through a QA-only bootstrap; player builds do not activate that bootstrap. Run the packaged suites from a directory without the source project:
+
+```bash
+python3 Scripts/Systems/Tests/run_export_checks.py \
+  builds/qa/BlacksiteZeroQA.x86_64 --logs builds/verification/packaged
+python3 Scripts/Systems/Tests/run_export_checks.py \
+  builds/qa/BlacksiteZeroQA.x86_64 --logs builds/verification/graphics \
+  --graphical --suite Environment --suite Settings
+python3 Scripts/Systems/Tests/run_exit_checks.py \
+  --binary builds/qa/BlacksiteZeroQA.x86_64 --logs builds/verification/quit
+```
+
+The packaged runner isolates saves/configuration, provides a writable cache for extracting bundled .NET dependencies, points `DOTNET_ROOT` at an unavailable path, enforces exit codes/timeouts, and rejects missing suite markers or engine errors/warnings. It shares only the immutable executable's extracted runtime cache between its sequential cases. Music uses imported resources in exports; two invalid music import records were repaired, and raw-file loading is now only a guarded fallback.
+
+Verified on 2026-10-28: all twelve suites also passed in the standalone QA release, including 386 campaign checks. Packaged graphical runs passed 83 environment checks with the default Vulkan renderer, 83 with OpenGL compatibility, and 38 settings/menu checks. All six packaged Quit cases exited cleanly. The player-facing Linux export was generated and its headless startup exercised; forced engine `--quit-after` termination reports outstanding audio resources, whereas the tested normal Quit/window-close paths drain cleanly. Other Linux distributions and hardware still need coverage. The local development archive is `builds/BlacksiteZero-Linux-x86_64-development.zip`, with a SHA-256 sidecar; binaries and logs are intentionally ignored by Git.
 
 ### Current release limits
 
-The one-hour target, first-time combat/resource balance, final presentation/audio and standalone exported-binary behavior remain unverified or unfinished. Authored campaign reinforcements and generated loot persist; temporary enemies in the legacy demo are outside the authored campaign's persistence contract.
+The one-hour target, first-time combat/resource balance and final presentation/audio remain unverified or unfinished. Standalone Linux QA behavior is now covered by the checks above; other platforms, distributions and broader native replay stability still need validation. Authored campaign reinforcements and generated loot persist; temporary enemies in the legacy demo are outside the authored campaign's persistence contract.
 
 One earlier reload run hit a native C# resource-finalizer crash comparable to [Godot issue 83762](https://github.com/godotengine/godot/issues/83762). Per-enemy resource duplication was removed, and subsequent forced-GC campaign runs passed. Broader replay and exported-build checks remain necessary.
 
 A diagnostic graphical combat run also exited with code 139 after an input-driver assertion, without a native backtrace. The corrected graphical input test completed 45 checks and exited normally. Failed diagnostic logs are retained. A separate reproducible leak of eight Ogg music/playback objects on ordinary Quit was fixed by stopping/releasing crossfades and draining playback during shutdown; the 18 clean Quit checks above exercise that fix. This does not establish the cause of the earlier code-139 diagnostic or prove every native shutdown path stable.
 
-Export validation on this machine remains incomplete: native templates are absent, and download attempts to the official storage, GitHub release asset and release mirror timed out. The QA package and .NET publish completed, but the installed editor host did not load the packed project assembly; that package is not a verified standalone build.
+The earlier export-template/download blocker was resolved on 2026-10-28 by fetching the required official Linux template entries. Executable and runtime extraction, imported music loading, QA dispatch and full packaged regression checks are now verified; this does not establish the remaining pacing or presentation goals.

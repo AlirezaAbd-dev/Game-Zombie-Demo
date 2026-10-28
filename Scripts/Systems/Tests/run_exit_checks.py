@@ -7,6 +7,7 @@ import subprocess
 import tempfile
 
 parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--binary", type=Path, help="Use a packaged Linux QA release instead of the source editor.")
 parser.add_argument("--graphical", action="store_true", help="Requires a display; uses compatibility rendering and Dummy audio.")
 parser.add_argument("--repeat", type=int, default=1)
 parser.add_argument("--logs", type=Path)
@@ -22,16 +23,24 @@ for repeat in range(args.repeat):
         env = os.environ.copy()
         env["XDG_DATA_HOME"] = str(logs / name / "data")
         env["XDG_CONFIG_HOME"] = str(logs / name / "config")
-        command = ["godot", "--path", str(project_root)]
+        if args.binary:
+            command = [str(args.binary.resolve())]
+            env["XDG_CACHE_HOME"] = str(logs / "runtime-cache")
+            env["DOTNET_ROOT"] = env["DOTNET_ROOT_X64"] = "/nonexistent"
+        else:
+            command = ["godot", "--path", str(project_root)]
         if args.graphical:
             command += ["--audio-driver", "Dummy", "--rendering-method", "gl_compatibility", "--resolution", "1280x720"]
         else:
             command += ["--headless"]
-        command += ["res://Scenes/Tests/ExitSmoke.tscn", "--", "--exit-" + mode]
+        command += (["--", "--qa-suite=Exit", "--exit-" + mode] if args.binary
+                    else ["res://Scenes/Tests/ExitSmoke.tscn", "--", "--exit-" + mode])
+        working_directory = logs / "empty-cwd" if args.binary else project_root
+        working_directory.mkdir(exist_ok=True)
         path = logs / (name + ".log")
         with path.open("w") as output:
             try:
-                result = subprocess.run(command, cwd=project_root, env=env, stdout=output, stderr=subprocess.STDOUT, timeout=20)
+                result = subprocess.run(command, cwd=working_directory, env=env, stdout=output, stderr=subprocess.STDOUT, timeout=20)
             except subprocess.TimeoutExpired:
                 raise SystemExit(f"FAIL {name}: process did not terminate; see {path}")
         content = path.read_text()

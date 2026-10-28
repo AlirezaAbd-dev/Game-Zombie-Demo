@@ -2,16 +2,18 @@
 
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
-valid=false
+uid="uid://cyhthcqwolkpo"
+path="res://.godot/imported/music_boss_combat.ogg-d14ba6914f9647de54c153de3fe7c449.oggvorbisstr"
 
 [deps]
 
 source_file="res://Assets/audio/music_boss_combat.ogg"
+dest_files=["res://.godot/imported/music_boss_combat.ogg-d14ba6914f9647de54c153de3fe7c449.oggvorbisstr"]
 
 [params]
 
 loop=true
 loop_offset=0.0
-bpm=125.0
-beat_count=80
+bpm=0.0
+beat_count=0
 bar_beats=4

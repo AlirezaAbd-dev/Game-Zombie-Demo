@@ -23,6 +23,8 @@ public partial class MainMenuUI : Control
 
         BindControls();
         BuildModals();
+        if (OS.HasFeature("qa") && Array.Exists(OS.GetCmdlineUserArgs(), argument => argument.StartsWith("--qa-suite=", StringComparison.Ordinal)))
+            AddChild(GD.Load<PackedScene>("res://Scenes/Tests/QaBootstrap.tscn").Instantiate());
 
         // Play atmospheric main menu military intro music
         AudioManager.Instance?.PlayMusic("intro_military", 1.5f);
