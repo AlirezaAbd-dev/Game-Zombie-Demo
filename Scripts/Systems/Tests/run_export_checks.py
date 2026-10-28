@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import subprocess
 
-SUITES = ("Environment", "Progression", "Settings", "Controls", "Dialogue", "Audio", "Persistence", "Supply", "Combat", "Timing", "Navigation", "Campaign")
+SUITES = ("Environment", "Progression", "Settings", "Controls", "Dialogue", "Audio", "Weapon", "Persistence", "Supply", "Combat", "Timing", "Navigation", "Campaign")
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("binary", type=Path)
 parser.add_argument("--logs", type=Path, required=True)

@@ -22,6 +22,7 @@ public class PlayerFinisherState : PlayerState
 
     public override void Enter()
     {
+        Player.InventoryComponent?.CancelReload();
         Player.IsInvulnerable = true;
         _durationTimer = 0.38f;
         _hasExecutedImpact = false;

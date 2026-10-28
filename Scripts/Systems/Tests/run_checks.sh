@@ -8,7 +8,7 @@ mkdir -p -- "$qa_root"
 qa_root="$(cd -- "$qa_root" && pwd)"
 printf 'QA logs: %s\n' "$qa_root"
 dotnet build "$project_root/Top Down Demo.csproj" --no-restore --nologo > "$qa_root/build.log" 2>&1
-for suite in Environment Progression Settings Controls Dialogue Audio Persistence Supply Combat Timing Navigation Campaign; do
+for suite in Environment Progression Settings Controls Dialogue Audio Weapon Persistence Supply Combat Timing Navigation Campaign; do
     log="$qa_root/$suite.log"
     if ! timeout 300 env XDG_DATA_HOME="$qa_root/$suite/data" XDG_CONFIG_HOME="$qa_root/$suite/config" \
         godot --headless --path "$project_root" "res://Scenes/Tests/${suite}Smoke.tscn" -- --stress-gc > "$log" 2>&1; then

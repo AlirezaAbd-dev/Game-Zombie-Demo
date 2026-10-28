@@ -62,7 +62,7 @@ public partial class Player : CharacterBody2D, IDamageable
     private float _shootTimer = 0.0f;
     private float _cameraTrauma = 0.0f;
     private float _walkPhase = 0.0f;
-    private readonly Vector2 _baseScale = new(3.0f, 3.0f);
+    private readonly Vector2 _baseScale = Vector2.One;
     private Vector2 _gunRestPos = new(12.333334f, -0.33333334f);
     private readonly Vector2[] _laserPoints = new Vector2[2];
 
@@ -132,7 +132,7 @@ public partial class Player : CharacterBody2D, IDamageable
         FlashlightComponent?.UpdateFlicker();
         UpdateLaserSight();
 
-        if (GunSprite != null)
+        if (GunSprite != null && InventoryComponent?.IsReloading != true)
         {
             GunSprite.Position = GunSprite.Position.Lerp(_gunRestPos, dt * 15.0f);
         }
@@ -219,8 +219,13 @@ public partial class Player : CharacterBody2D, IDamageable
 
         if (Input.IsActionJustPressed("reload"))
         {
-            StartReload();
+            if (InventoryComponent?.IsReloading == true) InventoryComponent.CancelReload();
+            else StartReload();
         }
+        if (Input.IsActionJustPressed("shoot") && InventoryComponent?.IsReloading == true
+            && InventoryComponent.CurrentWeapon.ReloadStyle == ReloadStyle.IndividualShells
+            && InventoryComponent.CurrentAmmo > 0)
+            InventoryComponent.CancelReload();
 
         if (Input.IsActionJustPressed("quick_heal"))
         {
@@ -281,12 +286,11 @@ public partial class Player : CharacterBody2D, IDamageable
             GunSprite.Texture = weapon.WeaponSprite;
             GunSprite.Position = weapon.WeaponOffset;
 
-            // Weapon switch equip visual bounce
-            var tween = CreateTween();
-            GunSprite.Scale = new Vector2(0.5f, 1.4f);
-            tween.TweenProperty(GunSprite, "scale", Vector2.One, 0.15);
+            GunSprite.Scale = Vector2.One / 3f;
+            GunSprite.Rotation = 0;
         }
 
+        if (LaserRay != null) LaserRay.Position = weapon.MuzzleOffset;
         if (MuzzleFlash != null)
         {
             MuzzleFlash.Color = weapon.MuzzleFlashColor;
@@ -356,18 +360,7 @@ public partial class Player : CharacterBody2D, IDamageable
 
     public void StartReload()
     {
-        if (InventoryComponent == null || !InventoryComponent.StartReload())
-            return;
-
-        var weapon = InventoryComponent.CurrentWeapon;
-        float duration = weapon?.ReloadDuration ?? 1.2f;
-
-        if (GunSprite != null)
-        {
-            var tween = CreateTween();
-            tween.TweenProperty(GunSprite, "position", new Vector2(_gunRestPos.X - 5.0f, _gunRestPos.Y - 4.0f), duration * 0.5f);
-            tween.TweenProperty(GunSprite, "position", _gunRestPos, duration * 0.5f);
-        }
+        if (!IsDead && !IsInputLocked) InventoryComponent?.StartReload();
     }
 
     public void AlertNearbyZombies(float radius)
@@ -387,7 +380,7 @@ public partial class Player : CharacterBody2D, IDamageable
     public void AnimateWalk(float delta)
     {
         _walkPhase += delta * 15.0f;
-        float bob = Mathf.Sin(_walkPhase) * 0.09f;
+        float bob = Mathf.Sin(_walkPhase) * 0.03f;
 
         if (BodySprite != null)
         {
@@ -618,6 +611,13 @@ public partial class Player : CharacterBody2D, IDamageable
     {
         if (LaserLine == null || LaserRay == null) return;
 
+        bool ready = !IsDead && InventoryComponent?.IsReloading != true && GunSprite?.Visible == true;
+        LaserLine.Visible = ready;
+        if (!ready)
+        {
+            if (LaserDot != null) LaserDot.Visible = false;
+            return;
+        }
         var weapon = InventoryComponent?.CurrentWeapon;
         Vector2 muzzlePos = weapon?.MuzzleOffset ?? new Vector2(50, 0);
         float maxRange = 800.0f;
@@ -660,6 +660,7 @@ public partial class Player : CharacterBody2D, IDamageable
 
     private void OnDied()
     {
+        InventoryComponent?.CancelReload();
         StateMachine.ChangeState(DeadState);
     }
 

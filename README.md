@@ -19,9 +19,13 @@ A modular, component-based 2D top-down survival horror demo built with **Godot 4
 - **Contextual Interaction System (`[E]`):** Examine terminals, pick up keycards, activate generators, and open hydraulic blast doors.
 - **Weapon Arsenal & Switching:** Handgun (semi-auto), Pump Shotgun (8 pellets, high spread), and Assault Rifle (high-velocity full-auto), switchable via `1-3`, `Q`, or Mouse Wheel.
 - **Resource-Heavy Combat:** Scarce ammunition, tactical reserve ammo management, and deliberate, interruptible reload timings.
+- **Character and weapon art:** Original high-resolution vector operative, articulated gloves, and distinct pistol, pump shotgun and scoped rifle silhouettes. Pickup icons match the equipped guns.
+- **Staged reloads:** Pistol magazine/slide cycle takes **2.2 seconds**, rifle magazine/bolt cycle **3.1 seconds**. The shotgun takes **0.45 seconds to open**, **0.65 seconds per shell**, then **0.55 seconds to close/pump** (4.9 seconds from empty with six shells). Each phase has its own original mechanical foley and hand/ammunition animation. Press reload again to cancel; switching, dodging, melee and death also cancel. Press fire to interrupt a shotgun reload once a shell is loaded. Inserted shells remain in the weapon. Pausing pauses both handling and its audio. The HUD shows ammunition counts during loading.
 - **Dynamic Lighting & Audio:** Emergency red blackout transitioning to bright sterile facility lighting, accompanied by a procedural sound engine (gunshots, sirens, radio comms, zombie roars).
 - **Stamina & Evasion:** Dash ability with temporary invulnerability frames and after-image ghosting, governed by a regenerating stamina meter.
 - **Diverse Enemy Variants & Boss:** Standard Walkers, fast crimson Runners, heavy Brutes, and the terrifying "Specimen Zero" Goliath Boss.
+
+Reload data and sound references live in `Resources/Weapons`. `InventoryComponent` owns phases and ammunition; `WeaponPresentation` listens to its events and controls the view/audio. Original foley can be regenerated with `python3 Assets/audio/Reloads/generate_reload_foley.py`. `WeaponSmoke.tscn` checks phase timing, shell conservation, interruption, asset binding and presentation; use `-- --capture-playtest` for its graphical comparison.
 
 ---
 

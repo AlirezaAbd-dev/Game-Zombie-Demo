@@ -595,7 +595,7 @@ public partial class HUDUI : Control
 
         if (isReloading)
         {
-            AmmoLabel.Text = "RELOADING...";
+            AmmoLabel.Text = $"RELOADING  {current} / {reserve}";
             AmmoLabel.Modulate = new Color(1.0f, 0.4f, 0.4f, 1.0f);
         }
         else

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="108" viewBox="0 0 96 108">
+<defs><linearGradient id="cloth"><stop stop-color="#202e30"/><stop offset=".5" stop-color="#61716a"/><stop offset="1" stop-color="#303f3c"/></linearGradient><linearGradient id="armor" x2="0" y2="1"><stop stop-color="#607078"/><stop offset=".4" stop-color="#34474b"/><stop offset="1" stop-color="#1a292e"/></linearGradient><radialGradient id="hair"><stop stop-color="#645948"/><stop offset=".7" stop-color="#352f29"/><stop offset="1" stop-color="#171c1d"/></radialGradient></defs>
+<!-- Boots and folded trouser legs visible behind the vest. Facing east. -->
+<g stroke="#111b20" stroke-width="2" stroke-linejoin="round">
+<path fill="#171f25" d="M10 24L31 21 40 37 26 44 8 39 5 31ZM9 69L28 64 39 76 31 89 9 87 5 79Z"/>
+<path fill="#3b4944" d="M18 29L39 24 43 42 22 45ZM20 64L43 63 42 83 21 82Z"/>
+<path fill="url(#cloth)" d="M26 16Q38 8 50 14L65 22 71 35 60 43 44 35 28 37ZM27 69L46 70 62 64 75 74 66 89 48 97 30 92Z"/>
+<path fill="#273a3d" d="M49 19L61 22 65 33 56 39 46 33ZM48 76L64 70 70 78 62 88 49 91Z"/>
+<path fill="url(#armor)" d="M23 27Q40 20 56 29L64 41 62 66 52 81 23 78 15 64 15 41Z"/>
+<path fill="#5f6b5b" d="M18 35L26 32 27 72 19 68Z"/>
+<path fill="#283a3d" d="M28 34L48 33 56 42 54 67 45 74 28 72Z"/>
+<path fill="#718073" stroke-width="1" d="M30 39H47V46H30ZM30 50H48V57H30ZM30 61H46V68H30Z"/>
+<path fill="#283637" d="M18 48H27V60H18Z"/><path fill="#9a9580" stroke-width="1" d="M20 50H25V57H20Z"/>
+<!-- Earpiece, neck scarf, face and short cropped hair. -->
+
+<g transform="translate(-28 0)">
+<path fill="#1e292d" d="M51 39L72 35 80 45 80 64 68 75 51 68Z"/>
+<path fill="#b39a7c" d="M67 41Q80 40 84 48L90 53 85 57 82 67 69 68 62 60 61 47Z"/>
+<path fill="url(#hair)" d="M51 42Q55 29 69 33 82 35 82 46L74 48 76 57 69 69Q53 71 49 58Z"/>
+<path stroke="#8c8068" stroke-width="1" fill="none" d="M55 43L65 37M56 49L71 39M57 57L70 47"/>
+<path fill="#202c32" d="M58 65L72 64 74 70 59 74Z"/><path stroke="#89958b" stroke-width="1" fill="none" d="M62 70H70L82 64"/>
+</g>
+<path fill="#a95135" stroke-width="1" d="M35 16L44 16 46 21 36 23Z"/>
+<path stroke="#89978b" stroke-width="1" fill="none" d="M29 20L34 18M35 88L43 90M21 39V44M32 36L40 35"/>
+</g></svg>

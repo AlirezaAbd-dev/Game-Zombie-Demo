@@ -11,6 +11,7 @@ public class PlayerDashState : PlayerState
 
     public override void Enter()
     {
+        Player.InventoryComponent?.CancelReload();
         _dashDir = Player.GetMovementInput();
         if (_dashDir == Vector2.Zero)
         {

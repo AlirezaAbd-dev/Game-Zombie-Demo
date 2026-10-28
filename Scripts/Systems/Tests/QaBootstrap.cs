@@ -17,7 +17,7 @@ public partial class QaBootstrap : Node
         string scene = suite switch
         {
             "Environment" or "Progression" or "Settings" or "Controls" or "Dialogue" or "Audio"
-                or "Persistence" or "Supply" or "Combat" or "Timing" or "Navigation" or "Campaign" or "Exit"
+                or "Weapon" or "Persistence" or "Supply" or "Combat" or "Timing" or "Navigation" or "Campaign" or "Exit"
                 => $"res://Scenes/Tests/{suite}Smoke.tscn",
             "FreshGate" => "res://Scenes/Tests/FreshGatePlaytest.tscn",
             _ => null

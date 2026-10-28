@@ -24,6 +24,7 @@ public class PlayerKnifeState : PlayerState
 
     public override void Enter()
     {
+        Player.InventoryComponent?.CancelReload();
         _knifeTimer = 0.22f;
         _hasDealtDamage = false;
 

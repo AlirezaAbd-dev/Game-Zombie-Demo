@@ -7,11 +7,21 @@
 [ext_resource type="Script" path="res://Scripts/Entities/Components/InventoryComponent.cs" id="5_inv_comp"]
 [ext_resource type="Script" path="res://Scripts/Entities/Components/FlashlightComponent.cs" id="6_light_comp"]
 [ext_resource type="Texture2D" path="res://Assets/textures/drop_shadow.png" id="7_shadow"]
-[ext_resource type="Texture2D" uid="uid://da0lf02ucr8c5" path="res://Assets/textures/topdown_character.png" id="8_qhqgy"]
-[ext_resource type="Texture2D" uid="uid://jto1upswoasf" path="res://Assets/textures/gun.png" id="9_dqkch"]
+[ext_resource type="Texture2D" path="res://Assets/Characters/operative.svg" id="8_qhqgy"]
+[ext_resource type="Texture2D" path="res://Assets/Weapons/pistol.svg" id="9_dqkch"]
 [ext_resource type="Texture2D" path="res://Assets/textures/flashlight_cone.png" id="10_flashlight"]
 [ext_resource type="Texture2D" path="res://Assets/textures/light_radial.png" id="11_radial"]
 [ext_resource type="Script" path="res://Scripts/Entities/Components/PlayerInteractionComponent.cs" id="14_interact_comp"]
+
+[ext_resource type="Script" path="res://Scripts/Entities/Components/WeaponPresentation.cs" id="15_presentation"]
+[ext_resource type="Texture2D" path="res://Assets/Characters/glove.svg" id="16_glove"]
+[ext_resource type="Texture2D" path="res://Assets/Weapons/magazine.svg" id="17_magazine"]
+[ext_resource type="Texture2D" path="res://Assets/Weapons/shell.svg" id="18_shell"]
+
+[ext_resource type="Texture2D" path="res://Assets/Characters/operative_head.svg" id="19_head"]
+
+[ext_resource type="Texture2D" path="res://Assets/Characters/sleeve_upper.svg" id="20_sleeve"]
+[ext_resource type="Texture2D" path="res://Assets/Characters/sleeve_forearm.svg" id="21_forearm"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
 radius = 90.0
@@ -57,9 +67,6 @@ RegenRate = 30.0
 [node name="InventoryComponent" type="Node" parent="." unique_id=44335566]
 unique_name_in_owner = true
 script = ExtResource("5_inv_comp")
-MagCapacity = 15
-MaxReserveAmmo = 90
-ReloadDuration = 1.2
 
 [node name="FlashlightComponent" type="Node2D" parent="." unique_id=55446677]
 unique_name_in_owner = true
@@ -97,13 +104,54 @@ color_ramp = SubResource("Gradient_dust")
 
 [node name="Body" type="Sprite2D" parent="." unique_id=1314783785]
 unique_name_in_owner = true
-scale = Vector2(3, 3)
+texture_filter = 2
 texture = ExtResource("8_qhqgy")
 
-[node name="Gun" type="Sprite2D" parent="Body" unique_id=1965972260]
+[node name="WeaponRig" type="Node2D" parent="Body"]
+scale = Vector2(3, 3)
+
+[node name="WeaponPresentation" type="Node2D" parent="Body/WeaponRig" node_paths=PackedStringArray("Inventory", "Gun", "SupportHand", "GripHand", "AmmunitionProp", "ReloadAudio")]
+unique_name_in_owner = true
+script = ExtResource("15_presentation")
+Inventory = NodePath("../../../InventoryComponent")
+Gun = NodePath("../Gun")
+SupportHand = NodePath("../SupportHand")
+GripHand = NodePath("../GripHand")
+AmmunitionProp = NodePath("../AmmunitionProp")
+ReloadAudio = NodePath("../../../ReloadAudio")
+MagazineTexture = ExtResource("17_magazine")
+ShellTexture = ExtResource("18_shell")
+UpperSleeveTexture = ExtResource("20_sleeve")
+ForearmTexture = ExtResource("21_forearm")
+
+[node name="Gun" type="Sprite2D" parent="Body/WeaponRig" unique_id=1965972260]
 unique_name_in_owner = true
 position = Vector2(12.333334, -0.33333334)
+scale = Vector2(0.33333334, 0.33333334)
 texture = ExtResource("9_dqkch")
+
+[node name="AmmunitionProp" type="Sprite2D" parent="Body/WeaponRig"]
+visible = false
+scale = Vector2(0.33333334, 0.33333334)
+texture = ExtResource("17_magazine")
+
+[node name="SupportHand" type="Sprite2D" parent="Body/WeaponRig"]
+position = Vector2(8, -2)
+scale = Vector2(0.125, 0.125)
+texture = ExtResource("16_glove")
+
+[node name="GripHand" type="Sprite2D" parent="Body/WeaponRig"]
+position = Vector2(5, 4)
+scale = Vector2(0.125, 0.125)
+texture = ExtResource("16_glove")
+
+[node name="Head" type="Sprite2D" parent="Body"]
+z_index = 1
+texture = ExtResource("19_head")
+
+[node name="ReloadAudio" type="AudioStreamPlayer2D" parent="."]
+volume_db = -3.0
+max_distance = 700.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2010685224]
 position = Vector2(-10, 0)

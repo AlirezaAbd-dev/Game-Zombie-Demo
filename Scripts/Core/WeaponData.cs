@@ -11,6 +11,8 @@ public partial class WeaponData : Resource
     [Export] public ItemData AmmoPickup { get; set; }
     [Export] public Texture2D WeaponSprite { get; set; }
     [Export] public Vector2 WeaponOffset { get; set; } = new(12.333334f, -0.33333334f);
+    [Export] public Vector2 GripOffset { get; set; } = new(-4.6f, 1.7f);
+    [Export] public Vector2 SupportOffset { get; set; } = new(-2.3f, -0.3f);
     [Export] public Vector2 MuzzleOffset { get; set; } = new(55.0f, 0.0f);
 
     [ExportGroup("Combat Parameters")]
@@ -21,7 +23,12 @@ public partial class WeaponData : Resource
     [Export] public float AimSpread { get; set; } = 0.006f;
     [Export] public int MagCapacity { get; set; } = 15;
     [Export] public int MaxReserve { get; set; } = 90;
-    [Export] public float ReloadDuration { get; set; } = 1.2f;
+    [Export] public float ReloadDuration { get; set; } = 2.2f;
+    [Export] public ReloadStyle ReloadStyle { get; set; } = ReloadStyle.Magazine;
+    [Export] public float ShellInsertDuration { get; set; } = 0.65f;
+    [Export] public AudioStream ReloadOpenSound { get; set; }
+    [Export] public AudioStream ReloadInsertSound { get; set; }
+    [Export] public AudioStream ReloadCloseSound { get; set; }
     [Export] public float CameraTrauma { get; set; } = 0.18f;
     [Export] public float RecoilKick { get; set; } = 3.5f;
     [Export] public float ProjectileSpeed { get; set; } = 1400.0f;

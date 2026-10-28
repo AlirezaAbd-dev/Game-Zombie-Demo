@@ -41,7 +41,29 @@ public partial class InventoryComponent : Node
     public WeaponData CurrentWeapon => Weapons != null && Weapons.Count > CurrentWeaponIndex ? Weapons[CurrentWeaponIndex] : null;
 
     public bool IsReloading { get; private set; } = false;
-    private float _reloadTimer = 0.0f;
+    private float _reloadTimer;
+    private float _phaseDuration;
+    public ReloadPhase CurrentReloadPhase { get; private set; }
+    public float ReloadPhaseProgress => IsReloading ? Mathf.Clamp(1f - _reloadTimer / _phaseDuration, 0, 1) : 0;
+    public event Action<ReloadPhase> ReloadPhaseChanged;
+
+    public void CancelReload()
+    {
+        if (!IsReloading) return;
+        IsReloading = false;
+        CurrentReloadPhase = ReloadPhase.Idle;
+        _reloadTimer = 0;
+        ReloadPhaseChanged?.Invoke(ReloadPhase.Idle);
+        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, false);
+    }
+
+    private void BeginReloadPhase(ReloadPhase phase, float duration)
+    {
+        CurrentReloadPhase = phase;
+        _phaseDuration = Mathf.Max(0.01f, duration);
+        _reloadTimer = _phaseDuration;
+        ReloadPhaseChanged?.Invoke(phase);
+    }
 
     private readonly Dictionary<string, int> _magAmmo = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, int> _reserveAmmo = new(StringComparer.OrdinalIgnoreCase);
@@ -119,7 +141,7 @@ public partial class InventoryComponent : Node
             return;
         }
 
-        IsReloading = false;
+        CancelReload();
         CurrentWeaponIndex = index;
 
         EmitSignal(SignalName.WeaponChanged, CurrentWeapon);
@@ -151,7 +173,7 @@ public partial class InventoryComponent : Node
 
     public void SetUnlockedWeapons(IEnumerable<string> ids)
     {
-        IsReloading = false;
+        CancelReload();
         var requested = ids == null ? null : new HashSet<string>(ids,StringComparer.OrdinalIgnoreCase);
         _unlockedWeaponIds.Clear();
         foreach (var weapon in Weapons)
@@ -186,22 +208,46 @@ public partial class InventoryComponent : Node
 
     public void UpdateReload(float delta)
     {
-        if (!IsReloading || CurrentWeapon == null) return;
-
-        _reloadTimer -= delta;
-        if (_reloadTimer <= 0.0f)
+        if (!IsReloading || CurrentWeapon == null || delta <= 0) return;
+        // Carry elapsed time across stages so low frame rates cannot skip or duplicate ammunition.
+        while (IsReloading && delta >= _reloadTimer)
         {
-            int current = _magAmmo.GetValueOrDefault(CurrentWeapon.WeaponId, 0);
-            int needed = CurrentWeapon.MagCapacity - current;
-            int available = _reserveAmmo.GetValueOrDefault(CurrentWeapon.AmmoId, 0);
-            int added = Mathf.Min(needed, available);
-
-            _magAmmo[CurrentWeapon.WeaponId] = current + added;
-            _reserveAmmo[CurrentWeapon.AmmoId] = available - added;
-            IsReloading = false;
-
-            EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, false);
+            delta -= _reloadTimer;
+            var weapon = CurrentWeapon;
+            bool shells = weapon.ReloadStyle == ReloadStyle.IndividualShells;
+            switch (CurrentReloadPhase)
+            {
+                case ReloadPhase.Open:
+                    BeginReloadPhase(ReloadPhase.Insert, shells ? weapon.ShellInsertDuration : weapon.ReloadDuration * 0.5f);
+                    break;
+                case ReloadPhase.Insert:
+                    if (shells)
+                    {
+                        TransferReloadAmmo(1);
+                        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, true);
+                    }
+                    if (shells && CurrentAmmo < weapon.MagCapacity && CurrentReserve > 0)
+                        BeginReloadPhase(ReloadPhase.Insert, weapon.ShellInsertDuration);
+                    else
+                        BeginReloadPhase(ReloadPhase.Close, weapon.ReloadDuration * (shells ? 0.55f : 0.25f));
+                    break;
+                case ReloadPhase.Close:
+                    if (!shells) TransferReloadAmmo(weapon.MagCapacity);
+                    CancelReload();
+                    break;
+                default:
+                    CancelReload();
+                    break;
+            }
         }
+        if (IsReloading) _reloadTimer -= delta;
+    }
+
+    private void TransferReloadAmmo(int limit)
+    {
+        int added = Mathf.Min(limit, Mathf.Min(CurrentWeapon.MagCapacity - CurrentAmmo, CurrentReserve));
+        _magAmmo[CurrentWeapon.WeaponId] = CurrentAmmo + added;
+        _reserveAmmo[CurrentWeapon.AmmoId] = CurrentReserve - added;
     }
 
     public bool TryConsumeAmmo()
@@ -227,7 +273,7 @@ public partial class InventoryComponent : Node
             return false;
 
         IsReloading = true;
-        _reloadTimer = CurrentWeapon.ReloadDuration;
+        BeginReloadPhase(ReloadPhase.Open, CurrentWeapon.ReloadDuration * (CurrentWeapon.ReloadStyle == ReloadStyle.IndividualShells ? 0.45f : 0.25f));
         EmitSignal(SignalName.AmmoChanged, CurrentAmmo, CurrentReserve, true);
         return true;
     }
@@ -594,7 +640,7 @@ public partial class InventoryComponent : Node
 
     public void SetAmmoState(Dictionary<string, int> magAmmo, Dictionary<string, int> reserveAmmo, int weaponIndex = 0)
     {
-        IsReloading = false;
+        CancelReload();
         _magAmmo.Clear();
         _reserveAmmo.Clear();
         if (magAmmo != null)
