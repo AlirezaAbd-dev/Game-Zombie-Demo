@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using GameZombieDemo;
 using Godot;
 
 public partial class Player : CharacterBody2D
@@ -12,23 +14,51 @@ public partial class Player : CharacterBody2D
     public delegate void AmmoChangedEventHandler(int current, int reserve, bool isReloading);
 
     [Signal]
+    public delegate void WeaponHudUpdatedEventHandler(string weaponName, int mag, int reserve, bool infinite, bool isReloading, float reloadProgress, bool isEmpowered, int grenades);
+
+    [Signal]
     public delegate void PlayerDiedEventHandler();
 
     [Export] public float Speed { get; set; } = 300.0f;
     [Export] public float MaxHealth { get; set; } = 100.0f;
-    [Export] public float FireRate { get; set; } = 0.13f;
 
-    // Resource Management: Ammo
-    [Export] public int MagCapacity { get; set; } = 15;
-    [Export] public int MaxReserveAmmo { get; set; } = 90;
-    [Export] public float ReloadDuration { get; set; } = 1.2f;
+    // Roguelite Stat Modifiers
+    public float DamageMultiplier { get; set; } = 1.0f;
+    public float FireRateMultiplier { get; set; } = 1.0f;
+    public float ReloadDurationMultiplier { get; set; } = 1.0f;
+    public int BonusPierce { get; set; } = 0;
+    public bool DashBurnsEnemies { get; set; } = false;
+    public int VampiricKillInterval { get; set; } = 0;
+    public float ExternalSpeedMultiplier { get; set; } = 1.0f;
 
-    public int CurrentAmmo { get; private set; } = 15;
-    public int ReserveAmmo { get; private set; } = 45;
+    // Grenades
+    public int Grenades { get; set; } = 2;
+    public int MaxGrenades { get; set; } = 3;
+    public float GrenadeCooldown { get; set; } = 8.0f;
+    private float _grenadeCooldownTimer = 0.0f;
+
+    // Weapon Inventory
+    public class WeaponAmmoState
+    {
+        public int CurrentMag;
+        public int CurrentReserve;
+    }
+
+    private readonly Dictionary<WeaponId, WeaponAmmoState> _weaponStates = new();
+    public WeaponId CurrentWeaponId { get; private set; } = WeaponId.Pistol;
+    public WeaponSpec CurrentSpec => WeaponSpec.Presets[CurrentWeaponId];
+
+    public int CurrentAmmo => _weaponStates[CurrentWeaponId].CurrentMag;
+    public int ReserveAmmo => _weaponStates[CurrentWeaponId].CurrentReserve;
+    public int MaxReserveAmmo => CurrentSpec.MaxReserve;
+
     public bool IsReloading { get; private set; } = false;
-    private float _reloadTimer = 0.0f;
+    private float _reloadElapsed = 0.0f;
+    private bool _activeReloadAttempted = false;
+    private bool _isCurrentMagEmpowered = false;
+    private float _currentBloomRad = 0.0f;
 
-    // Resource Management: Stamina & Dash
+    // Stamina & Dash
     [Export] public float MaxStamina { get; set; } = 100.0f;
     [Export] public float DashCost { get; set; } = 35.0f;
     [Export] public float DashSpeed { get; set; } = 750.0f;
@@ -43,36 +73,42 @@ public partial class Player : CharacterBody2D
 
     public float Health { get; private set; }
     public bool IsDead { get; private set; } = false;
+    public float CameraTrauma => _cameraTrauma;
 
     private float _shootTimer = 0.0f;
     private float _cameraTrauma = 0.0f;
     private float _walkPhase = 0.0f;
     private readonly Vector2 _baseScale = new(3.0f, 3.0f);
     private readonly Vector2 _gunRestPos = new(12.333334f, -0.33333334f);
+    private int _vampiricKillCounter = 0;
 
-    private PackedScene _bulletScene;
-
-    private Camera2D _camera;
-    private Sprite2D _bodySprite;
-    private Sprite2D _gunSprite;
-    private PointLight2D _flashlight;
-    private PointLight2D _muzzleFlash;
-    private CpuParticles2D _muzzleParticles;
-    private RayCast2D _laserRay;
-    private Line2D _laserLine;
-    private Sprite2D _laserDot;
-    private CpuParticles2D _dustParticles;
+    private PackedScene _bulletScene = null!;
+    private Camera2D _camera = null!;
+    private Sprite2D _bodySprite = null!;
+    private Sprite2D _gunSprite = null!;
+    private PointLight2D _flashlight = null!;
+    private PointLight2D _muzzleFlash = null!;
+    private CpuParticles2D _muzzleParticles = null!;
+    private RayCast2D _laserRay = null!;
+    private Line2D _laserLine = null!;
+    private Sprite2D _laserDot = null!;
+    private CpuParticles2D _dustParticles = null!;
+    private Crosshair? _crosshair;
 
     public override void _Ready()
     {
         AddToGroup("player");
         Health = MaxHealth;
         CurrentStamina = MaxStamina;
-        CurrentAmmo = MagCapacity;
 
-        EmitSignal(SignalName.HealthChanged, Health, MaxHealth);
-        EmitSignal(SignalName.StaminaChanged, CurrentStamina, MaxStamina);
-        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, IsReloading);
+        foreach (var kvp in WeaponSpec.Presets)
+        {
+            _weaponStates[kvp.Key] = new WeaponAmmoState
+            {
+                CurrentMag = kvp.Value.MagCapacity,
+                CurrentReserve = kvp.Value.MaxReserve
+            };
+        }
 
         _bulletScene = GD.Load<PackedScene>("res://scenes/bullet.tscn");
 
@@ -92,6 +128,88 @@ public partial class Player : CharacterBody2D
             _camera.PositionSmoothingEnabled = true;
             _camera.PositionSmoothingSpeed = 7.0f;
         }
+
+        _crosshair = GetTree().CurrentScene?.GetNodeOrNull<Crosshair>("UIOverlay/Crosshair");
+
+        EmitSignal(SignalName.HealthChanged, Health, MaxHealth);
+        EmitSignal(SignalName.StaminaChanged, CurrentStamina, MaxStamina);
+        EmitWeaponHud();
+    }
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (IsDead) return;
+
+        if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo)
+        {
+            if (keyEvent.Keycode == Key.Key1)
+            {
+                SwitchWeapon(WeaponId.Pistol);
+            }
+            else if (keyEvent.Keycode == Key.Key2)
+            {
+                SwitchWeapon(WeaponId.Shotgun);
+            }
+            else if (keyEvent.Keycode == Key.Key3)
+            {
+                SwitchWeapon(WeaponId.Smg);
+            }
+            else if (keyEvent.Keycode == Key.G)
+            {
+                TryLaunchGrenade();
+            }
+        }
+        else if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed)
+        {
+            if (mouseEvent.ButtonIndex == MouseButton.WheelUp)
+            {
+                CycleWeapon(-1);
+            }
+            else if (mouseEvent.ButtonIndex == MouseButton.WheelDown)
+            {
+                CycleWeapon(1);
+            }
+            else if (mouseEvent.ButtonIndex == MouseButton.Middle)
+            {
+                TryLaunchGrenade();
+            }
+        }
+    }
+
+    private void CycleWeapon(int dir)
+    {
+        int count = 3;
+        int next = (((int)CurrentWeaponId + dir) % count + count) % count;
+        SwitchWeapon((WeaponId)next);
+    }
+
+    public void SwitchWeapon(WeaponId newId)
+    {
+        if (CurrentWeaponId == newId) return;
+
+        if (IsReloading)
+        {
+            IsReloading = false;
+        }
+
+        CurrentWeaponId = newId;
+        _isCurrentMagEmpowered = false;
+        _activeReloadAttempted = false;
+        _currentBloomRad = 0.0f;
+
+        AudioManager.Instance?.PlayGlobal("SfxReload", 1.25f);
+        EmitWeaponHud();
+    }
+
+    public void TryLaunchGrenade()
+    {
+        if (Grenades <= 0 || IsDead) return;
+
+        Grenades--;
+        var grenade = new FragGrenade();
+        grenade.Launch(GlobalPosition, GetGlobalMousePosition());
+        GetParent().AddChild(grenade);
+        EmitWeaponHud();
     }
 
     public override void _Process(double delta)
@@ -104,6 +222,28 @@ public partial class Player : CharacterBody2D
         }
 
         LookAt(GetGlobalMousePosition());
+
+        if (_crosshair == null)
+        {
+            _crosshair = GetTree().CurrentScene?.GetNodeOrNull<Crosshair>("UIOverlay/Crosshair");
+        }
+        _crosshair?.SetDynamicSpread(CurrentSpec.BaseSpreadRad + _currentBloomRad);
+
+        // Bloom decay
+        _currentBloomRad = Mathf.Max(0.0f, _currentBloomRad - CurrentSpec.BloomDecayPerSec * dt);
+
+        // Grenade recharge
+        if (Grenades < MaxGrenades)
+        {
+            _grenadeCooldownTimer += dt;
+            if (_grenadeCooldownTimer >= GrenadeCooldown)
+            {
+                _grenadeCooldownTimer = 0.0f;
+                Grenades = Mathf.Min(MaxGrenades, Grenades + 1);
+                EmitWeaponHud();
+            }
+        }
+
         HandleShooting(dt);
         HandleReloading(dt);
         HandleStaminaRegen(dt);
@@ -132,17 +272,22 @@ public partial class Player : CharacterBody2D
             Input.GetAxis("move_up", "move_down")
         );
 
-        // Handle Dash trigger
+        // Dash trigger
         if (Input.IsActionJustPressed("dash") && !IsDashing && CurrentStamina >= DashCost && moveDir != Vector2.Zero)
         {
             StartDash(moveDir.Normalized());
         }
 
-        // Handle Active Dash
+        // Active Dash
         if (IsDashing)
         {
             _dashTimer -= dt;
-            Velocity = _dashDirection * DashSpeed;
+            Velocity = _dashDirection * DashSpeed * ExternalSpeedMultiplier;
+
+            if (DashBurnsEnemies)
+            {
+                BurnNearbyZombies();
+            }
 
             if (_dashTimer <= 0.0f)
             {
@@ -154,10 +299,11 @@ public partial class Player : CharacterBody2D
             return;
         }
 
-        // Normal Movement
+        // Normal movement
+        float effectiveSpeed = Speed * ExternalSpeedMultiplier;
         if (moveDir != Vector2.Zero)
         {
-            Velocity = Speed * moveDir.Normalized();
+            Velocity = effectiveSpeed * moveDir.Normalized();
             _walkPhase += dt * 15.0f;
 
             float bob = Mathf.Sin(_walkPhase) * 0.09f;
@@ -172,8 +318,8 @@ public partial class Player : CharacterBody2D
         else
         {
             Velocity = new Vector2(
-                Mathf.MoveToward(Velocity.X, 0.0f, Speed),
-                Mathf.MoveToward(Velocity.Y, 0.0f, Speed)
+                Mathf.MoveToward(Velocity.X, 0.0f, effectiveSpeed),
+                Mathf.MoveToward(Velocity.Y, 0.0f, effectiveSpeed)
             );
 
             _bodySprite.Scale = _bodySprite.Scale.Lerp(_baseScale, dt * 12.0f);
@@ -188,6 +334,23 @@ public partial class Player : CharacterBody2D
         MoveAndSlide();
     }
 
+    private void BurnNearbyZombies()
+    {
+        foreach (var node in GetTree().GetNodesInGroup("zombies"))
+        {
+            if (node is Node2D zombie && IsInstanceValid(zombie))
+            {
+                if (GlobalPosition.DistanceTo(zombie.GlobalPosition) <= 65.0f)
+                {
+                    if (zombie.HasMethod("TakeDamage"))
+                    {
+                        zombie.Call("TakeDamage", 40.0f, GlobalPosition, 1.0f);
+                    }
+                }
+            }
+        }
+    }
+
     private void StartDash(Vector2 direction)
     {
         IsDashing = true;
@@ -199,8 +362,7 @@ public partial class Player : CharacterBody2D
         EmitSignal(SignalName.StaminaChanged, CurrentStamina, MaxStamina);
 
         AddTrauma(0.2f);
-
-        // Ghost after-image effect
+        AudioManager.Instance?.PlayAt("SfxDash", GlobalPosition);
         SpawnDashGhost();
 
         if (_dustParticles != null)
@@ -221,12 +383,12 @@ public partial class Player : CharacterBody2D
             GlobalPosition = GlobalPosition,
             GlobalRotation = GlobalRotation,
             Scale = _bodySprite.Scale,
-            Modulate = new Color(0.3f, 0.7f, 1.0f, 0.6f)
+            Modulate = DashBurnsEnemies ? new Color(1.0f, 0.5f, 0.1f, 0.7f) : new Color(0.3f, 0.7f, 1.0f, 0.6f)
         };
         parent.AddChild(ghost);
 
         var tween = ghost.CreateTween();
-        tween.TweenProperty(ghost, "modulate", new Color(0.3f, 0.7f, 1.0f, 0.0f), 0.25);
+        tween.TweenProperty(ghost, "modulate:a", 0.0f, 0.25);
         tween.TweenCallback(Callable.From(ghost.QueueFree));
     }
 
@@ -245,19 +407,80 @@ public partial class Player : CharacterBody2D
 
         if (Input.IsActionJustPressed("reload"))
         {
-            StartReload();
-        }
-
-        if (Input.IsActionPressed("shoot") && _shootTimer <= 0.0f)
-        {
-            if (CurrentAmmo > 0 && !IsReloading)
+            if (IsReloading)
             {
-                Shoot();
+                AttemptActiveReload();
             }
-            else if (CurrentAmmo <= 0 && !IsReloading)
+            else
             {
                 StartReload();
             }
+        }
+
+        float effectiveInterval = CurrentSpec.FireInterval / FireRateMultiplier;
+        if (Input.IsActionPressed("shoot") && _shootTimer <= 0.0f)
+        {
+            var state = _weaponStates[CurrentWeaponId];
+            if (state.CurrentMag > 0 && !IsReloading)
+            {
+                Shoot();
+            }
+            else if (state.CurrentMag <= 0 && !IsReloading)
+            {
+                StartReload();
+            }
+        }
+    }
+
+    public void StartReload()
+    {
+        var state = _weaponStates[CurrentWeaponId];
+        if (IsReloading || state.CurrentMag >= CurrentSpec.MagCapacity)
+            return;
+
+        if (!CurrentSpec.InfiniteReserve && state.CurrentReserve <= 0)
+        {
+            AudioManager.Instance?.PlayGlobal("SfxDryFire", 1.0f);
+            return;
+        }
+
+        IsReloading = true;
+        _reloadElapsed = 0.0f;
+        _activeReloadAttempted = false;
+        _isCurrentMagEmpowered = false;
+
+        AudioManager.Instance?.PlayAt("SfxReload", GlobalPosition);
+        EmitWeaponHud();
+
+        if (_gunSprite != null)
+        {
+            float dur = CurrentSpec.ReloadDuration * ReloadDurationMultiplier;
+            var tween = CreateTween();
+            tween.TweenProperty(_gunSprite, "position", new Vector2(_gunRestPos.X - 5.0f, _gunRestPos.Y - 4.0f), dur * 0.5f);
+            tween.TweenProperty(_gunSprite, "position", _gunRestPos, dur * 0.5f);
+        }
+    }
+
+    private void AttemptActiveReload()
+    {
+        if (_activeReloadAttempted) return;
+        _activeReloadAttempted = true;
+
+        float effectiveDuration = CurrentSpec.ReloadDuration * ReloadDurationMultiplier;
+        float progress = Mathf.Clamp(_reloadElapsed / effectiveDuration, 0.0f, 1.0f);
+
+        if (progress >= 0.45f && progress <= 0.65f)
+        {
+            // Sweet spot hit!
+            FinishReload(empowered: true);
+            AudioManager.Instance?.PlayGlobal("SfxPickup", 1.35f);
+        }
+        else
+        {
+            // Jam penalty!
+            _reloadElapsed = Mathf.Max(0.0f, _reloadElapsed - 0.45f);
+            AudioManager.Instance?.PlayGlobal("SfxDryFire", 0.9f);
+            EmitWeaponHud();
         }
     }
 
@@ -265,52 +488,77 @@ public partial class Player : CharacterBody2D
     {
         if (!IsReloading) return;
 
-        _reloadTimer -= delta;
-        if (_reloadTimer <= 0.0f)
-        {
-            int needed = MagCapacity - CurrentAmmo;
-            int added = Mathf.Min(needed, ReserveAmmo);
-            CurrentAmmo += added;
-            ReserveAmmo -= added;
-            IsReloading = false;
+        _reloadElapsed += delta;
+        float effectiveDuration = CurrentSpec.ReloadDuration * ReloadDurationMultiplier;
 
-            EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, false);
+        if (_reloadElapsed >= effectiveDuration)
+        {
+            FinishReload(empowered: false);
+        }
+        else
+        {
+            EmitWeaponHud();
         }
     }
 
-    public void StartReload()
+    private void FinishReload(bool empowered)
     {
-        if (IsReloading || CurrentAmmo >= MagCapacity || ReserveAmmo <= 0)
-            return;
+        var state = _weaponStates[CurrentWeaponId];
+        int needed = CurrentSpec.MagCapacity - state.CurrentMag;
 
-        IsReloading = true;
-        _reloadTimer = ReloadDuration;
-        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, true);
-
-        // Weapon visual tilt during reload
-        if (_gunSprite != null)
+        if (CurrentSpec.InfiniteReserve)
         {
-            var tween = CreateTween();
-            tween.TweenProperty(_gunSprite, "position", new Vector2(_gunRestPos.X - 5.0f, _gunRestPos.Y - 4.0f), ReloadDuration * 0.5f);
-            tween.TweenProperty(_gunSprite, "position", _gunRestPos, ReloadDuration * 0.5f);
+            state.CurrentMag = CurrentSpec.MagCapacity;
         }
+        else
+        {
+            int added = Mathf.Min(needed, state.CurrentReserve);
+            state.CurrentMag += added;
+            state.CurrentReserve -= added;
+        }
+
+        IsReloading = false;
+        _isCurrentMagEmpowered = empowered;
+        EmitWeaponHud();
     }
 
     public void Shoot()
     {
-        _shootTimer = FireRate;
-        CurrentAmmo--;
-        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, false);
+        float effectiveInterval = CurrentSpec.FireInterval / FireRateMultiplier;
+        _shootTimer = effectiveInterval;
 
+        var state = _weaponStates[CurrentWeaponId];
+        state.CurrentMag--;
+
+        // Bloom accumulation
+        _currentBloomRad = Mathf.Min(CurrentSpec.MaxBloomRad, _currentBloomRad + CurrentSpec.BloomPerShotRad);
+        float totalSpread = CurrentSpec.BaseSpreadRad + _currentBloomRad;
+
+        // Bullets
         if (_bulletScene != null)
         {
-            var bullet = _bulletScene.Instantiate<Area2D>();
             Vector2 muzzleGlobal = ToGlobal(new Vector2(55, 0));
-            bullet.GlobalPosition = muzzleGlobal;
-            bullet.GlobalRotation = GlobalRotation + (float)GD.RandRange(-0.025, 0.025);
-            GetParent().AddChild(bullet);
+            for (int i = 0; i < CurrentSpec.PelletCount; i++)
+            {
+                var bullet = _bulletScene.Instantiate<Bullet>();
+                bullet.GlobalPosition = muzzleGlobal;
+                float spreadOffset = (float)GD.RandRange(-totalSpread, totalSpread);
+                bullet.GlobalRotation = GlobalRotation + spreadOffset;
+                bullet.Speed = CurrentSpec.BulletSpeed;
+                bullet.Damage = CurrentSpec.BulletDamage * DamageMultiplier;
+                bullet.KnockbackMultiplier = CurrentSpec.KnockbackMultiplier;
+                bullet.RemainingPierces = CurrentSpec.PiercingCount + BonusPierce;
+                bullet.MaxLifetime = CurrentSpec.BulletLifetime;
+                bullet.IsEmpowered = _isCurrentMagEmpowered;
+
+                GetParent().AddChild(bullet);
+            }
         }
 
+        // Audio
+        AudioManager.Instance?.PlayAt(CurrentSpec.SfxKey, GlobalPosition);
+
+        // Muzzle Flash
         if (_muzzleFlash != null)
         {
             _muzzleFlash.Energy = 2.4f;
@@ -329,11 +577,25 @@ public partial class Player : CharacterBody2D
             _gunSprite.Position = new Vector2(_gunRestPos.X - 3.5f, _gunRestPos.Y);
         }
 
-        AddTrauma(0.18f);
+        AddTrauma(CurrentSpec.ShakeTrauma);
+        EmitWeaponHud();
 
-        if (CurrentAmmo == 0)
+        if (state.CurrentMag == 0)
         {
             StartReload();
+        }
+    }
+
+    public void OnZombieKilled()
+    {
+        if (VampiricKillInterval > 0)
+        {
+            _vampiricKillCounter++;
+            if (_vampiricKillCounter >= VampiricKillInterval)
+            {
+                _vampiricKillCounter = 0;
+                Heal(6.0f);
+            }
         }
     }
 
@@ -343,8 +605,8 @@ public partial class Player : CharacterBody2D
 
         Health = Mathf.Min(MaxHealth, Health + amount);
         EmitSignal(SignalName.HealthChanged, Health, MaxHealth);
+        AudioManager.Instance?.PlayGlobal("SfxPickup", 1.0f);
 
-        // Green healing flash
         var tween = CreateTween();
         _bodySprite.Modulate = new Color(0.4f, 2.5f, 0.6f, 1.0f);
         tween.TweenProperty(_bodySprite, "modulate", Colors.White, 0.2);
@@ -354,10 +616,18 @@ public partial class Player : CharacterBody2D
     {
         if (IsDead) return;
 
-        ReserveAmmo = Mathf.Min(MaxReserveAmmo, ReserveAmmo + amount);
-        EmitSignal(SignalName.AmmoChanged, CurrentAmmo, ReserveAmmo, IsReloading);
+        foreach (var kvp in _weaponStates)
+        {
+            var spec = WeaponSpec.Presets[kvp.Key];
+            if (!spec.InfiniteReserve)
+            {
+                kvp.Value.CurrentReserve = Mathf.Min(spec.MaxReserve, kvp.Value.CurrentReserve + amount);
+            }
+        }
 
-        // Yellow ammo pickup flash on gun
+        AudioManager.Instance?.PlayGlobal("SfxPickup", 1.15f);
+        EmitWeaponHud();
+
         if (_gunSprite != null)
         {
             var tween = CreateTween();
@@ -369,6 +639,27 @@ public partial class Player : CharacterBody2D
     public void AddTrauma(float amount)
     {
         _cameraTrauma = Mathf.Clamp(_cameraTrauma + amount, 0.0f, 1.0f);
+    }
+
+    private void EmitWeaponHud()
+    {
+        var state = _weaponStates[CurrentWeaponId];
+        float effectiveDuration = CurrentSpec.ReloadDuration * ReloadDurationMultiplier;
+        float progress = IsReloading ? Mathf.Clamp(_reloadElapsed / effectiveDuration, 0.0f, 1.0f) : 0.0f;
+
+        EmitSignal(
+            SignalName.WeaponHudUpdated,
+            CurrentSpec.DisplayName,
+            state.CurrentMag,
+            state.CurrentReserve,
+            CurrentSpec.InfiniteReserve,
+            IsReloading,
+            progress,
+            _isCurrentMagEmpowered,
+            Grenades
+        );
+
+        EmitSignal(SignalName.AmmoChanged, state.CurrentMag, state.CurrentReserve, IsReloading);
     }
 
     private void UpdateCamera(float delta)

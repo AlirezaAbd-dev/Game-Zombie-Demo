@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 
 public partial class Bullet : Area2D
@@ -5,12 +6,27 @@ public partial class Bullet : Area2D
     [Export] public float Speed { get; set; } = 1400.0f;
     [Export] public float Damage { get; set; } = 25.0f;
     [Export] public float MaxLifetime { get; set; } = 1.4f;
+    [Export] public float KnockbackMultiplier { get; set; } = 1.0f;
+    [Export] public int RemainingPierces { get; set; } = 0;
+    [Export] public bool IsEmpowered { get; set; } = false;
 
+    private readonly HashSet<ulong> _hitIds = new();
     private float _lifetime = 0.0f;
 
     public override void _Ready()
     {
         BodyEntered += OnBodyEntered;
+
+        if (IsEmpowered)
+        {
+            Modulate = new Color(2.5f, 2.0f, 0.5f, 1.0f);
+            var light = GetNodeOrNull<PointLight2D>("PointLight2D");
+            if (light != null)
+            {
+                light.Color = new Color(1.0f, 0.9f, 0.3f, 1.0f);
+                light.Energy = 1.8f;
+            }
+        }
     }
 
     public override void _PhysicsProcess(double delta)
@@ -28,10 +44,21 @@ public partial class Bullet : Area2D
         if (body.IsInGroup("player"))
             return;
 
+        if (!_hitIds.Add(body.GetInstanceId()))
+            return;
+
         if (body.HasMethod("TakeDamage"))
         {
-            body.Call("TakeDamage", Damage, Transform.X);
+            float effectiveDamage = Damage * (IsEmpowered ? 1.25f : 1.0f);
+            body.Call("TakeDamage", effectiveDamage, GlobalPosition, KnockbackMultiplier);
             SpawnBloodImpact(GlobalPosition);
+
+            if (RemainingPierces > 0)
+            {
+                RemainingPierces--;
+                Damage *= 0.8f;
+                return;
+            }
         }
         else
         {
